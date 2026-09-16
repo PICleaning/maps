@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Victoria Maps</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+:root{
+  --charcoal:#2f3136;
+  --banner:#5c6066;
+  --banner-2:#4f5358;
+  --panel:#25272b;
+  --panel-2:#2e3035;
+  --line:#3c3f45;
+  --text:#f4f4f5;
+  --muted:#a9adb4;
+  --green:#22c55e;
+  --green-dark:#0f5a2c;
+  --amber:#f5b942;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--charcoal);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* ---------- Banner ---------- */
+.banner{position:fixed;top:0;left:0;right:0;height:64px;z-index:20;display:flex;align-items:center;gap:14px;
+  padding:0 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:#fff;
+  box-shadow:0 2px 14px rgba(0,0,0,.45)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:.2px;white-space:nowrap;color:#fff}
+.brand svg{flex:none}
+.brand small{display:block;font-weight:500;font-size:11px;color:#e6e6e6;letter-spacing:.6px;text-transform:uppercase}
+.search{position:relative;flex:1;max-width:560px}
+.search input{width:100%;height:42px;border-radius:21px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(0,0,0,.22);color:#fff;padding:0 42px 0 42px;outline:none;transition:.15s}
+.search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.search input::placeholder{color:#e2e2e2}
+.search input:focus{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.5)}
+.search .ico{position:absolute;left:14px;top:11px;opacity:.9;pointer-events:none}
+.search .clear{position:absolute;right:8px;top:7px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;display:none;color:#fff}
+.search .clear:hover{background:rgba(255,255,255,.15)}
+.banner-btn{height:40px;padding:0 14px;border-radius:20px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);
+  color:#fff;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.banner-btn:hover{background:rgba(255,255,255,.18)}
+
+/* ---------- Autocomplete ---------- */
+.ac{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.5);display:none;z-index:40;max-height:60vh;overflow-y:auto}
+.ac.open{display:block}
+.ac-item{display:flex;gap:12px;align-items:center;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line)}
+.ac-item:last-child{border-bottom:0}
+.ac-item:hover,.ac-item.active{background:var(--panel-2)}
+.ac-ico{width:32px;height:32px;border-radius:50%;background:#3a3d43;display:grid;place-items:center;flex:none;font-size:15px}
+.ac-t{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-s{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-empty{padding:12px 14px;color:var(--muted);font-size:13px}
+
+/* ---------- Side panel ---------- */
+#map{position:fixed;top:64px;left:0;right:0;bottom:0}
+.panel{position:fixed;top:78px;left:14px;bottom:14px;width:370px;z-index:15;background:rgba(37,39,43,.97);
+  border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 10px 36px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;overflow:hidden;transition:transform .25s ease}
+.panel.collapsed{transform:translateX(calc(-100% - 20px))}
+.tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
+.tab{flex:1;padding:13px 6px;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:13px;border-bottom:2px solid transparent}
+.tab.on{color:#fff;border-bottom-color:var(--green)}
+.tab:hover{color:#fff}
+.pane{display:none;flex:1;overflow-y:auto;padding:16px}
+.pane.on{display:block}
+.pane::-webkit-scrollbar{width:8px}.pane::-webkit-scrollbar-thumb{background:#44474d;border-radius:4px}
+.toggle-panel{position:fixed;top:86px;left:392px;z-index:16;width:30px;height:48px;border-radius:0 10px 10px 0;
+  border:1px solid var(--line);border-left:0;background:var(--panel);color:#fff;transition:left .25s ease;display:grid;place-items:center}
+.toggle-panel.collapsed{left:0}
+.toggle-panel.collapsed svg{transform:rotate(180deg)}
+h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.hint{color:var(--muted);font-size:13px;line-height:1.5}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--panel-2);border-radius:18px;padding:7px 12px;font-size:13px;display:flex;gap:6px;align-items:center}
+.chip:hover{border-color:#5a5e65}
+.chip.on{background:var(--amber);color:#1b1b1b;border-color:var(--amber);font-weight:600}
+
+/* list rows */
+.row{display:flex;gap:12px;align-items:center;padding:10px 8px;border-radius:10px;cursor:pointer}
+.row:hover{background:var(--panel-2)}
+.row .ac-ico{width:30px;height:30px}
+.row-main{min-width:0;flex:1}
+
+/* place card */
+.card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:18px}
+.card .sub{color:var(--muted);font-size:13px;line-height:1.45}
+.card .coords{color:#80858d;font-size:12px;margin-top:6px;font-family:ui-monospace,Menlo,monospace}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{border:0;border-radius:20px;padding:9px 14px;font-weight:600;font-size:13px;display:flex;gap:6px;align-items:center}
+.btn.primary{background:var(--green);color:#06210f}
+.btn.primary:hover{background:#2fd86b}
+.btn.ghost{background:transparent;border:1px solid #50545b;color:#fff}
+.btn.ghost:hover{background:#3a3d43}
+
+/* directions */
+.wp{position:relative;display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.wp-row{display:flex;align-items:center;gap:10px;position:relative}
+.wp-dot{width:12px;height:12px;border-radius:50%;flex:none}
+.wp-dot.a{border:3px solid var(--green);background:#fff}
+.wp-dot.b{background:var(--green);border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+.wp-field{position:relative;flex:1}
+.wp-field input{width:100%;height:40px;border-radius:10px;border:1px solid var(--line);background:#1d1f22;padding:0 34px 0 12px;outline:none;color:#fff}
+.wp-field input:focus{border-color:var(--green)}
+.wp-field .loc{position:absolute;right:6px;top:7px;width:26px;height:26px;border:0;background:transparent;color:var(--muted);border-radius:6px}
+.wp-field .loc:hover{color:#fff;background:#33363b}
+.swap{position:absolute;right:-4px;top:26px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);display:none;color:#fff}
+.wp-line{position:absolute;left:5px;top:24px;height:24px;border-left:2px dotted #6b7078}
+.modes{display:flex;gap:6px;margin-bottom:14px}
+.mode{flex:1;border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--muted)}
+.mode.on{border-color:var(--green);color:#fff;background:rgba(34,197,94,.12)}
+.go{width:100%;justify-content:center;padding:11px}
+.routes{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.route-card{border:1px solid var(--line);background:var(--panel-2);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.route-card.on{border-color:var(--green);box-shadow:inset 3px 0 0 var(--green)}
+.route-card .dur{font-size:18px;font-weight:700}
+.route-card.on .dur{color:var(--green)}
+.route-card .dist{color:var(--muted);font-size:13px}
+.route-card .via{color:var(--muted);font-size:12px;margin-top:2px}
+.steps{margin-top:14px}
+.step{display:flex;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer;align-items:flex-start}
+.step:hover{background:#2a2c31}
+.step .arr{width:30px;height:30px;border-radius:8px;background:#1d1f22;display:grid;place-items:center;flex:none;color:var(--green)}
+.step .txt{font-size:14px;line-height:1.35}
+.step .d{font-size:12px;color:var(--muted);margin-top:2px}
+.err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);color:#fecaca;border-radius:10px;padding:10px 12px;font-size:13px;margin-top:12px}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* map extras */
+.map-ctl{display:flex;flex-direction:column;gap:8px}
+.fab{width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:#fff;display:grid;place-items:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.4);font-weight:700;font-size:13px}
+.fab:hover{background:var(--panel-2)}
+.fab.on{color:var(--green);border-color:var(--green)}
+.maplibregl-ctrl-group{background:var(--panel)!important;border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.4)!important}
+.maplibregl-ctrl-group button+button{border-top:1px solid var(--line)!important}
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon{filter:invert(1)}
+.maplibregl-ctrl-scale{background:rgba(37,39,43,.8)!important;color:#ddd!important;border-color:#888!important}
+.maplibregl-ctrl-attrib{background:rgba(37,39,43,.8)!important;color:#aaa}
+.maplibregl-ctrl-attrib a{color:#ccc!important}
+.maplibregl-ctrl-attrib-button{filter:invert(1)}
+.maplibregl-popup-content{background:var(--panel)!important;color:var(--text);border:1px solid var(--line);border-radius:12px!important;padding:12px 14px!important;box-shadow:0 10px 26px rgba(0,0,0,.5)!important;min-width:220px}
+.maplibregl-popup-tip{border-top-color:var(--panel)!important;border-bottom-color:var(--panel)!important}
+.maplibregl-popup-close-button{color:#bbb;font-size:18px;right:4px;top:2px}
+.pop-t{font-weight:700;font-size:14px;margin-bottom:2px;padding-right:14px}
+.pop-s{color:var(--muted);font-size:12px}
+.pop .btns{margin-top:10px}
+.pop .btn{padding:7px 10px;font-size:12px}
+
+/* markers */
+.mk-a{width:20px;height:20px;border-radius:50%;background:#fff;border:5px solid var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.25),0 2px 6px rgba(0,0,0,.5)}
+.mk-b,.mk-p{width:34px;height:44px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.55))}
+.mk-me{width:34px;height:34px;display:grid;place-items:center}
+.mk-me .halo{position:absolute;width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,.22)}
+.mk-me svg{position:relative;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+
+/* top-right stack: stopwatch + map buttons */
+.tr-stack{position:fixed;right:10px;top:78px;z-index:18;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.stopwatch{background:rgba(37,39,43,.97);border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);min-width:196px}
+.sw-top{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sw-dot{width:8px;height:8px;border-radius:50%;background:#6b7078;flex:none}
+.sw-dot.wait{background:var(--amber)}
+.sw-dot.run{background:var(--green);animation:pulse 1.4s infinite}
+.sw-dot.done{background:#fff}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.sw-time{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:30px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;margin:3px 0 1px;letter-spacing:.5px}
+.sw-time.run{color:var(--green)}
+.sw-status{font-size:12px;color:var(--muted);max-width:200px}
+.sw-btns{display:flex;gap:6px;margin-top:8px}
+.sw-btn{flex:1;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:#fff;display:grid;place-items:center}
+.sw-btn:hover{background:#3a3d43}
+
+/* navigation */
+.navcard{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:17;width:min(420px,calc(100vw - 480px));min-width:300px;
+  background:rgba(92,96,102,.98);color:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;overflow:hidden}
+body.navigating .navcard{display:block}
+.nav-main{display:flex;gap:14px;align-items:center;padding:14px 16px}
+.nav-arr{width:46px;height:46px;border-radius:12px;background:rgba(0,0,0,.25);display:grid;place-items:center;flex:none;color:#fff}
+.nav-arr svg{width:28px;height:28px}
+.nav-dist{font-size:22px;font-weight:700}
+.nav-txt{font-size:15px;line-height:1.3}
+.nav-foot{display:flex;align-items:center;gap:10px;padding:9px 16px;background:rgba(0,0,0,.22);font-size:13px}
+.nav-foot .sp{flex:1}
+.nav-exit{border:0;border-radius:16px;padding:6px 12px;background:#ef4444;color:#fff;font-weight:600;font-size:12px}
+.recentre{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:19;display:none;align-items:center;gap:8px;
+  border:0;border-radius:24px;padding:11px 18px;background:#5c6066;color:#fff;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.55)}
+.recentre.show{display:flex}
+@media (min-width:761px){body:not(.sheet-down) .recentre{left:calc(50% + 200px)}}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#111214;color:#fff;border:1px solid var(--line);
+  padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;z-index:60;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (min-width:761px){body:not(.sheet-down) .maplibregl-ctrl-bottom-left{left:398px}}
+/* ---------- Mobile ---------- */
+@media (max-width:760px){
+  .banner{height:60px;padding:0 10px;gap:8px}
+  .brand .word{display:none}
+  .banner-btn span{display:none}
+  .banner-btn{padding:0 11px}
+  #map{top:60px}
+  .panel{top:auto;left:0;right:0;bottom:0;width:auto;height:48vh;border-radius:18px 18px 0 0;border-bottom:0}
+  .panel.collapsed{transform:translateY(calc(100% - 50px))}
+  .toggle-panel{display:none}
+  .grab{display:block!important}
+  .stopwatch{min-width:0;padding:8px 10px}
+  .sw-time{font-size:21px}
+  .sw-status{max-width:128px;font-size:11px}
+  .sw-btn{height:26px}
+  .navcard{left:10px;right:172px;width:auto;min-width:0;transform:none}
+  .nav-main{padding:10px 12px;gap:10px}
+  .nav-arr{width:38px;height:38px}
+  .nav-dist{font-size:18px}
+  .nav-txt{font-size:13px}
+  .nav-foot{flex-wrap:wrap;padding:7px 12px;font-size:12px}
+  .recentre{bottom:calc(48vh + 16px)}
+  body.sheet-down .recentre{bottom:70px}
+  .maplibregl-ctrl-bottom-right,.maplibregl-ctrl-bottom-left{bottom:calc(48vh - 4px)}
+  body.sheet-down .maplibregl-ctrl-bottom-right,body.sheet-down .maplibregl-ctrl-bottom-left{bottom:44px}
+}
+.grab{display:none;width:100%;height:18px;border:0;background:transparent;flex:none;position:relative}
+.grab::after{content:"";position:absolute;left:50%;top:7px;width:44px;height:5px;border-radius:3px;background:#5a5e65;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+      <rect width="34" height="34" rx="9" fill="#2f3136"/>
+      <path d="M8 24 L14 10 L20 20 L26 12" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="24" r="2.6" fill="#fff"/><circle cx="26" cy="12" r="2.6" fill="#fff"/>
+    </svg>
+    <div class="word">Victoria Maps<small>Streets &amp; places across VIC</small></div>
+  </div>
+  <div class="search">
+    <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search streets, suburbs & places in Victoria" autocomplete="off" aria-label="Search Victoria">
+    <button class="clear" id="qClear" aria-label="Clear search">✕</button>
+    <div class="ac" id="qAc" role="listbox"></div>
+  </div>
+  <button class="banner-btn" id="dirBtn" title="Directions">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M9 13v-2a1 1 0 0 1 1-1h5"/><path d="m13 8 2 2-2 2"/></svg>
+    <span>Directions</span>
+  </button>
+</header>
+
+<div id="map"></div>
+
+<aside class="panel" id="panel">
+  <button class="grab" id="grab" aria-label="Expand or collapse panel"></button>
+  <nav class="tabs">
+    <button class="tab on" data-tab="search">Search</button>
+    <button class="tab" data-tab="dir">Directions</button>
+    <button class="tab" data-tab="explore">Explore</button>
+  </nav>
+
+  <!-- Search pane -->
+  <section class="pane on" id="pane-search">
+    <div id="placeCard"></div>
+    <h3>Nearby on the map</h3>
+    <div class="chips" id="chips"></div>
+    <div id="catList"><p class="hint">Pick a category to highlight places in the current view. Zoom in to see more of them.</p></div>
+  </section>
+
+  <!-- Directions pane -->
+  <section class="pane" id="pane-dir">
+    <div class="wp">
+      <div class="wp-line"></div>
+      <div class="wp-row">
+        <span class="wp-dot a"></span>
+        <div class="wp-field">
+          <input id="fromIn" placeholder="Choose starting point" autocomplete="off">
+          <button class="loc" id="fromLoc" title="Use my location">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          </button>
+          <div class="ac" id="fromAc"></div>
+        </div>
+      </div>
+      <div class="wp-row">
+        <span class="wp-dot b"></span>
+        <div class="wp-field">
+          <input id="toIn" placeholder="Choose destination" autocomplete="off">
+          <button class="loc" id="swapBtn" title="Swap start and destination">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 4v16M7 4 3 8M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4"/></svg>
+          </button>
+          <div class="ac" id="toAc"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modes" id="modes">
+      <button class="mode on" data-mode="car">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/><path d="M5 12h14"/></svg>Drive</button>
+      <button class="mode" data-mode="bike">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 8h5l3.5 9M10 8 12 17h1.5M14 5h2"/></svg>Cycle</button>
+      <button class="mode" data-mode="foot">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="4" r="2"/><path d="m9 21 2-6 3 3v3M8 11l3-4 3 1 2 3 2 1M11 7l-1 6"/></svg>Walk</button>
+    </div>
+    <button class="btn primary go" id="goBtn">Get directions</button>
+    <div id="dirOut"><p class="hint" style="margin-top:14px">Tip: click anywhere on the map to set a start or destination.</p></div>
+  </section>
+
+  <!-- Explore pane -->
+  <section class="pane" id="pane-explore">
+    <p class="hint" style="margin-top:0">Suburbs, towns and streets in the current map view. Move or zoom the map to update the list.</p>
+    <h3 style="margin-top:14px">Places</h3>
+    <div id="exPlaces"></div>
+    <h3 style="margin-top:18px">Streets</h3>
+    <div id="exStreets"></div>
+  </section>
+</aside>
+<button class="toggle-panel" id="togglePanel" aria-label="Hide panel">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="m15 18-6-6 6-6"/></svg>
+</button>
+
+<div class="tr-stack">
+<div class="stopwatch" id="stopwatch" aria-live="polite">
+  <div class="sw-top"><span class="sw-dot" id="swDot"></span>Trip stopwatch</div>
+  <div class="sw-time" id="swTime">00:00:00</div>
+  <div class="sw-status" id="swStatus">Starts when you set off</div>
+  <div class="sw-btns">
+    <button class="sw-btn" id="swPlay" title="Start / pause">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>
+    </button>
+    <button class="sw-btn" id="swReset" title="Reset">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+    </button>
+  </div>
+</div>
+<div class="map-ctl">
+  <button class="fab" id="btnRecentre" title="Re-centre on my location">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg>
+  </button>
+  <button class="fab on" id="btn3d" title="Toggle 3D">3D</button>
+  <button class="fab" id="btnVic" title="Show all of Victoria">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+</div>
+
+<div class="navcard" id="navcard">
+  <div class="nav-main">
+    <div class="nav-arr" id="navArr"></div>
+    <div style="min-width:0">
+      <div class="nav-dist" id="navDist">—</div>
+      <div class="nav-txt" id="navTxt">Waiting for GPS…</div>
+    </div>
+  </div>
+  <div class="nav-foot">
+    <span><b id="navRemT">—</b> · <span id="navRemD">—</span></span>
+    <span>ETA <b id="navEta">—</b></span>
+    <span class="sp"></span>
+    <button class="nav-exit" id="navExit">Exit</button>
+  </div>
+</div>
+<button class="recentre" id="recentrePill">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg>
+  Re-centre
+</button>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= Config ================= */
+const VIC_BBOX = [140.96, -39.25, 150.05, -33.98];       // W,S,E,N
+const MAX_BOUNDS = [[138.9, -40.6], [152.2, -32.8]];
+const MELBOURNE = [144.9631, -37.8136];
+const TILES = 'https://tiles.openfreemap.org/planet';
+const GLYPHS = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+const PHOTON = 'https://photon.komoot.io';
+const ROUTER = { car: 'https://routing.openstreetmap.de/routed-car', bike: 'https://routing.openstreetmap.de/routed-bike', foot: 'https://routing.openstreetmap.de/routed-foot' };
+const DEM = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';   // free AWS Terrain Tiles
+const GREEN = '#22c55e';
+const F_REG = ['Noto Sans Regular'], F_BOLD = ['Noto Sans Bold'], F_IT = ['Noto Sans Italic'];
+
+// Approximate Victorian land border (western border + Murray River + NE line to Cape Howe)
+const VIC_LAND_BORDER = [
+  [140.9657,-38.30],[140.9657,-33.980],[141.25,-34.07],[141.55,-34.12],[141.85,-34.13],[142.16,-34.17],[142.45,-34.38],
+  [142.77,-34.57],[143.05,-34.74],[143.35,-35.00],[143.56,-35.33],[143.90,-35.55],[144.30,-35.85],[144.75,-36.12],
+  [145.10,-35.87],[145.50,-35.82],[146.00,-36.01],[146.40,-36.00],[146.89,-36.10],[147.10,-36.02],[147.45,-35.98],
+  [147.70,-35.94],[147.99,-36.12],[148.15,-36.40],[148.20,-36.80],[149.976,-37.505],[150.15,-37.56]
+];
+// Sea-side edge (kept well offshore so no Victorian coast is dimmed)
+const VIC_SEA_EDGE = [
+  [150.15,-37.56],[149.7,-37.95],[148.7,-38.10],[147.6,-38.55],[146.7,-39.35],[146.1,-39.35],[145.3,-38.85],
+  [144.5,-38.62],[143.5,-39.05],[142.5,-38.65],[141.6,-38.58],[140.9657,-38.30]
+];
+const VIC_POLY = VIC_LAND_BORDER.concat(VIC_SEA_EDGE.slice(1));
+
+/* ================= Helpers ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const toast = (msg, ms = 2600) => { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), ms); };
+const inVic = ([lon, lat]) => {
+  if (lon < VIC_BBOX[0] || lon > VIC_BBOX[2] || lat < VIC_BBOX[1] || lat > VIC_BBOX[3]) return false;
+  let inside = false;
+  for (let i = 0, j = VIC_POLY.length - 1; i < VIC_POLY.length; j = i++) {
+    const [xi, yi] = VIC_POLY[i], [xj, yj] = VIC_POLY[j];
+    if ((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+};
+const fmtDist = m => m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(m < 10000 ? 1 : 0)} km`;
+const fmtDur = s => { const m = Math.round(s / 60); if (m < 60) return `${Math.max(1, m)} min`; const h = Math.floor(m / 60); return `${h} hr ${m % 60 ? (m % 60) + ' min' : ''}`.trim(); };
+const fmtCoord = ([lon, lat]) => `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+
+const ICONS = {
+  cafe:'☕', restaurant:'🍽️', fast_food:'🍔', bar:'🍸', pub:'🍺', beer:'🍺', fuel:'⛽', parking:'🅿️', hospital:'🏥', doctors:'🩺',
+  pharmacy:'💊', dentist:'🦷', school:'🏫', college:'🎓', university:'🎓', lodging:'🏨', hotel:'🏨', motel:'🏨', park:'🌳',
+  railway:'🚆', station:'🚆', bus:'🚌', bus_stop:'🚌', tram_stop:'🚊', attraction:'📸', museum:'🏛️', shop:'🛍️', grocery:'🛒',
+  supermarket:'🛒', bank:'🏦', atm:'🏧', library:'📚', police:'🚓', fire_station:'🚒', place_of_worship:'⛪', stadium:'🏟️',
+  beach:'🏖️', peak:'⛰️', aerodrome:'✈️', airport:'✈️', highway:'🛣️', street:'🛣️', city:'🏙️', town:'🏘️', suburb:'🏘️',
+  village:'🏡', house:'🏠', building:'🏢', post:'📮', cinema:'🎬', theatre:'🎭', zoo:'🦁', golf:'⛳', swimming:'🏊'
+};
+const iconFor = (...keys) => { for (const k of keys) if (k && ICONS[k]) return ICONS[k]; return '📍'; };
+
+/* ================= Map style (charcoal) ================= */
+const nameExpr = ['coalesce', ['get', 'name:en'], ['get', 'name']];
+const roadClass = (...c) => ['match', ['get', 'class'], c, true, false];
+const notTunnel = ['!=', ['get', 'brunnel'], 'tunnel'];
+const zw = (pairs) => ['interpolate', ['exponential', 1.5], ['zoom'], ...pairs];
+
+const ROADS = [
+  // id, classes, casing color, fill color, widths (zoom,width pairs), minzoom
+  ['path', ['path', 'track'], null, '#5a5e64', [14, 0.6, 18, 2.2], 14, [2, 2]],
+  ['service', ['service'], '#26282c', '#4a4d53', [13, 0.5, 18, 8], 13],
+  ['minor', ['minor'], '#26282c', '#55585e', [11, 0.4, 14, 3, 18, 18], 11],
+  ['tertiary', ['tertiary'], '#26282c', '#62666c', [9, 0.5, 14, 4.5, 18, 22], 9],
+  ['secondary', ['secondary'], '#232427', '#6e7278', [8, 0.6, 14, 5.5, 18, 26], 8],
+  ['primary', ['primary'], '#222326', '#7f848b', [6, 0.6, 14, 7, 18, 30], 6],
+  ['trunk', ['trunk'], '#202124', '#8e939a', [5, 0.8, 14, 8, 18, 32], 5],
+  ['motorway', ['motorway'], '#1e1f22', '#a7acb3', [4, 0.9, 14, 9, 18, 36], 4]
+];
+
+function buildStyle() {
+  const layers = [
+    { id: 'bg', type: 'background', paint: { 'background-color': '#2f3136' } },
+    { id: 'landcover-wood', type: 'fill', source: 'omt', 'source-layer': 'landcover', filter: roadClass('wood', 'forest'),
+      paint: { 'fill-color': '#2c3a30', 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 5, 0.5, 12, 0.8] } },
+    { id: 'landcover-grass', type: 'fill', source: 'omt', 'source-layer': 'landcover', filter: roadClass('grass', 'wetland', 'farmland', 'scrub'),
+      paint: { 'fill-color': '#323a33', 'fill-opacity': 0.45 } },
+    { id: 'landcover-sand', type: 'fill', source: 'omt', 'source-layer': 'landcover', filter: roadClass('sand', 'beach'),
+      paint: { 'fill-color': '#3f3d37', 'fill-opacity': 0.8 } },
+    { id: 'hillshade', type: 'hillshade', source: 'dem-hs', maxzoom: 16,
+      paint: { 'hillshade-shadow-color': '#16171a', 'hillshade-highlight-color': '#55595f', 'hillshade-accent-color': '#26282c',
+        'hillshade-exaggeration': ['interpolate', ['linear'], ['zoom'], 6, 0.45, 14, 0.25], 'hillshade-illumination-direction': 315 } },
+    { id: 'landuse-res', type: 'fill', source: 'omt', 'source-layer': 'landuse', filter: roadClass('residential', 'suburb', 'neighbourhood'), maxzoom: 15,
+      paint: { 'fill-color': '#34363b', 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0.8, 15, 0.3] } },
+    { id: 'landuse-other', type: 'fill', source: 'omt', 'source-layer': 'landuse', filter: roadClass('commercial', 'retail', 'industrial', 'railway'),
+      paint: { 'fill-color': '#35343a', 'fill-opacity': 0.7 } },
+    { id: 'landuse-civic', type: 'fill', source: 'omt', 'source-layer': 'landuse', filter: roadClass('hospital', 'school', 'university', 'college', 'stadium', 'pitch', 'cemetery'),
+      paint: { 'fill-color': '#383a3f', 'fill-opacity': 0.8 } },
+    { id: 'park', type: 'fill', source: 'omt', 'source-layer': 'park',
+      paint: { 'fill-color': '#2d3d31', 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 5, 0.4, 12, 0.85] } },
+    { id: 'park-outline', type: 'line', source: 'omt', 'source-layer': 'park', minzoom: 11,
+      paint: { 'line-color': '#3b5242', 'line-width': 0.8, 'line-opacity': 0.6 } },
+    { id: 'water', type: 'fill', source: 'omt', 'source-layer': 'water', filter: ['!=', ['get', 'brunnel'], 'tunnel'],
+      paint: { 'fill-color': '#1c2530', 'fill-antialias': true } },
+    { id: 'waterway', type: 'line', source: 'omt', 'source-layer': 'waterway', filter: notTunnel,
+      paint: { 'line-color': '#1f2a36', 'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.5, 14, 2, 18, 6] } },
+    { id: 'aeroway-area', type: 'fill', source: 'omt', 'source-layer': 'aeroway', filter: ['==', ['geometry-type'], 'Polygon'], minzoom: 10,
+      paint: { 'fill-color': '#393b40', 'fill-opacity': 0.8 } },
+    { id: 'aeroway-runway', type: 'line', source: 'omt', 'source-layer': 'aeroway', filter: ['all', ['==', ['geometry-type'], 'LineString'], roadClass('runway', 'taxiway')], minzoom: 10,
+      paint: { 'line-color': '#55585e', 'line-width': ['interpolate', ['exponential', 1.5], ['zoom'], 10, 1, 16, 30] } },
+    { id: 'boundary-state', type: 'line', source: 'omt', 'source-layer': 'boundary', filter: ['all', ['<=', ['get', 'admin_level'], 4], ['!=', ['get', 'maritime'], 1]],
+      paint: { 'line-color': '#7b8088', 'line-width': 1.2, 'line-dasharray': [3, 2], 'line-opacity': 0.6 } },
+  ];
+
+  // tunnels (dim)
+  layers.push({ id: 'road-tunnel', type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: 12,
+    filter: ['all', ['==', ['get', 'brunnel'], 'tunnel'], roadClass('motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'minor')],
+    layout: { 'line-cap': 'butt', 'line-join': 'round' },
+    paint: { 'line-color': '#4a4d53', 'line-width': zw([12, 1, 18, 14]), 'line-dasharray': [1, 0.6], 'line-opacity': 0.7 } });
+
+  // casings first, then fills (so junctions look clean)
+  for (const [id, cls, casing, , w, minz] of ROADS) {
+    if (!casing) continue;
+    const cw = [];
+    for (let i = 0; i < w.length; i += 2) cw.push(w[i], w[i + 1] + (w[i] >= 13 ? 2 : 0.8));
+    layers.push({ id: `road-${id}-casing`, type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: Math.max(minz, 10),
+      filter: ['all', notTunnel, roadClass(...cls)], layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': casing, 'line-width': zw(cw) } });
+  }
+  for (const [id, cls, , fill, w, minz, dash] of ROADS) {
+    const l = { id: `road-${id}`, type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: minz,
+      filter: ['all', notTunnel, roadClass(...cls)], layout: { 'line-cap': dash ? 'butt' : 'round', 'line-join': 'round' },
+      paint: { 'line-color': fill, 'line-width': zw(w),
+        // flat bridge lines fade once the raised 3D decks take over
+        'line-opacity': ['step', ['zoom'], 1, 15, ['case', ['==', ['get', 'brunnel'], 'bridge'], 0.25, 1]] } };
+    if (dash) l.paint['line-dasharray'] = dash;
+    layers.push(l);
+  }
+  layers.push(
+    { id: 'rail', type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: 9, filter: roadClass('rail', 'transit'),
+      paint: { 'line-color': '#6a6e75', 'line-width': ['interpolate', ['linear'], ['zoom'], 9, 0.6, 16, 2] } },
+    { id: 'rail-hatch', type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: 13, filter: roadClass('rail', 'transit'),
+      paint: { 'line-color': '#6a6e75', 'line-width': ['interpolate', ['linear'], ['zoom'], 13, 3, 18, 8], 'line-dasharray': [0.2, 3] } },
+    { id: 'ferry', type: 'line', source: 'omt', 'source-layer': 'transportation', filter: roadClass('ferry'),
+      paint: { 'line-color': '#3b5570', 'line-width': 1.2, 'line-dasharray': [2, 2] } },
+    { id: 'buildings', type: 'fill-extrusion', source: 'omt', 'source-layer': 'building', minzoom: 14,
+      paint: {
+        'fill-extrusion-color': ['interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 0], 0, '#3a3d42', 60, '#44484f', 200, '#50555d'],
+        'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 14, 0, 15, ['coalesce', ['get', 'render_height'], 4]],
+        'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+        'fill-extrusion-opacity': 0.92
+      } },
+
+    /* ---- generated 3D surroundings: bridges & trees ---- */
+    { id: 'bridge-3d', type: 'fill-extrusion', source: 'bridges3d', minzoom: 14.5,
+      paint: { 'fill-extrusion-color': ['get', 'col'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'],
+        'fill-extrusion-opacity': 1 } },
+    { id: 'tree-trunk', type: 'fill-extrusion', source: 'trees3d', minzoom: 14.5, filter: ['==', ['get', 'part'], 'trunk'],
+      paint: { 'fill-extrusion-color': '#5b4633', 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': 0, 'fill-extrusion-opacity': 1 } },
+    { id: 'tree-canopy', type: 'fill-extrusion', source: 'trees3d', minzoom: 14.5, filter: ['==', ['get', 'part'], 'canopy'],
+      paint: { 'fill-extrusion-color': ['interpolate', ['linear'], ['get', 'shade'], 0, '#2c5a36', 0.5, '#3c7443', 1, '#5b8f4a'],
+        'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'],
+        'fill-extrusion-opacity': ['interpolate', ['linear'], ['zoom'], 14.5, 0, 15, 1] } },
+
+    /* ---- route (inserted below labels) ---- */
+    { id: 'route-alt', type: 'line', source: 'route', filter: ['==', ['get', 'sel'], false],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': '#6f8c79', 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 4, 16, 9], 'line-opacity': 0.75 } },
+    { id: 'route-glow', type: 'line', source: 'route', filter: ['==', ['get', 'sel'], true],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': GREEN, 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 12, 16, 26], 'line-blur': 10, 'line-opacity': 0.35 } },
+    { id: 'route-casing', type: 'line', source: 'route', filter: ['==', ['get', 'sel'], true],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': '#0c4a24', 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 7, 16, 14] } },
+    { id: 'route-line', type: 'line', source: 'route', filter: ['==', ['get', 'sel'], true],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': GREEN, 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 4.5, 16, 9] } },
+    { id: 'route-flow', type: 'line', source: 'route', filter: ['==', ['get', 'sel'], true],
+      layout: { 'line-cap': 'butt', 'line-join': 'round' },
+      paint: { 'line-color': '#d9ffe6', 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 1.5, 16, 3], 'line-opacity': 0.55, 'line-dasharray': [0, 4, 3] } },
+
+    /* ---- labels ---- */
+    { id: 'water-name', type: 'symbol', source: 'omt', 'source-layer': 'water_name',
+      layout: { 'text-field': nameExpr, 'text-font': F_IT, 'text-size': ['interpolate', ['linear'], ['zoom'], 6, 11, 14, 14], 'text-letter-spacing': 0.1, 'text-max-width': 8 },
+      paint: { 'text-color': '#6f8fae', 'text-halo-color': '#1c2530', 'text-halo-width': 1.2 } },
+    { id: 'waterway-name', type: 'symbol', source: 'omt', 'source-layer': 'waterway', minzoom: 12,
+      layout: { 'text-field': nameExpr, 'text-font': F_IT, 'text-size': 12, 'symbol-placement': 'line', 'text-letter-spacing': 0.1 },
+      paint: { 'text-color': '#6f8fae', 'text-halo-color': '#1c2530', 'text-halo-width': 1.2 } },
+    { id: 'road-label', type: 'symbol', source: 'omt', 'source-layer': 'transportation_name', minzoom: 12,
+      filter: roadClass('motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'minor', 'service'),
+      layout: { 'text-field': nameExpr, 'text-font': F_REG, 'symbol-placement': 'line', 'text-rotation-alignment': 'map', 'text-pitch-alignment': 'viewport',
+        'text-size': ['interpolate', ['linear'], ['zoom'], 12, 10, 16, 13, 19, 15], 'symbol-spacing': 350 },
+      paint: { 'text-color': '#e4e6ea', 'text-halo-color': '#1f2023', 'text-halo-width': 1.6 } },
+    { id: 'road-shield', type: 'symbol', source: 'omt', 'source-layer': 'transportation_name', minzoom: 7, maxzoom: 14,
+      filter: ['all', ['has', 'ref'], roadClass('motorway', 'trunk', 'primary')],
+      layout: { 'text-field': ['get', 'ref'], 'text-font': F_BOLD, 'text-size': 10, 'symbol-placement': 'line', 'text-rotation-alignment': 'viewport', 'symbol-spacing': 500 },
+      paint: { 'text-color': '#ffffff', 'text-halo-color': '#1b6b3a', 'text-halo-width': 3 } },
+    { id: 'housenumber', type: 'symbol', source: 'omt', 'source-layer': 'housenumber', minzoom: 17,
+      layout: { 'text-field': ['get', 'housenumber'], 'text-font': F_REG, 'text-size': 10 },
+      paint: { 'text-color': '#8c9097', 'text-halo-color': '#2f3136', 'text-halo-width': 1 } },
+    { id: 'poi-dot', type: 'circle', source: 'omt', 'source-layer': 'poi', minzoom: 13,
+      filter: ['<=', ['get', 'rank'], ['step', ['zoom'], 3, 15, 12, 16, 30, 17, 100]],
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 3, 18, 6],
+        'circle-color': ['match', ['get', 'class'],
+          ['cafe', 'restaurant', 'fast_food', 'bar', 'beer', 'ice_cream'], '#e08a4f',
+          ['shop', 'grocery', 'clothing_store', 'alcohol_shop', 'hardware', 'furniture', 'jewelry', 'bakery'], '#5aa0e0',
+          ['hospital', 'doctors', 'pharmacy', 'dentist', 'veterinary'], '#e05a6a',
+          ['park', 'garden', 'campsite', 'playground', 'golf', 'pitch', 'swimming'], '#57b37a',
+          ['school', 'college', 'library', 'music', 'town_hall', 'museum', 'theatre', 'cinema', 'art_gallery'], '#a98be0',
+          ['railway', 'bus', 'harbor', 'ferry_terminal', 'fuel', 'parking', 'car'], '#8e939a',
+          '#b8bcc3'],
+        'circle-stroke-color': '#1f2023', 'circle-stroke-width': 1
+      } },
+    { id: 'poi-hl', type: 'circle', source: 'omt', 'source-layer': 'poi', minzoom: 11,
+      filter: ['in', ['get', 'class'], ['literal', ['__none__']]],
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 5, 18, 10], 'circle-color': '#f5b942',
+        'circle-stroke-color': '#1b1b1b', 'circle-stroke-width': 2 } },
+    { id: 'poi-label', type: 'symbol', source: 'omt', 'source-layer': 'poi', minzoom: 14,
+      filter: ['<=', ['get', 'rank'], ['step', ['zoom'], 3, 15, 12, 16, 30, 17, 100]],
+      layout: { 'text-field': nameExpr, 'text-font': F_REG, 'text-size': 11, 'text-anchor': 'left', 'text-offset': [0.8, 0], 'text-max-width': 9, 'text-optional': true },
+      paint: { 'text-color': '#c9ccd2', 'text-halo-color': '#26282b', 'text-halo-width': 1.4 } },
+    { id: 'airport-label', type: 'symbol', source: 'omt', 'source-layer': 'aerodrome_label', minzoom: 9,
+      layout: { 'text-field': ['concat', '✈ ', nameExpr], 'text-font': F_REG, 'text-size': 12, 'text-max-width': 9 },
+      paint: { 'text-color': '#d6d9de', 'text-halo-color': '#26282b', 'text-halo-width': 1.4 } },
+    { id: 'peak-label', type: 'symbol', source: 'omt', 'source-layer': 'mountain_peak', minzoom: 10,
+      layout: { 'text-field': ['concat', '▲ ', nameExpr], 'text-font': F_REG, 'text-size': 11 },
+      paint: { 'text-color': '#a6b59b', 'text-halo-color': '#26282b', 'text-halo-width': 1.2 } },
+    { id: 'place-minor', type: 'symbol', source: 'omt', 'source-layer': 'place', minzoom: 11,
+      filter: roadClass('suburb', 'neighbourhood', 'quarter', 'hamlet', 'locality', 'isolated_dwelling'),
+      layout: { 'text-field': nameExpr, 'text-font': F_BOLD, 'text-transform': 'uppercase', 'text-letter-spacing': 0.12,
+        'text-size': ['interpolate', ['linear'], ['zoom'], 11, 10, 16, 13], 'text-max-width': 8 },
+      paint: { 'text-color': '#a3a8b0', 'text-halo-color': '#2a2c30', 'text-halo-width': 1.4 } },
+    { id: 'place-village', type: 'symbol', source: 'omt', 'source-layer': 'place', minzoom: 8, filter: roadClass('village'),
+      layout: { 'text-field': nameExpr, 'text-font': F_REG, 'text-size': ['interpolate', ['linear'], ['zoom'], 8, 10, 14, 14], 'text-max-width': 8 },
+      paint: { 'text-color': '#d4d7dc', 'text-halo-color': '#26282b', 'text-halo-width': 1.5 } },
+    { id: 'place-town', type: 'symbol', source: 'omt', 'source-layer': 'place', minzoom: 6, filter: roadClass('town'),
+      layout: { 'text-field': nameExpr, 'text-font': F_REG, 'text-size': ['interpolate', ['linear'], ['zoom'], 6, 11, 14, 17], 'text-max-width': 8 },
+      paint: { 'text-color': '#eceef1', 'text-halo-color': '#26282b', 'text-halo-width': 1.6 } },
+    { id: 'place-city', type: 'symbol', source: 'omt', 'source-layer': 'place', minzoom: 4, filter: roadClass('city'),
+      layout: { 'text-field': nameExpr, 'text-font': F_BOLD, 'text-size': ['interpolate', ['linear'], ['zoom'], 4, 12, 10, 20, 14, 24], 'text-max-width': 8 },
+      paint: { 'text-color': '#ffffff', 'text-halo-color': '#26282b', 'text-halo-width': 2 } },
+
+    /* ---- Victoria focus mask ---- */
+    { id: 'vic-mask', type: 'fill', source: 'vicmask', paint: { 'fill-color': '#17181a', 'fill-opacity': 0.82 } },
+    { id: 'vic-border-glow', type: 'line', source: 'vicborder',
+      paint: { 'line-color': '#8a9099', 'line-width': 6, 'line-blur': 6, 'line-opacity': 0.25 } },
+    { id: 'vic-border', type: 'line', source: 'vicborder',
+      paint: { 'line-color': '#b3b8bf', 'line-width': 1.4, 'line-dasharray': [4, 2], 'line-opacity': 0.8 } }
+  );
+
+  return {
+    version: 8,
+    name: 'Victoria Charcoal',
+    glyphs: GLYPHS,
+    light: { anchor: 'viewport', color: '#ffffff', intensity: 0.38, position: [1.2, 200, 35] },
+    sky: { 'sky-color': '#23262b', 'horizon-color': '#4a4f57', 'fog-color': '#2f3136', 'sky-horizon-blend': 0.6,
+      'horizon-fog-blend': 0.7, 'fog-ground-blend': 0.6, 'atmosphere-blend': 0.4 },
+    sources: {
+      dem: { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14, attribution: 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank">AWS Terrain Tiles</a>' },
+      'dem-hs': { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14 },
+      trees3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      bridges3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      omt: { type: 'vector', url: TILES, attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>' },
+      route: { type: 'geojson', lineMetrics: true, data: { type: 'FeatureCollection', features: [] } },
+      vicmask: { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'Polygon',
+        coordinates: [[[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]], VIC_POLY.concat([VIC_POLY[0]]).reverse()] } } },
+      vicborder: { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: VIC_LAND_BORDER.slice(0, -1) } } }
+    },
+    layers
+  };
+}
+
+/* ================= Map ================= */
+const map = new maplibregl.Map({
+  container: 'map',
+  style: buildStyle(),
+  center: MELBOURNE,
+  zoom: 15.6,
+  pitch: 58,
+  bearing: -20,
+  maxPitch: 78,
+  minZoom: 5.2,
+  maxZoom: 19,
+  maxBounds: MAX_BOUNDS,
+  attributionControl: { compact: true },
+  hash: false
+});
+map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
+map.addControl(new maplibregl.FullscreenControl(), 'bottom-right');
+map.on('error', e => { if (e && e.error) console.warn('[map]', e.error.message || e.error); });
+
+/* 3D toggle (buildings + trees + bridges + terrain) */
+let is3d = true;
+function set3d(on, { animate = true } = {}) {
+  is3d = on;
+  $('#btn3d').classList.toggle('on', on);
+  try { map.setTerrain(on ? { source: 'dem', exaggeration: 1.4 } : null); } catch (e) { console.warn(e); }
+  if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
+}
+$('#btn3d').onclick = () => set3d(!is3d);
+map.on('load', () => set3d(true, { animate: false }));
+
+/* ================= 3D surroundings (trees & bridges) ================= */
+const M_LAT = 110574;
+const mLon = lat => 111320 * Math.cos(lat * Math.PI / 180);
+const hash2 = (a, b) => { let h = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+function ringAt([lon, lat], r, n = 8, rot = 0) {
+  const kx = mLon(lat), out = [];
+  for (let i = 0; i < n; i++) { const a = rot + i * 2 * Math.PI / n; out.push([lon + Math.cos(a) * r / kx, lat + Math.sin(a) * r / M_LAT]); }
+  out.push(out[0]);
+  return [out];
+}
+function pipRings(pt, rings) {                 // even-odd over outer + holes
+  let inside = false; const [x, y] = pt;
+  for (const ring of rings) for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+const polysOf = g => g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
+const linesOf = g => g.type === 'LineString' ? [g.coordinates] : g.type === 'MultiLineString' ? g.coordinates : [];
+const bboxOf = ring => { let a = 180, b = 90, c = -180, d = -90; for (const [x, y] of ring) { if (x < a) a = x; if (y < b) b = y; if (x > c) c = x; if (y > d) d = y; } return [a, b, c, d]; };
+
+// Spatial grid of building footprints so trees are never planted inside buildings
+function buildingIndex(center, R) {
+  const cell = 60, kx = mLon(center[1]), idx = new Map();
+  let feats = [];
+  try { feats = map.querySourceFeatures('omt', { sourceLayer: 'building' }); } catch (e) {}
+  const lim = [center[0] - R / kx, center[1] - R / M_LAT, center[0] + R / kx, center[1] + R / M_LAT];
+  for (const f of feats) for (const poly of polysOf(f.geometry)) {
+    const bb = bboxOf(poly[0]);
+    if (bb[2] < lim[0] || bb[0] > lim[2] || bb[3] < lim[1] || bb[1] > lim[3]) continue;
+    const item = { bb, poly };
+    for (let i = Math.floor(bb[0] * kx / cell); i <= Math.floor(bb[2] * kx / cell); i++)
+      for (let j = Math.floor(bb[1] * M_LAT / cell); j <= Math.floor(bb[3] * M_LAT / cell); j++) {
+        const k = i + ':' + j; if (!idx.has(k)) idx.set(k, []); idx.get(k).push(item);
+      }
+  }
+  return pt => {
+    const list = idx.get(Math.floor(pt[0] * kx / cell) + ':' + Math.floor(pt[1] * M_LAT / cell));
+    if (!list) return false;
+    for (const it of list) if (pt[0] >= it.bb[0] && pt[0] <= it.bb[2] && pt[1] >= it.bb[1] && pt[1] <= it.bb[3] && pipRings(pt, it.poly)) return true;
+    return false;
+  };
+}
+
+function addTree(out, c, seed, scale = 1) {
+  const h = (7 + seed * 8) * scale, r = (2.1 + seed * 2) * scale, shade = hash2(seed * 1e6, 7);
+  out.push({ type: 'Feature', properties: { part: 'trunk', h: h * 0.4 }, geometry: { type: 'Polygon', coordinates: ringAt(c, 0.32 * scale + 0.1, 6) } });
+  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.3, h: h * 0.62, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.8, 8, seed * 3) } });
+  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.62, h: h * 0.86, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r, 8, seed * 5) } });
+  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.86, h, shade: Math.min(1, shade + 0.15) }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.55, 8, seed * 7) } });
+}
+
+const MAX_TREES = 1800;
+function genTrees(center, R, inBuilding) {
+  const out = [], seen = new Set(); let n = 0;
+  const kx = mLon(center[1]);
+  const within = p => { const dx = (p[0] - center[0]) * kx, dy = (p[1] - center[1]) * M_LAT; return dx * dx + dy * dy <= R * R; };
+
+  // 1) woods & parks — deterministic grid so trees don't jump while panning
+  const spacing = map.getZoom() >= 16.5 ? 11 : map.getZoom() >= 15.5 ? 15 : 20;
+  const dLon = spacing / kx, dLat = spacing / M_LAT;
+  let areas = [];
+  try { areas = map.queryRenderedFeatures({ layers: ['landcover-wood', 'park'] }); } catch (e) {}
+  areas.sort((a, b) => (a.layer.id === 'landcover-wood' ? 0 : 1) - (b.layer.id === 'landcover-wood' ? 0 : 1));
+  outer:
+  for (const f of areas) {
+    const density = f.layer.id === 'landcover-wood' ? 0.8 : 0.38;
+    for (const poly of polysOf(f.geometry)) {
+      const bb = bboxOf(poly[0]);
+      const x0 = Math.max(bb[0], center[0] - R / kx), x1 = Math.min(bb[2], center[0] + R / kx);
+      const y0 = Math.max(bb[1], center[1] - R / M_LAT), y1 = Math.min(bb[3], center[1] + R / M_LAT);
+      if (x0 > x1 || y0 > y1) continue;
+      for (let i = Math.floor(x0 / dLon); i <= Math.floor(x1 / dLon); i++) {
+        for (let j = Math.floor(y0 / dLat); j <= Math.floor(y1 / dLat); j++) {
+          const key = i + ',' + j;
+          if (seen.has(key)) continue;
+          const h = hash2(i, j);
+          if (h > density) continue;
+          const p = [(i + 0.15 + 0.7 * hash2(i, j + 1)) * dLon, (j + 0.15 + 0.7 * hash2(i + 1, j)) * dLat];
+          if (!within(p) || !pipRings(p, poly) || inBuilding(p)) continue;
+          seen.add(key);
+          addTree(out, p, hash2(j, i));
+          if (++n >= MAX_TREES) break outer;
+        }
+      }
+    }
+  }
+
+  // 2) street trees along local roads
+  let roads = [];
+  try { roads = map.queryRenderedFeatures({ layers: ['road-minor', 'road-tertiary'] }); } catch (e) {}
+  const step = 17, sg = 9;
+  for (const f of roads) {
+    if (n >= MAX_TREES) break;
+    if (f.properties.brunnel === 'bridge') continue;
+    const off = f.properties.class === 'tertiary' ? 9 : 7;
+    for (const line of linesOf(f.geometry)) {
+      for (let s = 0; s < line.length - 1 && n < MAX_TREES; s++) {
+        const a = line[s], b = line[s + 1];
+        const ex = (b[0] - a[0]) * kx, ey = (b[1] - a[1]) * M_LAT, len = Math.hypot(ex, ey);
+        if (len < 8) continue;
+        const nx = -ey / len, ny = ex / len;
+        for (let d = 6; d < len - 4; d += step) {
+          const t = d / len;
+          for (const side of [1, -1]) {
+            const p = [a[0] + (b[0] - a[0]) * t + side * nx * off / kx, a[1] + (b[1] - a[1]) * t + side * ny * off / M_LAT];
+            const gi = Math.round(p[0] * kx / sg), gj = Math.round(p[1] * M_LAT / sg), key = 's' + gi + ',' + gj;
+            if (seen.has(key) || hash2(gi, gj) > 0.72 || !within(p) || inBuilding(p)) continue;
+            seen.add(key);
+            addTree(out, p, hash2(gj, gi), 0.8);
+            if (++n >= MAX_TREES) break;
+          }
+        }
+      }
+    }
+  }
+  return out;
+}
+
+const BR_W = { motorway: 12, trunk: 11, primary: 9, secondary: 8, tertiary: 7, minor: 6, service: 4.5, track: 3, path: 2.4, rail: 4, transit: 4 };
+const BR_COL = { motorway: '#8f949b', trunk: '#858a91', primary: '#7b8087', secondary: '#72767d', tertiary: '#6b6f76', rail: '#6a6258', transit: '#6a6258' };
+function quad(a, b, hw, kx) {
+  const ex = (b[0] - a[0]) * kx, ey = (b[1] - a[1]) * M_LAT, len = Math.hypot(ex, ey) || 1;
+  const ox = -ey / len * hw / kx, oy = ex / len * hw / M_LAT;
+  return [[[a[0] + ox, a[1] + oy], [b[0] + ox, b[1] + oy], [b[0] - ox, b[1] - oy], [a[0] - ox, a[1] - oy], [a[0] + ox, a[1] + oy]]];
+}
+function genBridges(center, R) {
+  const out = [], seen = new Set();
+  const kx = mLon(center[1]);
+  let feats = [];
+  try { feats = map.queryRenderedFeatures({ layers: ROADS.map(r => 'road-' + r[0]).concat(['rail']) }); } catch (e) {}
+  const push = (coords, b, h, col) => out.push({ type: 'Feature', properties: { b, h, col }, geometry: { type: 'Polygon', coordinates: coords } });
+  for (const f of feats) {
+    if (f.properties.brunnel !== 'bridge') continue;
+    const cls = f.properties.class, w = BR_W[cls] || 6, hw = w / 2;
+    const lvl = Math.max(1, Math.min(4, +f.properties.layer || 1));
+    const deckB = 4.5 + (lvl - 1) * 5, deckT = deckB + (w > 6 ? 1.6 : 1.1);
+    const col = BR_COL[cls] || '#63676e';
+    for (const line of linesOf(f.geometry)) {
+      let run = 0;
+      for (let s = 0; s < line.length - 1; s++) {
+        const a = line[s], b = line[s + 1];
+        const key = a[0].toFixed(6) + a[1].toFixed(6) + b[0].toFixed(6) + b[1].toFixed(6);
+        if (seen.has(key)) continue; seen.add(key);
+        const len = Math.hypot((b[0] - a[0]) * kx, (b[1] - a[1]) * M_LAT);
+        push(quad(a, b, hw, kx), deckB, deckT, col);                                   // deck
+        if (s > 0) push(ringAt(a, hw, 10), deckB, deckT, col);                         // smooth joints
+        if (w >= 4) {                                                                   // railings / parapets
+          const ex = (b[0] - a[0]) * kx, ey = (b[1] - a[1]) * M_LAT, L = Math.hypot(ex, ey) || 1;
+          for (const side of [1, -1]) {
+            const ox = -ey / L * (hw - 0.2) * side / kx, oy = ex / L * (hw - 0.2) * side / M_LAT;
+            push(quad([a[0] + ox, a[1] + oy], [b[0] + ox, b[1] + oy], 0.18, kx), deckT, deckT + 1.1, '#a9aeb5');
+          }
+        }
+        for (let d = (30 - run % 30) % 30; d < len; d += 30) {                           // pillars every ~30 m
+          const t = d / len, p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+          if (w > 7) {
+            const ex = (b[0] - a[0]) * kx, ey = (b[1] - a[1]) * M_LAT, L = Math.hypot(ex, ey) || 1;
+            for (const side of [1, -1]) push(ringAt([p[0] - ey / L * hw * 0.5 * side / kx, p[1] + ex / L * hw * 0.5 * side / M_LAT], 0.9, 8), 0, deckB, '#4d5157');
+          } else push(ringAt(p, 0.8, 8), 0, deckB, '#4d5157');
+        }
+        run += len;
+        if (out.length > 9000) return out;
+      }
+    }
+  }
+  return out;
+}
+
+let last3dKey = '', dirty3d = true;
+const EMPTY_FC = { type: 'FeatureCollection', features: [] };
+function update3D(force) {
+  if (!map.getSource('trees3d')) return;
+  const z = map.getZoom();
+  if (z < 14.5) {
+    if (last3dKey !== 'off') { map.getSource('trees3d').setData(EMPTY_FC); map.getSource('bridges3d').setData(EMPTY_FC); last3dKey = 'off'; }
+    return;
+  }
+  const c = map.getCenter();
+  const key = [c.lng.toFixed(4), c.lat.toFixed(4), z.toFixed(1)].join();
+  if (key === last3dKey && !dirty3d && !force) return;
+  last3dKey = key; dirty3d = false;
+  const R = Math.max(350, Math.min(1500, 1100 * Math.pow(2, 15.5 - z)));
+  const center = [c.lng, c.lat];
+  try {
+    map.getSource('bridges3d').setData({ type: 'FeatureCollection', features: genBridges(center, R * 1.6) });
+    map.getSource('trees3d').setData({ type: 'FeatureCollection', features: genTrees(center, R, buildingIndex(center, R)) });
+  } catch (e) { console.warn('[3d]', e); }
+}
+map.on('sourcedata', e => { if (e.sourceId === 'omt' && e.isSourceLoaded) dirty3d = true; });
+map.on('idle', () => update3D());
+map.on('moveend', debounce(() => update3D(), 450));
+$('#btnVic').onclick = () => map.fitBounds([[VIC_BBOX[0], VIC_BBOX[1]], [VIC_BBOX[2], VIC_BBOX[3]]], { padding: panelPadding(40), duration: 1200 });
+
+/* Animated route flow */
+const DASH_SEQ = [[0,4,3],[0.5,4,2.5],[1,4,2],[1.5,4,1.5],[2,4,1],[2.5,4,0.5],[3,4,0],[0,0.5,3,3.5],[0,1,3,3],[0,1.5,3,2.5],[0,2,3,2],[0,2.5,3,1.5],[0,3,3,1],[0,3.5,3,0.5]];
+let dashStep = -1, lastDash = 0;
+function animateFlow(ts) {
+  if (ts - lastDash > 60 && map.getLayer('route-flow') && S.routes.length) {
+    lastDash = ts;
+    const n = Math.floor(ts / 60) % DASH_SEQ.length;
+    if (n !== dashStep) { map.setPaintProperty('route-flow', 'line-dasharray', DASH_SEQ[n]); dashStep = n; }
+  }
+  requestAnimationFrame(animateFlow);
+}
+map.on('load', () => requestAnimationFrame(animateFlow));
+
+/* ================= Panel & tabs ================= */
+const isMobile = () => matchMedia('(max-width:760px)').matches;
+const panel = $('#panel');
+function panelPadding(extra = 60) {
+  if (panel.classList.contains('collapsed')) return extra;
+  if (isMobile()) return { top: extra, left: extra, right: extra, bottom: panel.offsetHeight + extra };
+  return { top: extra, bottom: extra, right: extra + 50, left: panel.offsetWidth + 30 + extra };
+}
+function setCollapsed(c) {
+  panel.classList.toggle('collapsed', c);
+  $('#togglePanel').classList.toggle('collapsed', c);
+  document.body.classList.toggle('sheet-down', c);
+}
+$('#togglePanel').onclick = () => setCollapsed(!panel.classList.contains('collapsed'));
+$('#grab').onclick = () => setCollapsed(!panel.classList.contains('collapsed'));
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + name));
+  setCollapsed(false);
+  if (name === 'explore') refreshExplore();
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => showTab(t.dataset.tab));
+$('#dirBtn').onclick = () => { showTab('dir'); setTimeout(() => (S.from ? $('#toIn') : $('#fromIn')).focus(), 50); };
+
+/* ================= Geocoding (Photon, Victoria only) ================= */
+function describe(p) {
+  const street = [p.housenumber, p.street].filter(Boolean).join(' ');
+  const title = p.name || street || p.city || p.district || 'Unnamed place';
+  const parts = [];
+  if (p.name && street) parts.push(street);
+  const loc = p.district || p.locality || p.city || p.county;
+  if (loc && loc !== title) parts.push(loc);
+  if (p.city && p.city !== loc && p.city !== title) parts.push(p.city);
+  parts.push(['VIC', p.postcode].filter(Boolean).join(' '));
+  const kind = (p.osm_value || '').replace(/_/g, ' ');
+  return { title, sub: parts.join(', '), kind, icon: iconFor(p.osm_value, p.type, p.osm_key) };
+}
+function toPlace(f) {
+  const d = describe(f.properties);
+  return { ...d, coord: f.geometry.coordinates, extent: f.properties.extent, key: f.properties.osm_key, props: f.properties };
+}
+async function geocode(q, signal) {
+  const c = map.getCenter();
+  const url = `${PHOTON}/api/?q=${encodeURIComponent(q)}&limit=12&lang=en&bbox=${VIC_BBOX.join(',')}&lat=${c.lat.toFixed(4)}&lon=${c.lng.toFixed(4)}&location_bias_scale=0.3`;
+  const r = await fetch(url, { signal });
+  if (!r.ok) throw new Error('Search unavailable (' + r.status + ')');
+  const j = await r.json();
+  const seen = new Set();
+  return j.features
+    .filter(f => (f.properties.state === 'Victoria' || (!f.properties.state && inVic(f.geometry.coordinates))) && f.properties.countrycode === 'AU')
+    .map(toPlace)
+    .filter(p => { const k = p.title + '|' + p.sub; if (seen.has(k)) return false; seen.add(k); return true; })
+    .slice(0, 8);
+}
+async function reverse([lon, lat]) {
+  try {
+    const r = await fetch(`${PHOTON}/reverse?lon=${lon}&lat=${lat}&lang=en&limit=1`);
+    const j = await r.json();
+    if (j.features && j.features[0]) return toPlace(j.features[0]);
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+/* Autocomplete widget */
+function attachAC(input, box, onPick, { extra } = {}) {
+  let ctrl, items = [], active = -1;
+  const render = (list, q) => {
+    items = list; active = -1;
+    const pre = extra ? extra() : [];
+    const all = pre.concat(list);
+    items = all;
+    if (!all.length) { box.innerHTML = q ? `<div class="ac-empty">No matches in Victoria for “${esc(q)}”</div>` : ''; box.classList.toggle('open', !!q); return; }
+    box.innerHTML = all.map((p, i) => `<div class="ac-item" data-i="${i}" role="option">
+      <div class="ac-ico">${p.icon}</div><div class="row-main"><div class="ac-t">${esc(p.title)}</div><div class="ac-s">${esc(p.sub || p.kind || '')}</div></div></div>`).join('');
+    box.classList.add('open');
+  };
+  const run = debounce(async () => {
+    const q = input.value.trim();
+    if (ctrl) ctrl.abort();
+    if (q.length < 2) { render([], ''); if (extra && document.activeElement === input) render([], ''); return; }
+    ctrl = new AbortController();
+    box.innerHTML = '<div class="ac-empty" style="display:flex;gap:10px;align-items:center"><div class="spinner"></div>Searching Victoria…</div>';
+    box.classList.add('open');
+    try { render(await geocode(q, ctrl.signal), q); }
+    catch (e) { if (e.name !== 'AbortError') { box.innerHTML = `<div class="ac-empty">${esc(e.message || 'Search failed')}</div>`; } }
+  }, 280);
+  input.addEventListener('input', run);
+  input.addEventListener('focus', () => { if (!input.value.trim() && extra) render([], ''); else if (items.length) box.classList.add('open'); });
+  input.addEventListener('keydown', e => {
+    const els = box.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!els.length) return; e.preventDefault();
+      active = (active + (e.key === 'ArrowDown' ? 1 : -1) + els.length) % els.length;
+      els.forEach((el, i) => el.classList.toggle('active', i === active));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const i = active >= 0 ? active : 0;
+      if (items[i]) pick(i);
+    } else if (e.key === 'Escape') { box.classList.remove('open'); }
+  });
+  const pick = i => { const p = items[i]; box.classList.remove('open'); if (p.action) p.action(); else onPick(p); };
+  box.addEventListener('mousedown', e => { const it = e.target.closest('.ac-item'); if (it) { e.preventDefault(); pick(+it.dataset.i); } });
+  input.addEventListener('blur', () => setTimeout(() => box.classList.remove('open'), 120));
+}
+
+/* ================= Markers ================= */
+const pinSvg = (fill, inner) => `<svg viewBox="0 0 34 44" width="34" height="44"><path d="M17 43C17 43 3 26.5 3 16a14 14 0 0 1 28 0c0 10.5-14 27-14 27z" fill="${fill}" stroke="#0b3d1f" stroke-width="1.5"/>${inner}</svg>`;
+const markerEl = type => {
+  const el = document.createElement('div');
+  if (type === 'a') el.className = 'mk-a';
+  else if (type === 'b') { el.className = 'mk-b'; el.innerHTML = pinSvg(GREEN, '<path d="M12 9v14M12 9h10l-2.5 3.5L22 16H12" fill="#fff" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>'); }
+  else { el.className = 'mk-p'; el.innerHTML = pinSvg('#eef0f3', '<circle cx="17" cy="16" r="5.5" fill="#2f3136"/>').replace('#0b3d1f', '#2f3136'); }
+  return el;
+};
+const MK = {};
+function setMarker(key, coord, type) {
+  if (MK[key]) MK[key].remove();
+  if (!coord) { delete MK[key]; return; }
+  MK[key] = new maplibregl.Marker({ element: markerEl(type), anchor: type === 'a' ? 'center' : 'bottom', draggable: key !== 'place' })
+    .setLngLat(coord).addTo(map);
+  if (key !== 'place') {
+    MK[key].on('dragend', async () => {
+      const ll = MK[key].getLngLat(), c = [ll.lng, ll.lat];
+      if (!inVic(c)) { toast('Please keep points inside Victoria'); setMarker(key, S[key === 'a' ? 'from' : 'to'].coord, type); return; }
+      const p = (await reverse(c)) || { title: fmtCoord(c), sub: '', icon: '📍' };
+      p.coord = c;
+      setWaypoint(key === 'a' ? 'from' : 'to', p);
+    });
+  }
+}
+
+/* ================= Search tab ================= */
+const S = { from: null, to: null, mode: 'car', routes: [], sel: 0, place: null };
+
+function showPlace(p, { fly = true } = {}) {
+  S.place = p;
+  setMarker('place', p.coord, 'p');
+  if (fly) {
+    if (p.extent && p.extent.length === 4 && (p.key === 'place' || p.key === 'boundary')) {
+      map.fitBounds([[p.extent[0], p.extent[3]], [p.extent[2], p.extent[1]]], { padding: panelPadding(), maxZoom: 16, duration: 1200 });
+    } else {
+      map.flyTo({ center: p.coord, zoom: Math.max(map.getZoom(), p.key === 'highway' ? 16 : 17), padding: panelPadding(), duration: 1200, essential: true });
+    }
+  }
+  $('#placeCard').innerHTML = `<div class="card">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div class="ac-ico" style="width:42px;height:42px;font-size:20px">${p.icon}</div>
+      <div style="min-width:0"><h2>${esc(p.title)}</h2>
+      <div class="sub">${esc(p.kind ? p.kind[0].toUpperCase() + p.kind.slice(1) : '')}${p.kind && p.sub ? ' · ' : ''}${esc(p.sub)}</div>
+      <div class="coords">${fmtCoord(p.coord)}</div></div>
+    </div>
+    <div class="btns">
+      <button class="btn primary" id="pcTo">➤ Directions</button>
+      <button class="btn ghost" id="pcFrom">Start here</button>
+      <button class="btn ghost" id="pcCopy">Copy coords</button>
+    </div></div>`;
+  $('#pcTo').onclick = () => { setWaypoint('to', p); showTab('dir'); if (!S.from) { $('#fromIn').focus(); toast('Now choose a starting point'); } };
+  $('#pcFrom').onclick = () => { setWaypoint('from', p); showTab('dir'); if (!S.to) $('#toIn').focus(); };
+  $('#pcCopy').onclick = () => { navigator.clipboard?.writeText(fmtCoord(p.coord)).then(() => toast('Coordinates copied'), () => toast(fmtCoord(p.coord))); };
+  showTab('search');
+}
+
+const qIn = $('#q');
+attachAC(qIn, $('#qAc'), p => { qIn.value = p.title; $('#qClear').style.display = 'block'; qIn.blur(); showPlace(p); });
+qIn.addEventListener('input', () => { $('#qClear').style.display = qIn.value ? 'block' : 'none'; });
+$('#qClear').onclick = () => { qIn.value = ''; $('#qClear').style.display = 'none'; $('#qAc').classList.remove('open'); setMarker('place', null); $('#placeCard').innerHTML = ''; qIn.focus(); };
+
+/* Categories (from map vector data in view) */
+const CATS = [
+  { id: 'food', label: 'Food', icon: '🍽️', cls: ['restaurant', 'fast_food', 'bakery', 'ice_cream'] },
+  { id: 'cafe', label: 'Cafés', icon: '☕', cls: ['cafe'] },
+  { id: 'bar', label: 'Bars', icon: '🍺', cls: ['bar', 'beer'] },
+  { id: 'fuel', label: 'Fuel', icon: '⛽', cls: ['fuel'] },
+  { id: 'parking', label: 'Parking', icon: '🅿️', cls: ['parking'] },
+  { id: 'shop', label: 'Shops', icon: '🛒', cls: ['grocery', 'shop', 'clothing_store', 'alcohol_shop', 'hardware', 'furniture', 'jewelry', 'shoes'] },
+  { id: 'health', label: 'Health', icon: '🏥', cls: ['hospital', 'doctors', 'pharmacy', 'dentist'] },
+  { id: 'stay', label: 'Hotels', icon: '🏨', cls: ['lodging', 'campsite'] },
+  { id: 'transit', label: 'Transit', icon: '🚆', cls: ['railway', 'bus', 'ferry_terminal'] },
+  { id: 'fun', label: 'Attractions', icon: '📸', cls: ['attraction', 'museum', 'theatre', 'cinema', 'art_gallery', 'zoo', 'stadium'] },
+  { id: 'park', label: 'Parks', icon: '🌳', cls: ['park', 'garden', 'playground'] },
+];
+let activeCat = null;
+$('#chips').innerHTML = CATS.map(c => `<button class="chip" data-c="${c.id}">${c.icon} ${c.label}</button>`).join('');
+$('#chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  activeCat = activeCat && activeCat.id === b.dataset.c ? null : CATS.find(c => c.id === b.dataset.c);
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', activeCat && c.dataset.c === activeCat.id));
+  map.setFilter('poi-hl', ['in', ['get', 'class'], ['literal', activeCat ? activeCat.cls : ['__none__']]]);
+  if (activeCat && map.getZoom() < 14) map.easeTo({ zoom: 15, duration: 800 });
+  refreshCats();
+});
+function refreshCats() {
+  const box = $('#catList');
+  if (!activeCat) { box.innerHTML = '<p class="hint">Pick a category to highlight places in the current view. Zoom in to see more of them.</p>'; return; }
+  const feats = map.queryRenderedFeatures({ layers: ['poi-hl'] });
+  const seen = new Set(), rows = [];
+  const c = map.getCenter();
+  for (const f of feats) {
+    const n = f.properties['name:en'] || f.properties.name; if (!n) continue;
+    const co = f.geometry.coordinates; const k = n + '|' + co[0].toFixed(3) + co[1].toFixed(3);
+    if (seen.has(k) || !inVic(co)) continue; seen.add(k);
+    rows.push({ n, co, cls: f.properties.class, sub: f.properties.subclass, d: c.distanceTo(new maplibregl.LngLat(co[0], co[1])) });
+  }
+  rows.sort((a, b) => a.d - b.d);
+  if (!rows.length) { box.innerHTML = `<p class="hint">No ${activeCat.label.toLowerCase()} found in this view. Try zooming in or moving the map.</p>`; return; }
+  box.innerHTML = `<p class="hint" style="margin:0 0 6px">${rows.length} in view · nearest to map centre first</p>` + rows.slice(0, 60).map((r, i) => `
+    <div class="row" data-i="${i}"><div class="ac-ico">${iconFor(r.sub, r.cls)}</div>
+    <div class="row-main"><div class="ac-t">${esc(r.n)}</div><div class="ac-s">${esc((r.sub || r.cls).replace(/_/g, ' '))} · ${fmtDist(r.d)}</div></div></div>`).join('');
+  box.querySelectorAll('.row').forEach(el => el.onclick = async () => {
+    const r = rows[+el.dataset.i];
+    const p = { title: r.n, sub: '', kind: (r.sub || r.cls).replace(/_/g, ' '), icon: iconFor(r.sub, r.cls), coord: r.co };
+    showPlace(p);
+    const rv = await reverse(r.co);
+    if (rv && S.place === p) { p.sub = rv.sub; showPlace(p, { fly: false }); }
+  });
+}
+
+/* Explore tab */
+function refreshExplore() {
+  if (!$('#pane-explore').classList.contains('on')) return;
+  const placeFeats = map.queryRenderedFeatures({ layers: ['place-city', 'place-town', 'place-village', 'place-minor'] });
+  const roadFeats = map.getZoom() >= 12 ? map.queryRenderedFeatures({ layers: ['road-label'] }) : [];
+  const order = { city: 0, town: 1, suburb: 2, village: 3, neighbourhood: 4, quarter: 4, hamlet: 5, locality: 6, isolated_dwelling: 7 };
+  const pm = new Map();
+  for (const f of placeFeats) {
+    const n = f.properties['name:en'] || f.properties.name;
+    if (!n || pm.has(n) || !inVic(f.geometry.coordinates)) continue;
+    pm.set(n, { n, cls: f.properties.class, co: f.geometry.coordinates });
+  }
+  const places = [...pm.values()].sort((a, b) => (order[a.cls] ?? 9) - (order[b.cls] ?? 9) || a.n.localeCompare(b.n));
+  const rm = new Map();
+  for (const f of roadFeats) {
+    const n = f.properties['name:en'] || f.properties.name; if (!n) continue;
+    const g = f.geometry; const co = g.type === 'LineString' ? g.coordinates[Math.floor(g.coordinates.length / 2)] : g.type === 'MultiLineString' ? g.coordinates[0][0] : g.coordinates;
+    if (!rm.has(n) && inVic(co)) rm.set(n, { n, cls: f.properties.class, co });
+  }
+  const streets = [...rm.values()].sort((a, b) => a.n.localeCompare(b.n));
+  const rowHtml = (r, i, icon, kind) => `<div class="row" data-i="${i}"><div class="ac-ico">${icon}</div><div class="row-main"><div class="ac-t">${esc(r.n)}</div><div class="ac-s">${esc(kind)}</div></div></div>`;
+  $('#exPlaces').innerHTML = places.length ? places.slice(0, 80).map((r, i) => rowHtml(r, i, iconFor(r.cls), r.cls.replace(/_/g, ' '))).join('') : '<p class="hint">No named places in this view.</p>';
+  $('#exStreets').innerHTML = map.getZoom() < 12 ? '<p class="hint">Zoom in closer to list street names.</p>' :
+    streets.length ? streets.slice(0, 150).map((r, i) => rowHtml(r, i, '🛣️', r.cls + ' road')).join('') : '<p class="hint">No named streets in this view.</p>';
+  $('#exPlaces').querySelectorAll('.row').forEach(el => el.onclick = () => {
+    const r = places[+el.dataset.i];
+    map.flyTo({ center: r.co, zoom: Math.max(map.getZoom() + 1.5, r.cls === 'city' ? 11 : 14), padding: panelPadding(), duration: 1000 });
+  });
+  $('#exStreets').querySelectorAll('.row').forEach(el => el.onclick = () => {
+    const r = streets[+el.dataset.i];
+    const p = { title: r.n, sub: '', kind: r.cls + ' road', icon: '🛣️', coord: r.co };
+    map.flyTo({ center: r.co, zoom: Math.max(map.getZoom(), 16), padding: panelPadding(), duration: 900 });
+    setMarker('place', r.co, 'p');
+    new maplibregl.Popup({ offset: 30 }).setLngLat(r.co).setDOMContent(popupContent(p)).addTo(map);
+  });
+}
+map.on('moveend', () => { if (activeCat) refreshCats(); refreshExplore(); });
+map.on('idle', () => { if (activeCat && !$('#catList .row')) refreshCats(); });
+
+/* ================= Click on map ================= */
+function popupContent(p) {
+  const d = document.createElement('div'); d.className = 'pop';
+  d.innerHTML = `<div class="pop-t">${esc(p.title)}</div><div class="pop-s">${esc(p.sub || p.kind || '')}</div>
+    <div class="btns"><button class="btn primary" data-a="to">Directions to</button><button class="btn ghost" data-a="from">From here</button><button class="btn ghost" data-a="info">Details</button></div>`;
+  d.addEventListener('click', e => {
+    const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+    popup?.remove();
+    if (a === 'info') return showPlace(p, { fly: false });
+    setWaypoint(a, p); showTab('dir');
+    if (a === 'to' && !S.from) toast('Now choose a starting point, or click the map');
+    if (a === 'from' && !S.to) toast('Now choose a destination, or click the map');
+  });
+  return d;
+}
+let popup = null;
+map.on('click', async e => {
+  const hit = map.queryRenderedFeatures(e.point, { layers: ['route-alt'] });
+  if (NAV.on) return;
+  if (hit.length) { selectRoute(hit[0].properties.idx); return; }
+  const c = [e.lngLat.lng, e.lngLat.lat];
+  if (!inVic(c)) { toast('This app covers Victoria only'); return; }
+  const poi = map.queryRenderedFeatures([[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]], { layers: ['poi-dot', 'poi-label', 'poi-hl'] })[0];
+  const p = poi && (poi.properties.name || poi.properties['name:en'])
+    ? { title: poi.properties['name:en'] || poi.properties.name, sub: '', kind: (poi.properties.subclass || poi.properties.class || '').replace(/_/g, ' '), icon: iconFor(poi.properties.subclass, poi.properties.class), coord: poi.geometry.coordinates }
+    : { title: 'Dropped pin', sub: fmtCoord(c), kind: '', icon: '📍', coord: c };
+  popup?.remove();
+  popup = new maplibregl.Popup({ offset: 12, maxWidth: '300px' }).setLngLat(p.coord).setDOMContent(popupContent(p)).addTo(map);
+  const rv = await reverse(p.coord);
+  if (rv) {
+    if (p.title === 'Dropped pin') { p.title = rv.title; p.icon = rv.icon; p.kind = rv.kind; }
+    p.sub = rv.sub;
+    if (popup && popup.isOpen()) popup.setDOMContent(popupContent(p));
+  }
+});
+map.on('mousemove', e => {
+  const f = map.queryRenderedFeatures(e.point, { layers: ['route-alt', 'poi-dot', 'poi-hl'] });
+  map.getCanvas().style.cursor = f.length ? 'pointer' : '';
+});
+
+/* ================= Directions ================= */
+const fromIn = $('#fromIn'), toIn = $('#toIn');
+let myLoc = null;
+const myLocItem = () => [{ title: 'Your location', sub: 'Use GPS position', icon: '🎯', action: () => useMyLocation('from') }];
+attachAC(fromIn, $('#fromAc'), p => setWaypoint('from', p), { extra: () => (fromIn.value.trim() ? [] : myLocItem()) });
+attachAC(toIn, $('#toAc'), p => setWaypoint('to', p));
+$('#fromLoc').onclick = () => useMyLocation('from');
+$('#swapBtn').onclick = () => {
+  [S.from, S.to] = [S.to, S.from];
+  fromIn.value = S.from ? S.from.title : ''; toIn.value = S.to ? S.to.title : '';
+  setMarker('a', S.from && S.from.coord, 'a'); setMarker('b', S.to && S.to.coord, 'b');
+  if (S.from && S.to) route();
+};
+document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
+  S.mode = b.dataset.mode;
+  document.querySelectorAll('.mode').forEach(x => x.classList.toggle('on', x === b));
+  if (S.from && S.to) route();
+});
+$('#goBtn').onclick = () => route();
+
+function setWaypoint(which, p) {
+  S[which] = p;
+  (which === 'from' ? fromIn : toIn).value = p.title;
+  setMarker(which === 'from' ? 'a' : 'b', p.coord, which === 'from' ? 'a' : 'b');
+  if (which === 'to' || which === 'from') setMarker('place', null);
+  if (S.from && S.to) route();
+  else map.easeTo({ center: p.coord, padding: panelPadding(), duration: 700 });
+}
+
+function useMyLocation(which) {
+  if (!navigator.geolocation) return toast('Location is not available in this browser');
+  toast('Finding your location…');
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const c = [pos.coords.longitude, pos.coords.latitude];
+    if (!inVic(c)) return toast('Your location appears to be outside Victoria');
+    myLoc = c;
+    setWaypoint(which, { title: 'Your location', sub: fmtCoord(c), icon: '🎯', coord: c });
+  }, err => toast('Could not get location: ' + err.message), { enableHighAccuracy: true, timeout: 12000 });
+}
+
+function maneuverIcon(step) {
+  const m = step.maneuver, t = m.type;
+  if (t === 'depart') return '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="3"/></svg>';
+  if (t === 'arrive') return '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3v18h2v-7h10l-2-3.5L17 7H7V3z"/></svg>';
+  if (t === 'roundabout' || t === 'rotary' || t === 'exit roundabout' || t === 'exit rotary')
+    return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="10" r="4"/><path d="M12 14v8M16 10h5M18 7l3 3-3 3"/></svg>';
+  const rot = { 'sharp left': -135, left: -90, 'slight left': -40, straight: 0, 'slight right': 40, right: 90, 'sharp right': 135, uturn: 180 }[m.modifier] ?? 0;
+  if (m.modifier === 'uturn') return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21V9a4 4 0 0 0-8 0v4"/><path d="m4 10 4 4 4-4"/></svg>';
+  return `<svg width="18" height="18" viewBox="0 0 24 24" style="transform:rotate(${rot}deg)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M6 11l6-6 6 6"/></svg>`;
+}
+const compass = b => ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'][Math.round(((b % 360) + 360) % 360 / 45) % 8];
+function instruction(s, isLast) {
+  const m = s.maneuver, t = m.type, mod = m.modifier || '';
+  const nm = s.name || s.ref || '';
+  const onto = nm ? ` onto ${nm}` : '';
+  switch (t) {
+    case 'depart': return `Head ${compass(m.bearing_after || 0)}${nm ? ' on ' + nm : ''}`;
+    case 'arrive': return isLast ? `Arrive at ${S.to ? S.to.title : 'your destination'}${mod && mod !== 'straight' ? ` (on the ${mod})` : ''}` : 'Arrive at waypoint';
+    case 'roundabout': case 'rotary': return `At the roundabout, take the ${ordinal(m.exit)} exit${onto}`;
+    case 'exit roundabout': case 'exit rotary': return `Exit the roundabout${onto}`;
+    case 'merge': return `Merge${mod ? ' ' + mod : ''}${onto}`;
+    case 'on ramp': return `Take the ramp${mod && mod !== 'straight' ? ' on the ' + mod : ''}${onto}`;
+    case 'off ramp': return `Take the exit${mod && mod !== 'straight' ? ' on the ' + mod : ''}${s.destinations ? ' towards ' + s.destinations : onto}`;
+    case 'fork': return `Keep ${mod.replace('slight ', '') || 'straight'} at the fork${onto}`;
+    case 'end of road': return `At the end of the road, turn ${mod}${onto}`;
+    case 'new name': return `Continue onto ${nm || 'the road'}`;
+    case 'continue': return mod === 'uturn' ? `Make a U-turn${onto}` : `Continue ${mod && mod !== 'straight' ? mod : 'straight'}${nm ? ' on ' + nm : ''}`;
+    case 'notification': return `Continue${nm ? ' on ' + nm : ''}`;
+    default:
+      if (mod === 'uturn') return `Make a U-turn${onto}`;
+      if (mod === 'straight' || !mod) return `Continue straight${onto}`;
+      return `Turn ${mod}${onto}`;
+  }
+}
+const ordinal = n => { n = n || 1; const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+
+let routeCtrl;
+async function route() {
+  const out = $('#dirOut');
+  if (!S.from || !S.to) { out.innerHTML = `<div class="err">Choose both a start point and a destination.</div>`; return; }
+  if (!inVic(S.from.coord) || !inVic(S.to.coord)) { out.innerHTML = `<div class="err">Both points must be inside Victoria.</div>`; return; }
+  routeCtrl?.abort(); routeCtrl = new AbortController();
+  out.innerHTML = `<div class="hint" style="display:flex;gap:10px;align-items:center;margin-top:14px"><div class="spinner"></div>Finding the best route…</div>`;
+  const pts = `${S.from.coord[0]},${S.from.coord[1]};${S.to.coord[0]},${S.to.coord[1]}`;
+  const url = `${ROUTER[S.mode]}/route/v1/driving/${pts}?overview=full&geometries=geojson&steps=true&alternatives=true`;
+  try {
+    const r = await fetch(url, { signal: routeCtrl.signal });
+    const j = await r.json();
+    if (j.code !== 'Ok' || !j.routes?.length) throw new Error(j.message || 'No route found between these points');
+    S.routes = j.routes.slice(0, 3);
+    S.sel = 0;
+    drawRoutes();
+    renderRoutes();
+    const b = new maplibregl.LngLatBounds();
+    S.routes[0].geometry.coordinates.forEach(c => b.extend(c));
+    map.fitBounds(b, { padding: panelPadding(70), duration: 1200, pitch: is3d ? 45 : 0 });
+  } catch (e) {
+    if (e.name === 'AbortError') return;
+    S.routes = []; drawRoutes();
+    out.innerHTML = `<div class="err">${esc(e.message || 'Routing failed')}. Check your connection and try again.</div>`;
+  }
+}
+function drawRoutes() {
+  const src = map.getSource('route'); if (!src) return;
+  const feats = S.routes.map((r, i) => ({ type: 'Feature', properties: { idx: i, sel: i === S.sel }, geometry: r.geometry }));
+  feats.sort((a, b) => (a.properties.sel ? 1 : 0) - (b.properties.sel ? 1 : 0));
+  src.setData({ type: 'FeatureCollection', features: feats });
+}
+function selectRoute(i) { S.sel = +i; drawRoutes(); renderRoutes(); }
+function viaName(r) {
+  const names = {};
+  r.legs.forEach(l => l.steps.forEach(s => { if (s.name) names[s.name] = (names[s.name] || 0) + s.distance; }));
+  const top = Object.entries(names).sort((a, b) => b[1] - a[1])[0];
+  return top ? top[0] : '';
+}
+function renderRoutes() {
+  const out = $('#dirOut');
+  const r = S.routes[S.sel];
+  const eta = new Date(Date.now() + r.duration * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const steps = r.legs.flatMap(l => l.steps);
+  out.innerHTML = `<div class="routes">${S.routes.map((x, i) => `
+      <div class="route-card ${i === S.sel ? 'on' : ''}" data-i="${i}">
+        <div><div class="dur">${fmtDur(x.duration)}</div><div class="via">via ${esc(viaName(x) || 'local roads')}</div></div>
+        <div style="text-align:right"><div class="dist">${fmtDist(x.distance)}</div>${i === 0 ? '<div class="via" style="color:#22c55e">Fastest</div>' : ''}</div>
+      </div>`).join('')}</div>
+    <div class="hint" style="margin-top:10px">Arrive around <b style="color:#fff">${eta}</b></div>
+    <div class="btns">
+      <button class="btn primary" id="navStart" style="flex:1;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg> Start</button>
+      <button class="btn ghost" id="navSim" title="Watch a sped-up preview of this trip">▶ Preview drive</button>
+    </div>
+    <p class="hint" style="font-size:12px;margin:8px 0 0">The trip stopwatch starts automatically once you move off from your start point.</p>
+    <div class="steps"><h3 style="margin-top:6px">Steps</h3>${steps.map((s, i) => `
+      <div class="step" data-i="${i}"><div class="arr">${maneuverIcon(s)}</div>
+      <div><div class="txt">${esc(instruction(s, i === steps.length - 1))}</div>${s.distance > 0 ? `<div class="d">${fmtDist(s.distance)}</div>` : ''}</div></div>`).join('')}
+    </div>
+    <div class="btns" style="margin-top:14px"><button class="btn ghost" id="clearRoute">Clear route</button></div>`;
+  out.querySelectorAll('.route-card').forEach(el => el.onclick = () => selectRoute(el.dataset.i));
+  out.querySelectorAll('.step').forEach(el => el.onclick = () => {
+    const s = steps[+el.dataset.i];
+    map.flyTo({ center: s.maneuver.location, zoom: 17, bearing: is3d ? s.maneuver.bearing_after || 0 : 0, pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 900 });
+  });
+  $('#clearRoute').onclick = clearRoute;
+  $('#navStart').onclick = () => startNav(false);
+  $('#navSim').onclick = () => startNav(true);
+}
+/* ================= Stopwatch ================= */
+const SW = {
+  acc: 0, t0: 0, running: false, started: false, timer: null,
+  elapsed() { return this.acc + (this.running ? Date.now() - this.t0 : 0); },
+  start(status) {
+    if (this.running) return;
+    this.t0 = Date.now(); this.running = true; this.started = true;
+    clearInterval(this.timer); this.timer = setInterval(() => this.render(), 250);
+    this.setStatus(status || 'On the way', 'run'); this.render();
+  },
+  pause(status, dot = '') {
+    if (this.running) { this.acc += Date.now() - this.t0; this.running = false; }
+    clearInterval(this.timer); this.render();
+    if (status) this.setStatus(status, dot);
+  },
+  reset(status = 'Starts when you set off', dot = '') {
+    this.acc = 0; this.running = false; this.started = false; clearInterval(this.timer);
+    this.render(); this.setStatus(status, dot);
+  },
+  fmt(ms) {
+    const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60;
+    return [h, m, s % 60].map(v => String(v).padStart(2, '0')).join(':');
+  },
+  render() {
+    $('#swTime').textContent = this.fmt(this.elapsed());
+    $('#swTime').classList.toggle('run', this.running);
+    $('#swPlay').innerHTML = this.running
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>';
+  },
+  setStatus(txt, dot) { $('#swStatus').textContent = txt; $('#swDot').className = 'sw-dot ' + (dot || ''); }
+};
+$('#swPlay').onclick = () => SW.running ? SW.pause('Paused', 'wait') : SW.start(NAV.on ? 'On the way' : 'Running');
+$('#swReset').onclick = () => { SW.reset(NAV.on && !NAV.arrived ? 'Waiting for you to set off…' : 'Starts when you set off', NAV.on ? 'wait' : ''); if (NAV.on) NAV.anchor = NAV.pos; };
+
+/* ================= Navigation & re-centre ================= */
+const SETOFF_METRES = 25, ARRIVE_METRES = 30, OFFROUTE_METRES = 60;
+const NAV = { on: false };
+let meMarker = null;
+const geoDist = (a, b) => { const kx = mLon((a[1] + b[1]) / 2); return Math.hypot((a[0] - b[0]) * kx, (a[1] - b[1]) * M_LAT); };
+const bearingOf = (a, b) => (Math.atan2((b[0] - a[0]) * mLon(a[1]), (b[1] - a[1]) * M_LAT) * 180 / Math.PI + 360) % 360;
+
+function setMe(coord, heading) {
+  if (!meMarker) {
+    const el = document.createElement('div'); el.className = 'mk-me';
+    el.innerHTML = '<div class="halo"></div><svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z" fill="#3b82f6" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    meMarker = new maplibregl.Marker({ element: el, rotationAlignment: 'map', pitchAlignment: 'map' }).setLngLat(coord).addTo(map);
+  }
+  meMarker.setLngLat(coord);
+  if (heading != null && !isNaN(heading)) meMarker.setRotation(heading);
+}
+
+function navPadding() {
+  const h = map.getContainer().clientHeight;
+  return { top: Math.round(h * 0.35), bottom: isMobile() ? 90 : 40, left: 0, right: 0 };
+}
+function follow(immediate) {
+  if (!NAV.pos) return;
+  const opts = { center: NAV.pos, zoom: NAV.mode === 'foot' ? 18 : 17, pitch: 62, bearing: NAV.heading ?? map.getBearing(), padding: navPadding() };
+  immediate ? map.flyTo({ ...opts, duration: 900 }) : map.easeTo({ ...opts, duration: 900, easing: t => t });
+}
+function setFollowing(on) {
+  NAV.follow = on;
+  $('#recentrePill').classList.toggle('show', NAV.on && !on);
+}
+// Any manual pan / zoom / rotate during navigation pauses follow mode and shows "Re-centre"
+{
+  const cc = map.getCanvasContainer();
+  let down = null;
+  cc.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+  cc.addEventListener('pointermove', e => {
+    if (down && NAV.on && NAV.follow && Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) { setFollowing(false); map.stop(); }
+  });
+  window.addEventListener('pointerup', () => { down = null; });
+  cc.addEventListener('wheel', () => { if (NAV.on && NAV.follow) { setFollowing(false); map.stop(); } }, { passive: true });
+  ['dragstart', 'rotatestart', 'pitchstart'].forEach(ev => map.on(ev, e => { if (NAV.on && e.originalEvent) setFollowing(false); }));
+}
+function recentre() {
+  if (NAV.on) { setFollowing(true); follow(true); return; }
+  if (!navigator.geolocation) return fallbackRecentre();
+  toast('Finding your location…');
+  navigator.geolocation.getCurrentPosition(pos => {
+    const c = [pos.coords.longitude, pos.coords.latitude];
+    if (!inVic(c)) { toast('Your location is outside Victoria'); return fallbackRecentre(); }
+    myLoc = c; setMe(c, pos.coords.heading);
+    map.flyTo({ center: c, zoom: Math.max(map.getZoom(), 16.5), pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1200 });
+  }, () => { toast('Location unavailable — centring on your route'); fallbackRecentre(); }, { enableHighAccuracy: true, timeout: 10000 });
+}
+function fallbackRecentre() {
+  const r = S.routes[S.sel];
+  if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); map.fitBounds(b, { padding: panelPadding(70), duration: 1000 }); }
+  else if (S.place) map.flyTo({ center: S.place.coord, zoom: 16.5, padding: panelPadding(), duration: 1000 });
+  else map.flyTo({ center: MELBOURNE, zoom: 15.6, pitch: is3d ? 58 : 0, duration: 1000 });
+}
+$('#btnRecentre').onclick = recentre;
+$('#recentrePill').onclick = recentre;
+
+function setProgress(frac) {
+  if (!map.getLayer('route-line')) return;
+  const f = Math.min(0.9999, Math.max(0.00001, frac));
+  map.setPaintProperty('route-line', 'line-gradient', ['step', ['line-progress'], '#7b8a80', f, GREEN]);
+}
+
+function prepNavRoute(r) {
+  const coords = r.geometry.coordinates, cum = [0];
+  for (let i = 1; i < coords.length; i++) cum.push(cum[i - 1] + geoDist(coords[i - 1], coords[i]));
+  const steps = r.legs.flatMap(l => l.steps);
+  const scale = cum[cum.length - 1] / (steps.reduce((a, s) => a + s.distance, 0) || 1);
+  let acc = 0; const starts = steps.map(s => { const v = acc; acc += s.distance * scale; return v; });
+  Object.assign(NAV, { route: r, coords, cum, total: cum[cum.length - 1], steps, starts, lastIdx: 0 });
+}
+function projectOnRoute(p) {
+  const { coords, cum } = NAV, kx = mLon(p[1]);
+  let best = { d: Infinity, along: 0, i: 0 };
+  for (let i = 0; i < coords.length - 1; i++) {
+    const ax = (coords[i][0] - p[0]) * kx, ay = (coords[i][1] - p[1]) * M_LAT;
+    const dx = (coords[i + 1][0] - coords[i][0]) * kx, dy = (coords[i + 1][1] - coords[i][1]) * M_LAT;
+    const L2 = dx * dx + dy * dy;
+    const t = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0;
+    const d = Math.hypot(ax + t * dx, ay + t * dy);
+    if (d < best.d) best = { d, along: cum[i] + t * (cum[i + 1] - cum[i]), i };
+  }
+  return best;
+}
+function pointAt(dist) {
+  const { coords, cum } = NAV;
+  let i = 0; while (i < cum.length - 2 && cum[i + 1] < dist) i++;
+  const seg = cum[i + 1] - cum[i] || 1, t = Math.max(0, Math.min(1, (dist - cum[i]) / seg));
+  return { p: [coords[i][0] + (coords[i + 1][0] - coords[i][0]) * t, coords[i][1] + (coords[i + 1][1] - coords[i][1]) * t], h: bearingOf(coords[i], coords[i + 1]) };
+}
+
+function startNav(simulate) {
+  const r = S.routes[S.sel]; if (!r) return;
+  stopNavSources();
+  Object.assign(NAV, { on: true, sim: simulate, mode: S.mode, pos: null, anchor: null, heading: null, arrived: false, offCount: 0, rerouting: false });
+  prepNavRoute(r);
+  SW.reset('Waiting for you to set off…', 'wait');
+  document.body.classList.add('navigating');
+  setFollowing(true);
+  setCollapsed(true);
+  if (!is3d) set3d(true, { animate: false });
+  setProgress(0);
+  updateNavCard(0, r.duration);
+  $('#navTxt').textContent = simulate ? 'Preview drive starting…' : 'Waiting for GPS…';
+  map.flyTo({ center: S.from.coord, zoom: 17, pitch: 62, bearing: bearingOf(NAV.coords[0], NAV.coords[Math.min(3, NAV.coords.length - 1)]), padding: navPadding(), duration: 1200 });
+
+  if (simulate) {
+    const speed = { car: 16, bike: 6, foot: 1.5 }[S.mode] * { car: 3, bike: 3, foot: 6 }[S.mode];   // sped-up preview
+    let d = 0, t = 0;
+    NAV.simTimer = setInterval(() => {
+      t += 0.5;
+      if (t > 2.5) d = Math.min(NAV.total, d + speed * 0.5);      // pause at the start so "set off" is visible
+      const { p, h } = pointAt(d);
+      onPosition(p, h, t > 2.5 ? speed : 0);
+      if (d >= NAV.total) { clearInterval(NAV.simTimer); NAV.simTimer = null; }
+    }, 500);
+  } else if (navigator.geolocation) {
+    NAV.watch = navigator.geolocation.watchPosition(
+      pos => onPosition([pos.coords.longitude, pos.coords.latitude], pos.coords.heading, pos.coords.speed),
+      err => { toast('GPS unavailable (' + err.message + '). Use ▶ on the stopwatch to time manually.', 4200); $('#navTxt').textContent = 'GPS unavailable'; },
+      { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
+  } else {
+    toast('This device has no GPS — stopwatch started manually');
+    SW.start();
+  }
+}
+function stopNavSources() {
+  if (NAV.watch != null) navigator.geolocation.clearWatch(NAV.watch);
+  if (NAV.simTimer) clearInterval(NAV.simTimer);
+  NAV.watch = null; NAV.simTimer = null;
+}
+function exitNav() {
+  stopNavSources();
+  if (SW.running) SW.pause('Trip ended · ' + SW.fmt(SW.elapsed()), 'done');
+  else if (!SW.started) SW.reset();
+  NAV.on = false;
+  document.body.classList.remove('navigating');
+  setFollowing(false);
+  setProgress(0);
+  if (meMarker && !myLoc) { meMarker.remove(); meMarker = null; }
+  setCollapsed(false);
+  fallbackRecentre();
+}
+$('#navExit').onclick = exitNav;
+
+function updateNavCard(along, _dur) {
+  const r = NAV.route, rem = Math.max(0, NAV.total - along);
+  const remT = r.duration * (rem / (NAV.total || 1));
+  $('#navRemT').textContent = fmtDur(remT);
+  $('#navRemD').textContent = fmtDist(rem);
+  $('#navEta').textContent = new Date(Date.now() + remT * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  let k = NAV.starts.findIndex((s, i) => i > 0 && s > along + 3);
+  if (k < 0) k = NAV.steps.length - 1;
+  const st = NAV.steps[k];
+  $('#navArr').innerHTML = maneuverIcon(st);
+  $('#navDist').textContent = fmtDist(Math.max(0, NAV.starts[k] - along));
+  $('#navTxt').textContent = instruction(st, k === NAV.steps.length - 1);
+}
+
+function onPosition(p, heading, speed) {
+  if (!NAV.on) return;
+  const prev = NAV.pos;
+  NAV.pos = p;
+  if (!NAV.anchor) NAV.anchor = p;
+  if ((heading == null || isNaN(heading)) && prev && geoDist(prev, p) > 3) heading = bearingOf(prev, p);
+  if (heading != null && !isNaN(heading)) NAV.heading = heading;
+  setMe(p, NAV.heading);
+
+  // Stopwatch starts the moment the traveller sets off from their starting place
+  if (!SW.started && !NAV.arrived && geoDist(p, NAV.anchor) >= SETOFF_METRES) {
+    SW.start('On the way to ' + (S.to ? S.to.title : 'destination'));
+    toast('You\'ve set off — stopwatch started');
+  }
+
+  const pr = projectOnRoute(p);
+  setProgress(pr.along / (NAV.total || 1));
+  updateNavCard(pr.along);
+
+  // Arrival
+  const dest = NAV.coords[NAV.coords.length - 1];
+  if (!NAV.arrived && (geoDist(p, dest) <= ARRIVE_METRES || (SW.started && NAV.total - pr.along < 15 && pr.d < 25))) {
+    NAV.arrived = true;
+    SW.pause('Arrived in ' + SW.fmt(SW.elapsed()), 'done');
+    $('#navArr').innerHTML = maneuverIcon({ maneuver: { type: 'arrive' } });
+    $('#navDist').textContent = 'You have arrived';
+    $('#navTxt').textContent = (S.to ? S.to.title : 'Destination') + ' · trip time ' + SW.fmt(SW.elapsed());
+    setProgress(1);
+    $('#navRemT').textContent = '0 min'; $('#navRemD').textContent = 'arrived';
+    $('#navEta').textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    toast('Arrived! Trip time ' + SW.fmt(SW.elapsed()), 5000);
+    stopNavSources();
+  }
+
+  // Off-route → re-route from current position (real GPS only)
+  if (!NAV.sim && !NAV.arrived && SW.started) {
+    NAV.offCount = pr.d > OFFROUTE_METRES ? NAV.offCount + 1 : 0;
+    if (NAV.offCount >= 3 && !NAV.rerouting) reroute(p);
+  }
+
+  if (NAV.follow) follow(false);
+}
+
+async function reroute(p) {
+  NAV.rerouting = true;
+  toast('Re-routing…');
+  try {
+    const url = `${ROUTER[NAV.mode]}/route/v1/driving/${p[0]},${p[1]};${S.to.coord[0]},${S.to.coord[1]}?overview=full&geometries=geojson&steps=true`;
+    const j = await (await fetch(url)).json();
+    if (j.code === 'Ok' && j.routes.length) {
+      S.routes = [j.routes[0]]; S.sel = 0;
+      drawRoutes(); prepNavRoute(j.routes[0]); NAV.offCount = 0;
+    }
+  } catch (e) { /* keep old route */ }
+  NAV.rerouting = false;
+}
+
+function clearRoute() {
+  if (NAV.on) exitNav();
+  S.routes = []; S.from = S.to = null; fromIn.value = toIn.value = '';
+  setMarker('a', null); setMarker('b', null); drawRoutes();
+  $('#dirOut').innerHTML = '<p class="hint" style="margin-top:14px">Tip: click anywhere on the map to set a start or destination.</p>';
+}
+
+/* keyboard shortcut: "/" focuses search */
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
+});
+if (isMobile()) setCollapsed(true);
+window.__vicmaps = { map, S, NAV, SW, buildStyle, inVic, instruction, genTrees, genBridges, update3D };
+})();
+</script>
+</body>
+</html>
