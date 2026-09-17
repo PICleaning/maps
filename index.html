@@ -6,6 +6,8 @@
 <title>Australia Maps</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<!-- fallback for keeping the screen awake on browsers without the Wake Lock API -->
+<script src="https://cdn.jsdelivr.net/npm/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
 <script>
   // apply saved theme before first paint
   try { const s = JSON.parse(localStorage.getItem('aumaps.settings') || '{}'); if (s.theme === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}
@@ -251,6 +253,21 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .opt .tickbox svg{opacity:0;transform:scale(.4);transition:.15s}
 .opt[aria-checked="true"] .tickbox svg{opacity:1;transform:none}
 
+/* toggle switches */
+.tg-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);margin-bottom:8px;background:var(--panel-2);cursor:pointer;user-select:none}
+.tg-row:hover{border-color:var(--muted)}
+.tg-row .ol{flex:1;min-width:0}
+.tg-row .ol small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:1px}
+.tg-ico{font-size:18px;width:26px;text-align:center;flex:none}
+.switch{position:relative;width:46px;height:28px;border-radius:14px;background:var(--line);flex:none;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:transform .22s cubic-bezier(.3,.7,.3,1)}
+.tg-row[aria-checked="true"] .switch{background:var(--route)}
+.tg-row[aria-checked="true"] .switch::after{transform:translateX(18px)}
+body.hide-speedo .speedo{display:none}
+body.hide-stopwatch .stopwatch{display:none}
+.mk-me{will-change:transform}
+.sig-note{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.4}
+
 /* navigation */
 .navcard{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:17;width:min(420px,calc(100vw - 480px));min-width:300px;
   background:rgba(92,96,102,.98);color:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.45);display:none;overflow:hidden}
@@ -477,6 +494,14 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
       <h3>Map background</h3>
       <div id="optTheme" role="radiogroup" aria-label="Map background"></div>
     </div>
+    <div class="set-group">
+      <h3>On the map</h3>
+      <div id="optDisplay"></div>
+    </div>
+    <div class="set-group">
+      <h3>Screen</h3>
+      <div id="optDevice"></div>
+    </div>
     <p class="hint" style="padding:0 4px">Settings are saved on this device.</p>
   </div>
 </nav>
@@ -492,6 +517,7 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
   <div class="nav-foot">
     <span><b id="navRemT">—</b> · <span id="navRemD">—</span></span>
     <span>ETA <b id="navEta">—</b></span>
+    <span id="navSig"></span>
     <span class="sp"></span>
     <button class="nav-exit" id="navExit">Exit</button>
   </div>
@@ -561,7 +587,7 @@ const PAL = {
 
 /* ================= Settings ================= */
 const SETTINGS_KEY = 'aumaps.settings';
-const SET = { route: 'green', theme: 'dark' };
+const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true };
 try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
 if (!ROUTE_COLORS[SET.route]) SET.route = 'green';
 if (!PAL[SET.theme]) SET.theme = 'dark';
@@ -744,6 +770,10 @@ function buildStyle(p) {
       filter: ['<=', ['get', 'rank'], ['step', ['zoom'], 3, 15, 12, 16, 30, 17, 100]],
       layout: { 'text-field': nameExpr, 'text-font': F_REG, 'text-size': 11, 'text-anchor': 'left', 'text-offset': [0.8, 0], 'text-max-width': 9, 'text-optional': true },
       paint: { 'text-color': p.poiLabel, 'text-halo-color': p.halo, 'text-halo-width': 1.4 } },
+    { id: 'signals', type: 'symbol', source: 'signals', minzoom: 13,
+      layout: { 'icon-image': 'tlight', 'icon-anchor': 'bottom', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
+        'icon-pitch-alignment': 'viewport', 'icon-rotation-alignment': 'viewport',
+        'icon-size': ['interpolate', ['linear'], ['zoom'], 13, ['match', ['get', 'kind'], 'ped', 0.38, 0.5], 18, ['match', ['get', 'kind'], 'ped', 0.72, 0.95]] } },
     { id: 'airport-label', type: 'symbol', source: 'omt', 'source-layer': 'aerodrome_label', minzoom: 8,
       layout: { 'text-field': ['concat', '✈ ', nameExpr], 'text-font': F_REG, 'text-size': 12, 'text-max-width': 9 },
       paint: { 'text-color': p.village, 'text-halo-color': p.halo, 'text-halo-width': 1.4 } },
@@ -781,7 +811,8 @@ function buildStyle(p) {
       'dem-hs': { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14 },
       trees3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       bridges3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-      route: { type: 'geojson', lineMetrics: true, data: { type: 'FeatureCollection', features: [] } }
+      route: { type: 'geojson', lineMetrics: true, data: { type: 'FeatureCollection', features: [] } },
+      signals: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } }
     },
     layers
   };
@@ -848,7 +879,8 @@ function set3d(on, { animate = true } = {}) {
   if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
 }
 $('#btn3d').onclick = () => set3d(!is3d);
-map.on('load', () => { set3d(true, { animate: false }); applyRouteColor(); });
+map.on('load', () => { set3d(true, { animate: false }); applyRouteColor(); addSignalIcon(); applyDisplay(); loadSignalsInView(); });
+map.on('styleimagemissing', e => { if (e.id === 'tlight') addSignalIcon(); });
 
 function showAustralia() {
   const cam = map.cameraForBounds([[AU_BBOX[0], AU_BBOX[1]], [AU_BBOX[2], AU_BBOX[3]]], { padding: 40, bearing: 0 });
@@ -1051,7 +1083,7 @@ map.on('load', () => requestAnimationFrame(animateFlow));
 function setProgress(frac, force) {
   if (!map.getLayer('route-line') || REVEAL.on) { PROG.frac = frac; return; }
   const f = Math.min(0.9999, Math.max(0.00001, frac));
-  if (!force && Math.abs(f - PROG.lastF) < 0.0004) return;
+  if (!force && Math.abs(f - PROG.lastF) < Math.max(0.00002, 1 / (NAV.total || 1e6))) return;
   PROG.frac = frac; PROG.lastF = f;
   map.setPaintProperty('route-line', 'line-gradient', ['step', ['line-progress'], P().travelled, f, RC().c]);
 }
@@ -1145,6 +1177,43 @@ function renderSettings() {
       <span class="swatch" style="background:${sw}"></span>
       <span class="ol">${l}<small>${d}</small></span><span class="tickbox">${TICK}</span></div>`).join('');
 }
+const TOGGLES = [
+  { key: 'showSpeedo', icon: '⏲️', label: 'Speedometer', desc: 'Show your live speed on the map' },
+  { key: 'showStopwatch', icon: '⏱️', label: 'Trip stopwatch', desc: 'Show the stopwatch in the top corner' },
+  { key: 'traffic', icon: '🚦', label: 'Traffic lights', desc: 'Show where traffic lights are, with alerts while driving' },
+  { key: 'poiLabels', icon: '🏪', label: 'Shop & place names', desc: 'Names of stores, cafés, parks, airports and more' },
+  { key: 'roadLabels', icon: '🛣️', label: 'Street & suburb names', desc: 'Road, suburb, town and water names' }
+];
+const toggleRow = (t, desc, id) => `
+  <div class="tg-row" role="switch" tabindex="0" data-toggle="${t.key}" aria-checked="${!!SET[t.key]}">
+    <span class="tg-ico">${t.icon}</span>
+    <span class="ol">${t.label}<small${id ? ` id="${id}"` : ''}>${desc}</small></span><span class="switch"></span></div>`;
+function renderToggles() {
+  $('#optDisplay').innerHTML = TOGGLES.map(t => toggleRow(t, t.desc)).join('');
+  $('#optDevice').innerHTML = toggleRow({ key: 'keepAwake', icon: '📱', label: 'Keep screen awake' }, wakeStatusText(), 'wakeDesc');
+}
+function flipToggle(el) {
+  const key = el.dataset.toggle;
+  SET[key] = !SET[key]; saveSettings();
+  el.setAttribute('aria-checked', String(SET[key]));
+  applyDisplay();
+  if (key === 'keepAwake') { SET.keepAwake ? requestWake(true) : releaseWake(); }
+  if (key === 'traffic' && SET.traffic) { loadSignalsInView(); if (S.routes[S.sel]) loadRouteSignals(S.routes[S.sel]); }
+  if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
+}
+const LABEL_GROUPS = {
+  poiLabels: ['poi-label', 'airport-label', 'peak-label'],
+  roadLabels: ['road-label', 'road-shield', 'housenumber', 'place-minor', 'place-village', 'place-town', 'place-city', 'place-state', 'water-name', 'waterway-name']
+};
+function applyDisplay() {
+  document.body.classList.toggle('hide-speedo', !SET.showSpeedo);
+  document.body.classList.toggle('hide-stopwatch', !SET.showStopwatch);
+  if (!map.getLayer('road-label')) return;
+  for (const [key, ids] of Object.entries(LABEL_GROUPS))
+    for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', SET[key] ? 'visible' : 'none');
+  map.setLayoutProperty('signals', 'visibility', SET.traffic ? 'visible' : 'none');
+  refreshExplore();
+}
 function chooseSetting(el) {
   const key = el.dataset.set, val = el.dataset.val;
   if (SET[key] === val) return;
@@ -1152,8 +1221,15 @@ function chooseSetting(el) {
   if (key === 'route') { applyRouteColor(); toast(`Directions line: ${ROUTE_COLORS[val].label}`); }
   else { applyTheme(); toast(val === 'light' ? 'White map' : 'Charcoal map'); }
 }
-$('#drSettings').addEventListener('click', e => { const o = e.target.closest('.opt'); if (o) chooseSetting(o); });
-$('#drSettings').addEventListener('keydown', e => { const o = e.target.closest('.opt'); if (o && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); chooseSetting(o); } });
+$('#drSettings').addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) return chooseSetting(o);
+  const t = e.target.closest('.tg-row'); if (t) flipToggle(t);
+});
+$('#drSettings').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const o = e.target.closest('.opt'), t = e.target.closest('.tg-row');
+  if (o || t) { e.preventDefault(); o ? chooseSetting(o) : flipToggle(t); }
+});
 renderSettings();
 
 /* ================= Geocoding (Photon, Australia only) ================= */
@@ -1363,6 +1439,10 @@ function refreshExplore() {
   const streets = [...rm.values()].sort((a, b) => a.n.localeCompare(b.n));
   const rowHtml = (r, i, icon, kind) => `<div class="row" data-i="${i}"><div class="ac-ico">${icon}</div><div class="row-main"><div class="ac-t">${esc(r.n)}</div><div class="ac-s">${esc(kind)}</div></div></div>`;
   $('#exPlaces').innerHTML = places.length ? places.slice(0, 80).map((r, i) => rowHtml(r, i, iconFor(r.cls), r.cls.replace(/_/g, ' '))).join('') : '<p class="hint">No named places in this view.</p>';
+  if (!SET.roadLabels) {
+    $('#exPlaces').innerHTML = $('#exStreets').innerHTML = '<p class="hint">Turn on <b>Street &amp; suburb names</b> in Settings to list places here.</p>';
+    return;
+  }
   $('#exStreets').innerHTML = map.getZoom() < 12 ? '<p class="hint">Zoom in closer to list street names.</p>' :
     streets.length ? streets.slice(0, 150).map((r, i) => rowHtml(r, i, '🛣️', r.cls + ' road')).join('') : '<p class="hint">No named streets in this view.</p>';
   $('#exPlaces').querySelectorAll('.row').forEach(el => el.onclick = () => {
@@ -1400,6 +1480,17 @@ function popupContent(p) {
 }
 map.on('click', async e => {
   if (NAV.on) return;
+  const sig = SET.traffic ? map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 14], [e.point.x + 10, e.point.y + 4]], { layers: ['signals'] })[0] : null;
+  if (sig) {
+    popup?.remove();
+    const ped = sig.properties.kind === 'ped';
+    const d = document.createElement('div'); d.className = 'pop';
+    d.innerHTML = `<div class="pop-t">🚦 ${ped ? 'Pedestrian crossing lights' : 'Traffic lights'}</div>
+      <div class="pop-s">${fmtCoord(sig.geometry.coordinates)}</div>
+      <div class="sig-note">Live red/green status isn't published by Australian road authorities, so the current light colour can't be shown.</div>`;
+    popup = new maplibregl.Popup({ offset: 22, maxWidth: '280px' }).setLngLat(sig.geometry.coordinates).setDOMContent(d).addTo(map);
+    return;
+  }
   const hit = map.queryRenderedFeatures(e.point, { layers: ['route-alt'] });
   if (hit.length) { selectRoute(hit[0].properties.idx); return; }
   const c = [e.lngLat.lng, e.lngLat.lat];
@@ -1418,7 +1509,7 @@ map.on('click', async e => {
   }
 });
 map.on('mousemove', e => {
-  const f = map.queryRenderedFeatures(e.point, { layers: ['route-alt', 'poi-dot', 'poi-hl'] });
+  const f = map.queryRenderedFeatures(e.point, { layers: ['route-alt', 'poi-dot', 'poi-hl', 'signals'] });
   map.getCanvas().style.cursor = f.length ? 'pointer' : '';
 });
 
@@ -1549,6 +1640,7 @@ function renderRoutes() {
         <div style="text-align:right"><div class="dist">${fmtDist(x.distance)}</div>${i === 0 ? '<div class="via">Fastest</div>' : ''}</div>
       </div>`).join('')}</div>
     <div class="hint" style="margin-top:10px">Arrive around <b>${eta}</b></div>
+    <div class="hint" id="routeSig" style="margin-top:2px"></div>
     <div class="btns">
       <button class="btn primary" id="navStart" style="flex:1;justify-content:center">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg> Start</button>
@@ -1568,6 +1660,121 @@ function renderRoutes() {
   $('#clearRoute').onclick = clearRoute;
   $('#navStart').onclick = () => startNav(false);
   $('#navSim').onclick = () => startNav(true);
+  updateSignalInfo();
+  loadRouteSignals(r);
+}
+
+/* ================= Traffic lights (OpenStreetMap via Overpass) ================= */
+const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
+const SIG = { feats: new Map(), cells: new Set(), busy: false, again: false, cell: 0.04, pauseUntil: 0 };
+function addSignalIcon() {
+  if (map.hasImage('tlight')) return;
+  const px = 2, W = 24, H = 46, cv = document.createElement('canvas');
+  cv.width = W * px; cv.height = H * px;
+  const g = cv.getContext('2d'); g.scale(px, px);
+  const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+  g.fillStyle = '#16171a'; g.beginPath(); g.moveTo(W / 2 - 5, 34); g.lineTo(W / 2 + 5, 34); g.lineTo(W / 2, 44); g.closePath(); g.fill();
+  rr(3, 1.5, W - 6, 34, 6); g.fillStyle = '#16171a'; g.fill(); g.lineWidth = 1.6; g.strokeStyle = '#e9eaec'; g.stroke();
+  [['#ff453a', 8.5], ['#ffc300', 18.5], ['#30d158', 28.5]].forEach(([c, y]) => {
+    g.beginPath(); g.arc(W / 2, y, 4.2, 0, Math.PI * 2); g.fillStyle = c; g.fill();
+    g.beginPath(); g.arc(W / 2 - 1.3, y - 1.3, 1.2, 0, Math.PI * 2); g.fillStyle = 'rgba(255,255,255,.55)'; g.fill();
+  });
+  const img = g.getImageData(0, 0, cv.width, cv.height);
+  map.addImage('tlight', { width: cv.width, height: cv.height, data: new Uint8Array(img.data.buffer) }, { pixelRatio: px });
+}
+async function overpass(q) {
+  let lastErr;
+  for (const u of OVERPASS) {
+    try {
+      const r = await fetch(u, { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+      if (r.ok) return await r.json();
+      lastErr = new Error('HTTP ' + r.status);
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('Traffic light data unavailable');
+}
+function addSignals(elements) {
+  let added = 0;
+  for (const el of elements || []) {
+    if (el.type !== 'node' || SIG.feats.has(el.id)) continue;
+    const t = el.tags || {};
+    SIG.feats.set(el.id, { type: 'Feature', properties: { id: el.id, kind: t.crossing === 'traffic_signals' ? 'ped' : 'road' }, geometry: { type: 'Point', coordinates: [el.lon, el.lat] } });
+    added++;
+  }
+  if (added && map.getSource('signals')) map.getSource('signals').setData({ type: 'FeatureCollection', features: [...SIG.feats.values()] });
+  return added;
+}
+const sigQuery = area => `[out:json][timeout:25];(node["highway"="traffic_signals"]${area};node["crossing"="traffic_signals"]${area};);out;`;
+async function loadSignalsInView() {
+  if (!SET.traffic || map.getZoom() < 13 || Date.now() < SIG.pauseUntil) return;
+  if (SIG.busy) { SIG.again = true; return; }
+  const c = map.getCenter(), z = map.getZoom(), C = SIG.cell;
+  const R = Math.min(3000, 1600 * Math.pow(2, 15 - z)), kx = mLon(c.lat);
+  const w = c.lng - R / kx, e = c.lng + R / kx, so = c.lat - R / M_LAT, no = c.lat + R / M_LAT;
+  const missing = [];
+  for (let i = Math.floor(w / C); i <= Math.floor(e / C); i++)
+    for (let j = Math.floor(so / C); j <= Math.floor(no / C); j++)
+      if (!SIG.cells.has(i + ':' + j)) missing.push([i, j]);
+  if (!missing.length) return;
+  const is = missing.map(m => m[0]), js = missing.map(m => m[1]);
+  const bb = [Math.min(...js) * C, Math.min(...is) * C, (Math.max(...js) + 1) * C, (Math.max(...is) + 1) * C].map(v => v.toFixed(4)).join(',');
+  SIG.busy = true;
+  try {
+    const j = await overpass(sigQuery(`(${bb})`));
+    addSignals(j.elements);
+    missing.forEach(m => SIG.cells.add(m[0] + ':' + m[1]));
+  } catch (err) { console.warn('[signals]', err.message); SIG.pauseUntil = Date.now() + 20000; }
+  SIG.busy = false;
+  if (SIG.again) { SIG.again = false; loadSignalsInView(); }
+}
+map.on('moveend', debounce(loadSignalsInView, 700));
+
+const cumOf = coords => { const cum = [0]; for (let i = 1; i < coords.length; i++) cum.push(cum[i - 1] + geoDist(coords[i - 1], coords[i])); return cum; };
+function simplifyLine(coords, tol) {                       // Douglas–Peucker in metres
+  if (coords.length < 3) return coords.slice();
+  const kx = mLon(coords[0][1]), keep = new Uint8Array(coords.length);
+  keep[0] = keep[coords.length - 1] = 1;
+  const stack = [[0, coords.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop();
+    const ax = coords[a][0] * kx, ay = coords[a][1] * M_LAT, bx = coords[b][0] * kx, by = coords[b][1] * M_LAT;
+    const dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1;
+    let maxD = 0, idx = -1;
+    for (let i = a + 1; i < b; i++) {
+      const d = Math.abs((coords[i][0] * kx - ax) * dy - (coords[i][1] * M_LAT - ay) * dx) / L;
+      if (d > maxD) { maxD = d; idx = i; }
+    }
+    if (maxD > tol && idx > 0) { keep[idx] = 1; stack.push([a, idx], [idx, b]); }
+  }
+  return coords.filter((_, i) => keep[i]);
+}
+async function loadRouteSignals(r) {
+  if (!r || !SET.traffic || r._sigLoading || r._signals) return;
+  if (r.distance > 150000) return;                         // very long trips: map shows lights as you go
+  r._sigLoading = true; updateSignalInfo();
+  const coords = r.geometry.coordinates;
+  let tol = 6, pts = simplifyLine(coords, tol);
+  while (pts.length > 280) { tol *= 1.6; pts = simplifyLine(coords, tol); }
+  const path = pts.map(c => c[1].toFixed(5) + ',' + c[0].toFixed(5)).join(',');
+  try {
+    const j = await overpass(sigQuery(`(around:${Math.round(tol + 14)},${path})`));
+    addSignals(j.elements);
+    const cum = cumOf(coords), alongs = [];
+    for (const el of j.elements || []) {
+      if (el.type !== 'node') continue;
+      const pr = projectOn([el.lon, el.lat], coords, cum);
+      if (pr.d < 30) alongs.push(pr.along);
+    }
+    alongs.sort((a, b) => a - b);
+    r._signals = alongs.filter((a, i) => i === 0 || a - alongs[i - 1] > 45);   // one entry per intersection
+  } catch (err) { console.warn('[signals]', err.message); }
+  r._sigLoading = false;
+  updateSignalInfo();
+}
+function updateSignalInfo() {
+  const r = S.routes[S.sel], el = document.getElementById('routeSig');
+  if (el) el.textContent = !r || !SET.traffic ? '' : r._signals ? `🚦 ${r._signals.length} set${r._signals.length === 1 ? '' : 's'} of traffic lights on this route` : r._sigLoading ? '🚦 Checking traffic lights…' : '';
+  if (NAV.on && NAV.route === r) { NAV.signals = r._signals || []; if (NAV.lastAlong != null) updateNavCard(NAV.lastAlong); }
 }
 
 /* ================= Stopwatch ================= */
@@ -1677,7 +1884,7 @@ function onGpsFix(pos) {
   SPEEDO.set(v != null && !isNaN(v) ? v * 3.6 : 0);
   myLoc = c;
   if (NAV.on && !NAV.sim) onPosition(c, pos.coords.heading, v);
-  else if (!NAV.on) animateMe(c, pos.coords.heading, null);
+  else if (!NAV.on) feedFix(c, pos.coords.heading, null, v);
 }
 
 /* ================= Smooth position indicator ================= */
@@ -1691,52 +1898,78 @@ function setMe(coord, heading) {
   meMarker.setLngLat(coord);
   if (heading != null && !isNaN(heading)) meMarker.setRotation(heading);
 }
-const PUCK = { cur: null, curH: null, curA: null, from: null, to: null, fromH: 0, toH: 0, fromA: null, toA: null, t0: 0, dur: 1, lastFix: 0, raf: 0 };
-function resetPuck() { cancelAnimationFrame(PUCK.raf); Object.assign(PUCK, { cur: null, curH: null, curA: null, lastFix: 0, raf: 0 }); }
-// Each GPS fix starts a glide from where the arrow is now to the new fix,
-// following the route line when snapped, lasting about as long as the gap between fixes.
-function animateMe(target, heading, along) {
-  const now = performance.now();
-  const h = heading != null && !isNaN(heading) ? heading : null;
-  if (!PUCK.cur) { PUCK.cur = target; PUCK.curH = h ?? 0; PUCK.curA = along; }
-  const gap = PUCK.lastFix ? now - PUCK.lastFix : 1000;
-  PUCK.lastFix = now;
-  // if we extrapolated slightly past the new fix, hold rather than jump backwards
-  if (along != null && PUCK.curA != null && along < PUCK.curA && PUCK.curA - along < 25) along = PUCK.curA;
-  Object.assign(PUCK, {
-    from: PUCK.cur, to: target, fromH: PUCK.curH ?? 0, toH: h ?? PUCK.curH ?? 0,
-    fromA: PUCK.curA, toA: along, t0: PUCK.raf && PUCK.lastTs ? PUCK.lastTs : now, dur: Math.max(250, Math.min(2000, gap))
-  });
-  if (!PUCK.raf) PUCK.raf = requestAnimationFrame(puckFrame);
+/* Motion model: the arrow travels along the route with its own velocity, driven by a critically-damped
+   spring towards where the GPS says you are *now* (last fix + speed × time since). That gives constant,
+   jitter-free movement between fixes, no backwards jumps, and gentle speed-ups / slow-downs. */
+const MOTION = { raf: 0, last: 0, pos: null, head: 0, along: null, v: 0, fix: null, camH: null, camZ: null };
+const angDiff = (a, b) => ((a - b + 540) % 360) - 180;
+const norm360 = a => ((a % 360) + 360) % 360;
+function resetMotion() { cancelAnimationFrame(MOTION.raf); Object.assign(MOTION, { raf: 0, last: 0, pos: null, head: 0, along: null, v: 0, fix: null, camH: null, camZ: null }); }
+const offsetBy = ([lon, lat], bearing, m) => { const r = bearing * Math.PI / 180; return [lon + Math.sin(r) * m / mLon(lat), lat + Math.cos(r) * m / M_LAT]; };
+function followZoom(speed) {
+  const kmh = (speed || 0) * 3.6 / (NAV.simFactor || 1);
+  const base = NAV.mode === 'foot' ? 19 : NAV.mode === 'bike' ? 18.7 : 18.4;
+  return base - Math.max(0, Math.min(1, (kmh - 40) / 70)) * 1.0;      // pulls back a little at highway speed
 }
-function puckFrame(now) {
-  PUCK.raf = 0;
-  PUCK.lastTs = now;
-  const raw = Math.max(0, (now - PUCK.t0) / PUCK.dur);
-  const k = Math.min(1, raw);
-  let p, a = null, more = k < 1;
-  const alongOK = NAV.on && NAV.coords && PUCK.fromA != null && PUCK.toA != null && PUCK.toA >= PUCK.fromA && PUCK.toA - PUCK.fromA < 800;
-  if (alongOK) {
-    // keep gliding at the same speed for a little while past the fix (dead reckoning) so late GPS updates don't cause stops
-    const kk = Math.min(raw, PUCK.toA > PUCK.fromA ? 1.6 : 1);
-    a = Math.min(NAV.total, PUCK.fromA + (PUCK.toA - PUCK.fromA) * kk);
-    p = pointAt(a).p;
-    more = kk < 1.6 && PUCK.toA > PUCK.fromA && a < NAV.total;
+function wakeMotion() { if (!MOTION.raf && MOTION.fix) { MOTION.last = performance.now(); MOTION.raf = requestAnimationFrame(motionFrame); } }
+function feedFix(p, heading, along, speed) {
+  const now = performance.now(), prev = MOTION.fix;
+  let s = speed;
+  if ((s == null || isNaN(s)) && prev) {
+    const dt = (now - prev.t) / 1000;
+    if (dt > 0.2) s = along != null && prev.along != null ? Math.max(0, along - prev.along) / dt : geoDist(prev.p, p) / dt;
   }
-  else {
-    p = [PUCK.from[0] + (PUCK.to[0] - PUCK.from[0]) * k, PUCK.from[1] + (PUCK.to[1] - PUCK.from[1]) * k];
-    if (k >= 1) a = PUCK.toA;
+  s = Math.max(0, Math.min(70, s || 0));
+  if (prev && s > 0) s = prev.speed * 0.3 + s * 0.7;
+  const h = heading != null && !isNaN(heading) ? heading : null;
+  MOTION.fix = { p, heading: h, along, speed: s, t: now };
+  if (!MOTION.pos || (along == null && geoDist(MOTION.pos, p) > 300)) { MOTION.pos = p; if (h != null) MOTION.head = h; }
+  if (along == null) MOTION.along = null;
+  else if (MOTION.along == null || Math.abs(along - MOTION.along) > 250) { MOTION.along = along; MOTION.v = s; }
+  wakeMotion();
+}
+function motionFrame(now) {
+  MOTION.raf = 0;
+  const f = MOTION.fix; if (!f) return;
+  const dt = Math.max(0.001, Math.min(0.08, (now - MOTION.last) / 1000));
+  MOTION.last = now;
+  const age = Math.max(0, Math.min(2.5, (now - f.t) / 1000));
+  const onRoute = NAV.on && NAV.coords && f.along != null && MOTION.along != null;
+  let desiredH = MOTION.head, settled;
+  if (onRoute) {
+    const target = Math.min(NAV.total, f.along + f.speed * age);
+    const w = 1.35;
+    const acc = w * w * (target - MOTION.along) + 2 * w * (f.speed - MOTION.v);
+    MOTION.v = Math.max(0, Math.min(80, MOTION.v + acc * dt));
+    MOTION.along = Math.min(NAV.total, MOTION.along + MOTION.v * dt);
+    MOTION.pos = pointAt(MOTION.along).p;
+    desiredH = routeHeading(MOTION.along);
+    settled = f.speed < 0.05 && MOTION.v < 0.05;
+  } else {
+    let target = f.p;
+    if (f.speed > 0.7 && f.heading != null) target = offsetBy(f.p, f.heading, f.speed * age);
+    const k = 1 - Math.exp(-dt * 4);
+    MOTION.pos = [MOTION.pos[0] + (target[0] - MOTION.pos[0]) * k, MOTION.pos[1] + (target[1] - MOTION.pos[1]) * k];
+    if (f.heading != null) desiredH = f.heading;
+    settled = f.speed <= 0.7 && geoDist(MOTION.pos, target) < 0.15;
   }
-  const dh = ((PUCK.toH - PUCK.fromH + 540) % 360) - 180;
-  const kh = 1 - Math.pow(1 - Math.min(1, k * 1.8), 3);
-  const h = (PUCK.fromH + dh * kh + 360) % 360;
-  PUCK.cur = p; PUCK.curH = h; if (a != null) PUCK.curA = a;
-  setMe(p, h);
+  const dh = angDiff(desiredH, MOTION.head);
+  MOTION.head = norm360(MOTION.head + dh * (1 - Math.exp(-dt * 4)));
+  setMe(MOTION.pos, MOTION.head);
+  let camBusy = false;
   if (NAV.on) {
-    if (a != null && NAV.total) setProgress(a / NAV.total);
-    if (NAV.follow === true) map.jumpTo({ center: p, bearing: h });
+    if (MOTION.along != null && NAV.total) setProgress(MOTION.along / NAV.total);
+    if (NAV.follow === true) {
+      if (MOTION.camH == null) MOTION.camH = map.getBearing();
+      if (MOTION.camZ == null) MOTION.camZ = map.getZoom();
+      const ch = angDiff(MOTION.head, MOTION.camH), zt = followZoom(f.speed);
+      MOTION.camH = norm360(MOTION.camH + ch * (1 - Math.exp(-dt * 2)));
+      MOTION.camZ += (zt - MOTION.camZ) * (1 - Math.exp(-dt * 0.9));
+      map.jumpTo({ center: MOTION.pos, bearing: MOTION.camH, zoom: MOTION.camZ });
+      camBusy = Math.abs(ch) > 0.2 || Math.abs(zt - MOTION.camZ) > 0.01;
+    } else { MOTION.camH = null; MOTION.camZ = null; }
   }
-  if (more || k < 1) PUCK.raf = requestAnimationFrame(puckFrame);
+  if (!settled || Math.abs(dh) > 0.2 || camBusy) MOTION.raf = requestAnimationFrame(motionFrame);
 }
 
 /* ================= Navigation & re-centre ================= */
@@ -1744,10 +1977,11 @@ const SETOFF_METRES = 25, ARRIVE_METRES = 30, OFFROUTE_METRES = 60, SNAP_METRES 
 const NAV = { on: false, follow: false };
 function navPadding() {
   const h = map.getContainer().clientHeight;
-  return { top: Math.round(h * 0.38), bottom: isMobile() ? 90 : 40, left: 0, right: 0 };
+  return { top: Math.round(h * 0.44), bottom: isMobile() ? 70 : 30, left: 0, right: 0 };
 }
 function setFollowing(v) {
   NAV.follow = v;
+  if (v === true) wakeMotion();
   $('#recentrePill').classList.toggle('show', NAV.on && v === false);
 }
 {
@@ -1761,15 +1995,15 @@ function setFollowing(v) {
   ['dragstart', 'rotatestart', 'pitchstart'].forEach(ev => map.on(ev, e => { if (e.originalEvent) breakFollow(); }));
 }
 function followCamera(duration = 1000) {
-  const c = PUCK.cur || NAV.pos; if (!c) return;
+  const c = MOTION.pos || NAV.pos; if (!c) return;
   setFollowing('pending');
-  map.flyTo({ center: c, zoom: NAV.mode === 'foot' ? 18 : 17, pitch: 62, bearing: PUCK.curH ?? map.getBearing(), padding: navPadding(), duration, essential: true });
+  map.flyTo({ center: c, zoom: followZoom(MOTION.fix ? MOTION.fix.speed : 0), pitch: 64, bearing: MOTION.head ?? map.getBearing(), padding: navPadding(), duration, essential: true });
   map.once('moveend', () => { if (NAV.on && NAV.follow === 'pending') setFollowing(true); });
 }
 function recentre() {
   if (NAV.on) { followCamera(900); return; }
-  if (PUCK.cur && GPS.watch != null) {
-    map.flyTo({ center: PUCK.cur, zoom: Math.max(map.getZoom(), 16.5), pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1200 });
+  if (MOTION.pos && GPS.watch != null) {
+    map.flyTo({ center: MOTION.pos, zoom: Math.max(map.getZoom(), 16.5), pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1200 });
     return;
   }
   if (!navigator.geolocation) return fallbackRecentre();
@@ -1777,7 +2011,7 @@ function recentre() {
   navigator.geolocation.getCurrentPosition(pos => {
     const c = [pos.coords.longitude, pos.coords.latitude];
     if (!inAus(c)) { toast('Your location is outside Australia'); return fallbackRecentre(); }
-    myLoc = c; animateMe(c, pos.coords.heading, null);
+    myLoc = c; feedFix(c, pos.coords.heading, null, 0);
     map.flyTo({ center: c, zoom: Math.max(map.getZoom(), 16.5), pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1400 });
   }, () => { toast('Location unavailable — centring on your route'); fallbackRecentre(); }, { enableHighAccuracy: true, timeout: 10000 });
 }
@@ -1796,10 +2030,11 @@ function prepNavRoute(r) {
   const steps = r.legs.flatMap(l => l.steps);
   const scale = cum[cum.length - 1] / (steps.reduce((a, s) => a + s.distance, 0) || 1);
   let acc = 0; const starts = steps.map(s => { const v = acc; acc += s.distance * scale; return v; });
-  Object.assign(NAV, { route: r, coords, cum, total: cum[cum.length - 1], steps, starts });
+  Object.assign(NAV, { route: r, coords, cum, total: cum[cum.length - 1], steps, starts, signals: r._signals || [], lastAlong: 0 });
 }
-function projectOnRoute(p) {
-  const { coords, cum } = NAV, kx = mLon(p[1]);
+const projectOnRoute = p => projectOn(p, NAV.coords, NAV.cum);
+function projectOn(p, coords, cum) {
+  const kx = mLon(p[1]);
   let best = { d: Infinity, along: 0 };
   for (let i = 0; i < coords.length - 1; i++) {
     const ax = (coords[i][0] - p[0]) * kx, ay = (coords[i][1] - p[1]) * M_LAT;
@@ -1829,9 +2064,9 @@ function startNav(simulate) {
   const r = S.routes[S.sel]; if (!r) return;
   stopSim();
   popup?.remove();
-  Object.assign(NAV, { on: true, sim: simulate, mode: S.mode, pos: null, anchor: null, arrived: false, offCount: 0, rerouting: false });
+  Object.assign(NAV, { on: true, sim: simulate, simFactor: 1, mode: S.mode, pos: null, anchor: null, arrived: false, offCount: 0, rerouting: false });
   prepNavRoute(r);
-  resetPuck();
+  resetMotion();
   SW.reset('Waiting for you to set off…', 'wait');
   document.body.classList.add('navigating');
   setCollapsed(true);
@@ -1840,14 +2075,16 @@ function startNav(simulate) {
   updateNavCard(0);
   $('#navTxt').textContent = simulate ? 'Preview drive starting…' : 'Waiting for GPS…';
   const h0 = routeHeading(0);
-  animateMe(NAV.coords[0], h0, 0);
+  feedFix(NAV.coords[0], h0, 0, 0);
+  MOTION.head = h0;
   setFollowing('pending');
-  map.flyTo({ center: NAV.coords[0], zoom: S.mode === 'foot' ? 18 : 17, pitch: 62, bearing: h0, padding: navPadding(), duration: 1600, essential: true });
+  map.flyTo({ center: NAV.coords[0], zoom: followZoom(0), pitch: 64, bearing: h0, padding: navPadding(), duration: 1600, essential: true });
   map.once('moveend', () => { if (NAV.on && NAV.follow === 'pending') setFollowing(true); });
 
   if (simulate) {
     const real = { car: 16, bike: 5.5, foot: 1.4 }[S.mode];
-    const speed = real * { car: 3, bike: 3, foot: 6 }[S.mode];   // sped-up preview
+    NAV.simFactor = { car: 3, bike: 3, foot: 6 }[S.mode];
+    const speed = real * NAV.simFactor;   // sped-up preview
     let d = 0, t = 0;
     NAV.simTimer = setInterval(() => {
       t += 1;
@@ -1855,7 +2092,7 @@ function startNav(simulate) {
       if (moving) d = Math.min(NAV.total, d + speed);
       const { p } = pointAt(d);
       SPEEDO.set(moving ? real * 3.6 * (0.9 + Math.random() * 0.2) : 0);
-      onPosition(p, null, moving ? real : 0);
+      onPosition(p, null, moving ? speed : 0);
       if (d >= NAV.total && t > 3) stopSim();
     }, 1000);
   } else if (!startGPS(true)) {
@@ -1874,7 +2111,7 @@ function exitNav() {
   document.body.classList.remove('navigating');
   setFollowing(false);
   PROG.frac = 0; setProgress(0, true);
-  if (meMarker && GPS.watch == null) { meMarker.remove(); meMarker = null; resetPuck(); }
+  if (meMarker && GPS.watch == null) { meMarker.remove(); meMarker = null; resetMotion(); }
   map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   setCollapsed(false);
   map.easeTo({ pitch: is3d ? 55 : 0, duration: 800 });
@@ -1888,6 +2125,8 @@ function updateNavCard(along) {
   $('#navRemT').textContent = fmtDur(remT);
   $('#navRemD').textContent = fmtDist(rem);
   $('#navEta').textContent = new Date(Date.now() + remT * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const ns = SET.traffic ? (NAV.signals || []).find(a => a > along + 3) : null;
+  $('#navSig').textContent = ns != null && ns - along <= 2000 ? `🚦 in ${fmtDist(ns - along)}` : '';
   let k = NAV.starts.findIndex((s, i) => i > 0 && s > along + 3);
   if (k < 0) k = NAV.steps.length - 1;
   const st = NAV.steps[k];
@@ -1913,12 +2152,14 @@ function onPosition(p, heading, speed) {
   let h = heading;
   if (snapped) h = routeHeading(pr.along);
   else if ((h == null || isNaN(h)) && prev && geoDist(prev, p) > 3) h = bearingOf(prev, p);
-  animateMe(snapped ? pointAt(pr.along).p : p, h, snapped ? pr.along : null);
+  feedFix(snapped ? pointAt(pr.along).p : p, h, snapped ? pr.along : null, speed);
+  NAV.lastAlong = pr.along;
   updateNavCard(pr.along);
 
   const dest = NAV.coords[NAV.coords.length - 1];
   if (geoDist(p, dest) <= ARRIVE_METRES || (SW.started && NAV.total - pr.along < 15 && pr.d < 25)) {
     NAV.arrived = true;
+    if (MOTION.fix) { MOTION.fix.speed = 0; MOTION.fix.t = performance.now(); if (MOTION.fix.along != null) MOTION.fix.along = Math.min(NAV.total, Math.max(MOTION.fix.along, NAV.total - 2)); }
     SW.pause('Arrived in ' + SW.fmt(SW.elapsed()), 'done');
     $('#navArr').innerHTML = maneuverIcon({ maneuver: { type: 'arrive' } });
     $('#navDist').textContent = 'You have arrived';
@@ -1944,7 +2185,7 @@ async function reroute(p) {
     if (j.code === 'Ok' && j.routes.length) {
       S.routes = [j.routes[0]]; S.sel = 0;
       PROG.frac = 0; drawRoutes(true); prepNavRoute(j.routes[0]); NAV.offCount = 0;
-      PUCK.curA = null;
+      MOTION.along = null; MOTION.v = 0; loadRouteSignals(j.routes[0]);
     }
   } catch (e) { /* keep old route */ }
   NAV.rerouting = false;
@@ -1957,11 +2198,68 @@ function clearRoute() {
   $('#dirOut').innerHTML = '<p class="hint" style="margin-top:14px">Tip: click anywhere on the map to set a start or destination.</p>';
 }
 
+/* ================= Keep screen awake ================= */
+const WAKE = { lock: null, ns: null, state: 'idle' };
+const hasNativeWake = () => 'wakeLock' in navigator;
+const NoSleepCtor = () => window.NoSleep && (window.NoSleep.default || window.NoSleep);
+function wakeStatusText() {
+  if (!SET.keepAwake) return 'Off — the screen can dim and lock normally';
+  return {
+    on: 'On — the screen stays on while the app is open',
+    fallback: 'On (compatibility mode) — the screen stays on while the app is open',
+    tap: 'Tap anywhere on the map to activate',
+    unsupported: 'Not supported by this browser — try Chrome or Safari over https',
+    idle: 'Starting…'
+  }[WAKE.state];
+}
+function setWakeState(st) { WAKE.state = st; const el = document.getElementById('wakeDesc'); if (el) el.textContent = wakeStatusText(); }
+async function requestWake() {
+  if (!SET.keepAwake || document.visibilityState !== 'visible') return;
+  if (hasNativeWake()) {
+    if (WAKE.lock && !WAKE.lock.released) return;
+    try {
+      WAKE.lock = await navigator.wakeLock.request('screen');
+      WAKE.lock.addEventListener('release', () => { if (SET.keepAwake && WAKE.state === 'on') setWakeState('tap'); });
+      setWakeState('on');
+    } catch (e) { setWakeState('tap'); }         // some browsers need a tap first
+    return;
+  }
+  setWakeState(NoSleepCtor() ? (WAKE.state === 'fallback' ? 'fallback' : 'tap') : 'unsupported');
+}
+// the video-based fallback must start inside a real tap/click
+function gestureWake() {
+  if (!SET.keepAwake || WAKE.state === 'on' || WAKE.state === 'fallback') return;
+  if (hasNativeWake()) { requestWake(); return; }
+  const Ctor = NoSleepCtor();
+  if (!Ctor) return setWakeState('unsupported');
+  try {
+    WAKE.ns = WAKE.ns || new Ctor();
+    const r = WAKE.ns.enable();
+    setWakeState('fallback');
+    if (r && r.catch) r.catch(() => setWakeState('tap'));
+  } catch (e) { setWakeState('tap'); }
+}
+function releaseWake() {
+  try { WAKE.lock && WAKE.lock.release(); } catch (e) {}
+  try { WAKE.ns && WAKE.ns.disable(); } catch (e) {}
+  WAKE.lock = null;
+  setWakeState('idle');
+}
+['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, gestureWake, { capture: true, passive: true }));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !SET.keepAwake) return;
+  if (hasNativeWake()) requestWake();
+  else if (WAKE.state === 'fallback') setWakeState('tap');   // video pauses in the background; next tap resumes it
+});
+renderToggles();
+applyDisplay();
+requestWake();
+
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
 });
 if (isMobile()) setCollapsed(true);
-window.__maps = { map, S, NAV, SW, SET, PUCK, SPEEDO, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+window.__maps = { map, S, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
