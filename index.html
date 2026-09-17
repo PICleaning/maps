@@ -662,7 +662,7 @@ const PAL = {
 
 /* ================= Settings ================= */
 const SETTINGS_KEY = 'aumaps.settings';
-const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20 };
+const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false };
 try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
 if (!ROUTE_COLORS[SET.route]) SET.route = 'green';
 if (!PAL[SET.theme]) SET.theme = 'dark';
@@ -911,6 +911,7 @@ function buildStyle(p) {
     name: 'Australia Maps',
     glyphs: GLYPHS,
     light: { anchor: 'viewport', color: '#ffffff', intensity: p.lightI, position: [1.2, 200, 35] },
+    ...(SET.terrain ? { terrain: { source: 'dem', exaggeration: 1.4 } } : {}),
     sky: { ...p.sky, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.7, 'fog-ground-blend': 0.6, 'atmosphere-blend': 0.4 },
     sources: {
       omt: { type: 'vector', url: TILES, attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>' },
@@ -986,14 +987,16 @@ function set3d(on, { animate = true } = {}) {
   is3d = on;
   $('#btn3d').classList.toggle('on', on);
   $('#dr3dState').textContent = on ? 'On' : 'Off';
-  try { map.setTerrain(on ? { source: 'dem', exaggeration: 1.4 } : null); } catch (e) { console.warn(e); }
+  const wantTerrain = on && SET.terrain, hasTerrain = !!map.getTerrain();
+  if (wantTerrain !== hasTerrain) { try { map.stop(); map.setTerrain(wantTerrain ? { source: 'dem', exaggeration: 1.4 } : null); } catch (e) { console.warn(e); } }
   if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
 }
 $('#btn3d').onclick = () => set3d(!is3d);
-map.on('load', () => { set3d(true, { animate: false }); applyRouteColor(); addSignalIcon(); applyDisplay(); loadSignalsInView(); });
+map.on('load', () => { applyRouteColor(); addSignalIcon(); applyDisplay(); loadSignalsInView(); });
 map.on('styleimagemissing', e => { if (e.id === 'tlight') addSignalIcon(); });
 
 function showAustralia() {
+  map.stop(); clearPadding();
   const cam = map.cameraForBounds([[AU_BBOX[0], AU_BBOX[1]], [AU_BBOX[2], AU_BBOX[3]]], { padding: 40, bearing: 0 });
   if (NAV.on) exitNav();
   map.flyTo({ ...(cam || {}), pitch: 0, bearing: 0, duration: 1600, padding: { top: 0, bottom: 0, left: 0, right: 0 } });
@@ -1224,10 +1227,31 @@ function revealRoute() {
 /* ================= Panel, tabs & drawer ================= */
 const isMobile = () => matchMedia('(max-width:760px)').matches;
 const panel = $('#panel');
+// fitBounds adds the map's leftover padding to the padding we ask for, so clear it first (keeping the view still)
+function clearPadding() {
+  const p = map.getPadding();
+  if (!(p.top || p.bottom || p.left || p.right)) return;
+  const el = map.getContainer(), mid = map.unproject([el.clientWidth / 2, el.clientHeight / 2]);
+  map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
+  map.jumpTo({ center: mid });
+}
+function fitView(bounds, opts) {
+  map.stop();
+  if (!NAV.on) clearPadding();
+  map.fitBounds(bounds, opts);
+}
+function fitPadding(pad) {
+  // never ask the map for more padding than the screen has room for (otherwise it silently refuses to move)
+  const el = map.getContainer(), W = el.clientWidth, H = el.clientHeight;
+  const squeeze = (a, b, total) => { const room = Math.max(0, total - 120); if (a + b <= room) return [a, b]; const k = room / (a + b || 1); return [Math.floor(a * k), Math.floor(b * k)]; };
+  const [t, b] = squeeze(pad.top, pad.bottom, H), [l, r] = squeeze(pad.left, pad.right, W);
+  return { top: t, bottom: b, left: l, right: r };
+}
 function panelPadding(extra = 60) {
-  if (panel.classList.contains('collapsed')) return { top: extra, bottom: extra, left: extra, right: extra };
-  if (isMobile()) return { top: extra, left: extra, right: extra, bottom: panel.offsetHeight + extra };
-  return { top: extra, bottom: extra, right: extra + 50, left: panel.offsetWidth + 30 + extra };
+  if (isMobile()) extra = Math.min(extra, 36);
+  if (panel.classList.contains('collapsed')) return fitPadding({ top: extra, bottom: extra + (isMobile() ? 50 : 0), left: extra, right: extra });
+  if (isMobile()) return fitPadding({ top: extra, left: extra, right: extra, bottom: panel.offsetHeight + extra });
+  return fitPadding({ top: extra, bottom: extra, right: extra + 50, left: panel.offsetWidth + 30 + extra });
 }
 function setCollapsed(c) {
   panel.classList.toggle('collapsed', c);
@@ -1297,6 +1321,7 @@ const TOGGLES = [
   { key: 'showSpeedo', icon: '⏲️', label: 'Speedometer', desc: 'Show your live speed on the map' },
   { key: 'showStopwatch', icon: '⏱️', label: 'Trip stopwatch', desc: 'Show the stopwatch in the top corner' },
   { key: 'traffic', icon: '🚦', label: 'Traffic lights', desc: 'Show where traffic lights are, with alerts while driving' },
+  { key: 'terrain', icon: '⛰️', label: '3D hills', desc: 'Raised landscape in 3D view. Uses more battery and can make the map slow on some phones' },
   { key: 'poiLabels', icon: '🏪', label: 'Shop & place names', desc: 'Names of stores, cafés, parks, airports and more' },
   { key: 'roadLabels', icon: '🛣️', label: 'Street & suburb names', desc: 'Road, suburb, town and water names' }
 ];
@@ -1316,6 +1341,7 @@ function flipToggle(el) {
   applyDisplay();
   if (key === 'keepAwake') { SET.keepAwake ? requestWake(true) : releaseWake(); }
   if (key === 'autoLocate' && SET.autoLocate) autoLocate();
+  if (key === 'terrain') set3d(is3d, { animate: false });
   if (key === 'traffic' && SET.traffic) { loadSignalsInView(); if (S.routes[S.sel]) loadRouteSignals(S.routes[S.sel]); }
   if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
 }
@@ -1461,7 +1487,7 @@ function showPlace(p, { fly = true } = {}) {
   setMarker('place', p.coord, 'p');
   if (fly) {
     if (p.extent && p.extent.length === 4 && (p.key === 'place' || p.key === 'boundary')) {
-      map.fitBounds([[p.extent[0], p.extent[3]], [p.extent[2], p.extent[1]]], { padding: panelPadding(), maxZoom: 16, duration: 1400 });
+      fitView([[p.extent[0], p.extent[3]], [p.extent[2], p.extent[1]]], { padding: panelPadding(), maxZoom: 16, duration: 1400 });
     } else {
       map.flyTo({ center: p.coord, zoom: Math.max(map.getZoom(), p.key === 'highway' ? 16 : 17), padding: panelPadding(), duration: 1400, essential: true });
     }
@@ -1745,7 +1771,7 @@ async function route() {
     renderRoutes();
     const b = new maplibregl.LngLatBounds();
     S.routes[0].geometry.coordinates.forEach(c => b.extend(c));
-    map.fitBounds(b, { padding: panelPadding(70), duration: 1400, pitch: is3d ? 45 : 0, maxZoom: 16.5 });
+    fitView(b, { padding: panelPadding(70), duration: 1400, pitch: is3d ? 45 : 0, maxZoom: 16.5 });
   } catch (e) {
     if (e.name === 'AbortError') return;
     S.routes = []; drawRoutes();
@@ -1989,7 +2015,7 @@ function drawFuelRadius(fit) {
   const R = fuelRadiusM(), kx = mLon(c[1]);
   const ring = []; for (let i = 0; i <= 72; i++) { const a = i / 72 * Math.PI * 2; ring.push([c[0] + Math.sin(a) * R / kx, c[1] + Math.cos(a) * R / M_LAT]); }
   map.getSource('fuelRadius')?.setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: ring } });
-  if (fit) map.fitBounds([[c[0] - R / kx, c[1] - R / M_LAT], [c[0] + R / kx, c[1] + R / M_LAT]], { padding: panelPadding(20), pitch: 0, bearing: 0, duration: 1000 });
+  if (fit) fitView([[c[0] - R / kx, c[1] - R / M_LAT], [c[0] + R / kx, c[1] + R / M_LAT]], { padding: panelPadding(20), pitch: 0, bearing: 0, duration: 1000 });
 }
 function fuelVisible() {
   const t = FUEL.type, R = fuelRadiusM();
@@ -2175,7 +2201,7 @@ async function routeTransit(signal) {
     renderRoutes();
     const b = new maplibregl.LngLatBounds();
     S.routes[0].geometry.coordinates.forEach(c => b.extend(c));
-    map.fitBounds(b, { padding: panelPadding(70), duration: 1400, pitch: 0, maxZoom: 16.5 });
+    fitView(b, { padding: panelPadding(70), duration: 1400, pitch: 0, maxZoom: 16.5 });
   } catch (e) {
     if (e.name === 'AbortError') return;
     S.routes = []; drawRoutes();
@@ -2371,8 +2397,12 @@ function onGpsFix(pos) {
   myLoc = c;
   if (GPS.centreOnFix) {
     GPS.centreOnFix = false;
-    if (!USER_MOVED && !NAV.on && !S.routes.length && !S.place && !FUEL.active && inAus(c))
-      map.flyTo({ center: c, zoom: 16, pitch: is3d ? 58 : 0, duration: 1600, essential: true });
+    const go = () => {
+      if (USER_MOVED || NAV.on || S.routes.length || S.place || FUEL.active || !inAus(c)) return;
+      map.easeTo({ center: c, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200, essential: true });
+    };
+    if (map.loaded()) go();
+    else { let done = false; const once = () => { if (!done) { done = true; go(); } }; map.once('idle', once); setTimeout(once, 6000); }
   }
   if (NAV.on && !NAV.sim) onPosition(c, pos.coords.heading, v);
   else if (!NAV.on) feedFix(c, pos.coords.heading, null, v);
@@ -2508,7 +2538,7 @@ function recentre() {
 }
 function fallbackRecentre() {
   const r = S.routes[S.sel];
-  if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); map.fitBounds(b, { padding: panelPadding(70), duration: 1200, maxZoom: 16.5 }); }
+  if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); fitView(b, { padding: panelPadding(70), duration: 1200, maxZoom: 16.5 }); }
   else if (S.place) map.flyTo({ center: S.place.coord, zoom: 16.5, padding: panelPadding(), duration: 1200 });
   else map.flyTo({ center: MELBOURNE, zoom: 15.6, pitch: is3d ? 58 : 0, duration: 1200 });
 }
@@ -2850,6 +2880,23 @@ function renderTripList() {
 setInterval(updateTripCount, 10 * 60000);
 updateTripCount();
 
+/* ================= Map freeze watchdog ================= */
+{
+  let lastRender = performance.now(), everLoaded = false;
+  map.on('render', () => { lastRender = performance.now(); });
+  map.once('idle', () => { everLoaded = true; });
+  setInterval(() => {
+    if (document.visibilityState !== 'visible') { lastRender = performance.now(); return; }
+    if (map.isMoving() && performance.now() - lastRender > (everLoaded ? 2000 : 8000)) {
+      console.warn('[map] camera animation stalled — recovering');
+      try { map.stop(); } catch (e) {}
+      map.resize();
+      map.triggerRepaint();
+      lastRender = performance.now();
+    }
+  }, 1500);
+}
+
 /* ================= Auto-locate & view reset ================= */
 let USER_MOVED = false;
 {
@@ -2860,7 +2907,7 @@ function autoLocate() {
   if (!navigator.geolocation) return;
   GPS.centreOnFix = true;
   if (GPS.watch == null) startGPS(false);
-  else if (myLoc) { GPS.centreOnFix = false; map.flyTo({ center: myLoc, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200 }); }
+  else if (myLoc) { GPS.centreOnFix = false; map.easeTo({ center: myLoc, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200 }); }
 }
 // Resets both the browser's page zoom (pinch / input-focus zoom on phones) and the map camera
 function resetPageZoom() {
