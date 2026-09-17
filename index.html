@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Australia Maps</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -48,6 +48,42 @@
   --shadow:0 8px 26px rgba(60,64,67,.28);
 }
 *{box-sizing:border-box}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* iOS zooms the whole page when an input under 16px gets focus — keep inputs at 16px on touch screens */
+@media (pointer:coarse){input,select,textarea{font-size:16px!important}}
+.zoomfix{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:65;display:none;border:0;border-radius:20px;padding:9px 16px;
+  background:#111214;color:#fff;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.zoomfix.show{display:block}
+
+/* trip scorecard */
+.modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex;animation:fadein .25s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.score{width:min(470px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--panel);color:var(--text);border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.score-head{padding:18px 18px 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:#fff}
+.score-head h2{margin:0;font-size:19px}
+.score-head .sub{font-size:13px;opacity:.85;margin-top:3px}
+.score-big{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.score-big b{font-size:36px;font-variant-numeric:tabular-nums;letter-spacing:.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.delta{border-radius:14px;padding:5px 11px;font-size:13px;font-weight:700}
+.delta.good{background:#16a34a;color:#fff}
+.delta.bad{background:#dc2626;color:#fff}
+.delta.neutral{background:rgba(255,255,255,.2);color:#fff}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px}
+.tile{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.tile .k{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile .v{font-size:21px;font-weight:800;color:var(--strong);margin-top:2px;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:12px;font-weight:600;color:var(--muted)}
+.tile .s{font-size:12px;color:var(--muted);margin-top:2px}
+.tile.red .v{color:#ef4444}
+.score-foot{padding:0 14px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.score-note{font-size:11px;color:var(--muted);padding:0 14px 10px;line-height:1.45}
+.trip-item{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel-2);border-radius:12px;padding:10px 12px;margin-bottom:8px;color:var(--text);cursor:pointer}
+.trip-item:hover{border-color:var(--muted)}
+.trip-item .t1{font-weight:600;font-size:14px}
+.trip-item .t2{font-size:12px;color:var(--muted);margin-top:3px}
+.tag{display:inline-block;font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:6px;background:var(--line);color:var(--text);vertical-align:middle}
+.tag.good{background:#16a34a;color:#fff}.tag.bad{background:#dc2626;color:#fff}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
 button,input{font:inherit;color:inherit}
@@ -479,8 +515,7 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
       <path class="arc" id="spArc" d="M 23.07 88.93 A 46.5 46.5 0 1 1 88.93 88.93" fill="none" stroke-width="7" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
       <g id="spTicks"></g>
       <g class="needle" id="spNeedle" style="transform:rotate(-135deg)">
-        <line x1="56" y1="56" x2="56" y2="22" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="56" cy="56" r="3.5"/>
+        <line x1="56" y1="33" x2="56" y2="19" stroke-width="3" stroke-linecap="round"/>
       </g>
     </svg>
     <div class="sp-val" id="spVal">GPS</div>
@@ -512,10 +547,16 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
     <button class="dr-item" data-go="3d"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>3D view<span class="state" id="dr3dState">On</span></button>
     <button class="dr-item" data-go="recentre"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/></svg>Re-centre on me</button>
     <button class="dr-item" data-go="gps"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 18a9 9 0 1 1 14 0"/><path d="m12 13 4-5"/></svg>Speedometer GPS<span class="state" id="drGpsState">Off</span></button>
+    <button class="dr-item" data-go="trips"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21V4M4 4h11l-2 4 2 4H4"/><path d="M14 17h6M17 14v6"/></svg>Trip history<span class="state" id="drTripCount"></span></button>
+    <button class="dr-item" data-go="resetview"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><circle cx="12" cy="12" r="2.5"/></svg>Reset view &amp; zoom</button>
     <div class="dr-spacer"></div>
     <div class="dr-sep"></div>
     <button class="dr-item" data-go="settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
     <div class="dr-foot">Map data © OpenStreetMap contributors</div>
+  </div>
+  <div class="dr-view" id="drTrips">
+    <p class="hint" style="margin:4px 4px 12px">Scorecards from your trips in the last 48 hours. They're saved on this device only.</p>
+    <div id="tripList"></div>
   </div>
   <div class="dr-view" id="drSettings">
     <div class="set-group">
@@ -559,6 +600,8 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
   Re-centre
 </button>
 <div class="toast" id="toast"></div>
+<button class="zoomfix" id="zoomFix">↺ Reset zoom</button>
+<div class="modal" id="scoreModal" role="dialog" aria-modal="true" aria-label="Trip scorecard"><div class="score" id="scoreCard"></div></div>
 
 <script>
 (() => {
@@ -619,7 +662,7 @@ const PAL = {
 
 /* ================= Settings ================= */
 const SETTINGS_KEY = 'aumaps.settings';
-const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true };
+const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20 };
 try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
 if (!ROUTE_COLORS[SET.route]) SET.route = 'green';
 if (!PAL[SET.theme]) SET.theme = 'dark';
@@ -1211,8 +1254,11 @@ function closeDrawer() { drawer.classList.remove('open'); $('#scrim').classList.
 function showDrawerView(v) {
   $('#drMain').classList.toggle('on', v === 'main');
   $('#drSettings').classList.toggle('on', v === 'settings');
-  $('#drBack').style.display = v === 'settings' ? 'grid' : 'none';
-  $('#drTitle').textContent = v === 'settings' ? 'Settings' : 'Australia Maps';
+  $('#drTrips').classList.toggle('on', v === 'trips');
+  $('#drBack').style.display = v !== 'main' ? 'grid' : 'none';
+  $('#drTitle').textContent = { settings: 'Settings', trips: 'Trip history' }[v] || 'Australia Maps';
+  if (v === 'trips') renderTripList();
+  if (v === 'main') updateTripCount();
 }
 $('#menuBtn').onclick = () => openDrawer();
 $('#drClose').onclick = closeDrawer;
@@ -1224,6 +1270,8 @@ drawer.addEventListener('click', e => {
   const go = it.dataset.go;
   if (go === 'settings') return showDrawerView('settings');
   if (go === 'gps') { toggleGPS(); return; }
+  if (go === 'trips') return showDrawerView('trips');
+  if (go === 'resetview') { closeDrawer(); resetView(); return; }
   closeDrawer();
   if (go === 'search') { showTab('search'); $('#q').focus(); }
   else if (go === 'dir') showTab('dir');
@@ -1258,7 +1306,8 @@ const toggleRow = (t, desc, id) => `
     <span class="ol">${t.label}<small${id ? ` id="${id}"` : ''}>${desc}</small></span><span class="switch"></span></div>`;
 function renderToggles() {
   $('#optDisplay').innerHTML = TOGGLES.map(t => toggleRow(t, t.desc)).join('');
-  $('#optDevice').innerHTML = toggleRow({ key: 'keepAwake', icon: '📱', label: 'Keep screen awake' }, wakeStatusText(), 'wakeDesc');
+  $('#optDevice').innerHTML = toggleRow({ key: 'keepAwake', icon: '📱', label: 'Keep screen awake' }, wakeStatusText(), 'wakeDesc') +
+    toggleRow({ key: 'autoLocate', icon: '📍', label: 'Find my location on start' }, 'Centre the map on you when the app opens');
 }
 function flipToggle(el) {
   const key = el.dataset.toggle;
@@ -1266,6 +1315,7 @@ function flipToggle(el) {
   el.setAttribute('aria-checked', String(SET[key]));
   applyDisplay();
   if (key === 'keepAwake') { SET.keepAwake ? requestWake(true) : releaseWake(); }
+  if (key === 'autoLocate' && SET.autoLocate) autoLocate();
   if (key === 'traffic' && SET.traffic) { loadSignalsInView(); if (S.routes[S.sel]) loadRouteSignals(S.routes[S.sel]); }
   if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
 }
@@ -1436,7 +1486,7 @@ function showPlace(p, { fly = true } = {}) {
 const qIn = $('#q');
 const FUEL_RE = /\b(fuel|petrol|servo|service station|gas station|diesel|unleaded|lpg|e10|u91|u95|u98)\b/i;
 attachAC(qIn, $('#qAc'), p => { qIn.value = p.title; $('#qClear').style.display = 'block'; qIn.blur(); showPlace(p); }, {
-  extra: () => FUEL_RE.test(qIn.value) ? [{ title: 'Fuel prices near here', sub: 'Stations within 20 km, cheapest first', icon: '⛽',
+  extra: () => FUEL_RE.test(qIn.value) ? [{ title: 'Fuel prices near here', sub: 'Nearby stations with prices, cheapest first', icon: '⛽',
     action: () => { qIn.blur(); openFuel(qIn.value); } }] : []
 });
 qIn.addEventListener('input', () => { $('#qClear').style.display = qIn.value ? 'block' : 'none'; });
@@ -1614,6 +1664,11 @@ $('#goBtn').onclick = () => route();
 
 function setWaypoint(which, p) {
   S[which] = p;
+  if (which === 'to' && !S.from && myLoc) {
+    S.from = { title: 'Your location', sub: fmtCoord(myLoc), icon: '🎯', coord: myLoc.slice() };
+    fromIn.value = 'Your location';
+    setMarker('a', S.from.coord, 'a');
+  }
   (which === 'from' ? fromIn : toIn).value = p.title;
   setMarker(which === 'from' ? 'a' : 'b', p.coord, which === 'from' ? 'a' : 'b');
   setMarker('place', null);
@@ -1690,7 +1745,7 @@ async function route() {
     renderRoutes();
     const b = new maplibregl.LngLatBounds();
     S.routes[0].geometry.coordinates.forEach(c => b.extend(c));
-    map.fitBounds(b, { padding: panelPadding(70), duration: 1400, pitch: is3d ? 45 : 0 });
+    map.fitBounds(b, { padding: panelPadding(70), duration: 1400, pitch: is3d ? 45 : 0, maxZoom: 16.5 });
   } catch (e) {
     if (e.name === 'AbortError') return;
     S.routes = []; drawRoutes();
@@ -1843,14 +1898,16 @@ async function loadRouteSignals(r) {
   try {
     const j = await overpass(sigQuery(`(around:${Math.round(tol + 14)},${path})`));
     addSignals(j.elements);
-    const cum = cumOf(coords), alongs = [];
+    const cum = cumOf(coords), hits = [];
     for (const el of j.elements || []) {
       if (el.type !== 'node') continue;
       const pr = projectOn([el.lon, el.lat], coords, cum);
-      if (pr.d < 30) alongs.push(pr.along);
+      if (pr.d < 30) hits.push({ a: pr.along, k: el.lat.toFixed(4) + ',' + el.lon.toFixed(4) });
     }
-    alongs.sort((a, b) => a - b);
-    r._signals = alongs.filter((a, i) => i === 0 || a - alongs[i - 1] > 45);   // one entry per intersection
+    hits.sort((x, y) => x.a - y.a);
+    const ded = hits.filter((h, i) => i === 0 || h.a - hits[i - 1].a > 45);   // one entry per intersection
+    r._signals = ded.map(h => h.a);
+    r._sigKeys = ded.map(h => h.k);
   } catch (err) { console.warn('[signals]', err.message); }
   r._sigLoading = false;
   updateSignalInfo();
@@ -1858,7 +1915,7 @@ async function loadRouteSignals(r) {
 function updateSignalInfo() {
   const r = S.routes[S.sel], el = document.getElementById('routeSig');
   if (el) el.textContent = !r || !SET.traffic ? '' : r._signals ? `🚦 ${r._signals.length} set${r._signals.length === 1 ? '' : 's'} of traffic lights on this route` : r._sigLoading ? '🚦 Checking traffic lights…' : '';
-  if (NAV.on && NAV.route === r) { NAV.signals = r._signals || []; if (NAV.lastAlong != null) updateNavCard(NAV.lastAlong); }
+  if (NAV.on && NAV.route === r) { NAV.signals = r._signals || []; NAV.sigKeys = r._sigKeys || []; if (NAV.lastAlong != null) updateNavCard(NAV.lastAlong); }
 }
 
 /* ================= Fuel prices (community feed of official state data) ================= */
@@ -1867,6 +1924,7 @@ const FUEL_RADIUS = 20000;
 const STATE_BOXES = { nsw: [140.99, -37.6, 153.7, -28.1], act: [148.7, -36.0, 149.45, -35.1], vic: [140.9, -39.25, 150.05, -33.95], qld: [137.9, -29.2, 153.6, -9.8],
   sa: [128.9, -38.1, 141.05, -25.95], wa: [112.8, -35.2, 129.05, -13.6], tas: [143.7, -43.8, 148.6, -39.4], nt: [128.9, -26.05, 138.05, -10.8] };
 const FUEL_TYPES = [['U91', 'Unleaded 91'], ['E10', 'E10'], ['U95', 'Premium 95'], ['U98', 'Premium 98'], ['Diesel', 'Diesel'], ['Premium Diesel', 'Prem. diesel'], ['LPG', 'LPG']];
+const FUEL_RADII = [5, 10, 15, 20];
 const FUEL = { cache: {}, active: false, type: 'U91', sort: 'price', center: null, near: 'map', stations: [], loading: false, err: '' };
 const fmtAgo = iso => {
   const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -1923,13 +1981,19 @@ async function searchFuel(center) {
   FUEL.stations = list;
   if (!list.length) FUEL.err = results.some(r => r.status === 'rejected') ? 'Couldn\'t load fuel prices right now. Check your connection and try again.' : 'No fuel stations with published prices within 20 km.';
   renderFuel();
-  const ring = []; for (let i = 0; i <= 64; i++) { const a = i / 64 * Math.PI * 2; ring.push([center[0] + Math.sin(a) * FUEL_RADIUS / kx, center[1] + Math.cos(a) * FUEL_RADIUS / M_LAT]); }
+  drawFuelRadius(list.length > 0);
+}
+const fuelRadiusM = () => (FUEL_RADII.includes(+SET.fuelRadius) ? +SET.fuelRadius : 20) * 1000;
+function drawFuelRadius(fit) {
+  const c = FUEL.center; if (!c) return;
+  const R = fuelRadiusM(), kx = mLon(c[1]);
+  const ring = []; for (let i = 0; i <= 72; i++) { const a = i / 72 * Math.PI * 2; ring.push([c[0] + Math.sin(a) * R / kx, c[1] + Math.cos(a) * R / M_LAT]); }
   map.getSource('fuelRadius')?.setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: ring } });
-  if (list.length) map.fitBounds([[bb[0], bb[1]], [bb[2], bb[3]]], { padding: panelPadding(20), pitch: 0, bearing: 0, duration: 1200 });
+  if (fit) map.fitBounds([[c[0] - R / kx, c[1] - R / M_LAT], [c[0] + R / kx, c[1] + R / M_LAT]], { padding: panelPadding(20), pitch: 0, bearing: 0, duration: 1000 });
 }
 function fuelVisible() {
-  const t = FUEL.type;
-  const withPrice = FUEL.stations.filter(s => s.prices && typeof s.prices[t] === 'number' && s.prices[t] > 50);
+  const t = FUEL.type, R = fuelRadiusM();
+  const withPrice = FUEL.stations.filter(s => s.dist <= R && s.prices && typeof s.prices[t] === 'number' && s.prices[t] > 50);
   withPrice.sort(FUEL.sort === 'price' ? (a, b) => a.prices[t] - b.prices[t] || a.dist - b.dist : (a, b) => a.dist - b.dist);
   return withPrice;
 }
@@ -1947,10 +2011,11 @@ function renderFuel() {
     <div class="seg" id="fuelTypes">${FUEL_TYPES.map(([k, l]) => `<button data-t="${k}" class="${k === t ? 'on' : ''}">${l}</button>`).join('')}</div>
     <div class="seg" id="fuelSort"><button data-s="price" class="${FUEL.sort === 'price' ? 'on' : ''}">Cheapest</button><button data-s="dist" class="${FUEL.sort === 'dist' ? 'on' : ''}">Nearest</button>
       <button id="fuelHere">↻ Search this area</button><button id="fuelMe">🎯 Near me</button></div>
-    <div class="fuel-note">Within 20 km of ${nearTxt}. Prices in cents per litre.</div>`;
+    <div class="seg" id="fuelRadius" aria-label="Search radius">${FUEL_RADII.map(k => `<button data-r="${k}" class="${k * 1000 === fuelRadiusM() ? 'on' : ''}">${k} km</button>`).join('')}</div>
+    <div class="fuel-note">Within ${fuelRadiusM() / 1000} km of ${nearTxt}. Prices in cents per litre.</div>`;
   if (FUEL.loading) html += `<div class="hint" style="display:flex;gap:10px;align-items:center"><div class="spinner"></div>Loading prices…</div>`;
   else if (FUEL.err) html += `<div class="err">${esc(FUEL.err)}</div>`;
-  else if (!list.length) html += `<p class="hint">No stations nearby have a ${esc(t)} price listed.</p>`;
+  else if (!list.length) html += `<p class="hint">No stations within ${fuelRadiusM() / 1000} km have a ${esc(t)} price listed.${fuelRadiusM() < 20000 ? ' Try a bigger radius.' : ''}</p>`;
   else {
     const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
     html += `<div class="fuel-note">${list.length} stations · cheapest <b>${lo.toFixed(1)}</b> · average ${avg.toFixed(1)}</div>` +
@@ -1961,10 +2026,12 @@ function renderFuel() {
           <div class="fuel-meta">${fmtDist(st.dist)} away${st.updated ? ` · updated ${fmtAgo(st.updated)}` : ''}</div></div></div>`).join('');
     if (list.some(st => st.state === 'VIC')) html += `<div class="fuel-note">Victorian prices are published by the state with a 24-hour delay.</div>`;
   }
+  html += `<div class="btns" style="margin-top:10px"><a class="btn ghost" href="https://petrolspy.com.au/" target="_blank" rel="noopener" style="text-decoration:none">Compare on PetrolSpy ↗</a></div>`;
   html += `<div class="credit">Prices from official state fuel reporting schemes via the community <a href="https://github.com/jande425/aus-fuel-data-public" target="_blank">aus-fuel-data</a> feed. Always check the price at the pump.</div></div>`;
   box.innerHTML = html;
   $('#fuelClose').onclick = closeFuel;
   $('#fuelTypes').onclick = e => { const b = e.target.closest('[data-t]'); if (b) { FUEL.type = b.dataset.t; renderFuel(); } };
+  $('#fuelRadius').onclick = e => { const b = e.target.closest('[data-r]'); if (!b) return; SET.fuelRadius = +b.dataset.r; saveSettings(); renderFuel(); drawFuelRadius(true); };
   $('#fuelSort').onclick = e => { const b = e.target.closest('[data-s]'); if (b) { FUEL.sort = b.dataset.s; renderFuel(); } };
   $('#fuelHere').onclick = () => { FUEL.near = 'map'; searchFuel([map.getCenter().lng, map.getCenter().lat]); };
   $('#fuelMe').onclick = () => {
@@ -2108,7 +2175,7 @@ async function routeTransit(signal) {
     renderRoutes();
     const b = new maplibregl.LngLatBounds();
     S.routes[0].geometry.coordinates.forEach(c => b.extend(c));
-    map.fitBounds(b, { padding: panelPadding(70), duration: 1400, pitch: 0 });
+    map.fitBounds(b, { padding: panelPadding(70), duration: 1400, pitch: 0, maxZoom: 16.5 });
   } catch (e) {
     if (e.name === 'AbortError') return;
     S.routes = []; drawRoutes();
@@ -2302,6 +2369,11 @@ function onGpsFix(pos) {
   GPS.last = { c, t };
   SPEEDO.set(v != null && !isNaN(v) ? v * 3.6 : 0);
   myLoc = c;
+  if (GPS.centreOnFix) {
+    GPS.centreOnFix = false;
+    if (!USER_MOVED && !NAV.on && !S.routes.length && !S.place && !FUEL.active && inAus(c))
+      map.flyTo({ center: c, zoom: 16, pitch: is3d ? 58 : 0, duration: 1600, essential: true });
+  }
   if (NAV.on && !NAV.sim) onPosition(c, pos.coords.heading, v);
   else if (!NAV.on) feedFix(c, pos.coords.heading, null, v);
 }
@@ -2422,7 +2494,7 @@ function followCamera(duration = 1000) {
 function recentre() {
   if (NAV.on) { followCamera(900); return; }
   if (MOTION.pos && GPS.watch != null) {
-    map.flyTo({ center: MOTION.pos, zoom: Math.max(map.getZoom(), 16.5), pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1200 });
+    map.flyTo({ center: MOTION.pos, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1200 });
     return;
   }
   if (!navigator.geolocation) return fallbackRecentre();
@@ -2431,12 +2503,12 @@ function recentre() {
     const c = [pos.coords.longitude, pos.coords.latitude];
     if (!inAus(c)) { toast('Your location is outside Australia'); return fallbackRecentre(); }
     myLoc = c; feedFix(c, pos.coords.heading, null, 0);
-    map.flyTo({ center: c, zoom: Math.max(map.getZoom(), 16.5), pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1400 });
+    map.flyTo({ center: c, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1400 });
   }, () => { toast('Location unavailable — centring on your route'); fallbackRecentre(); }, { enableHighAccuracy: true, timeout: 10000 });
 }
 function fallbackRecentre() {
   const r = S.routes[S.sel];
-  if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); map.fitBounds(b, { padding: panelPadding(70), duration: 1200 }); }
+  if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); map.fitBounds(b, { padding: panelPadding(70), duration: 1200, maxZoom: 16.5 }); }
   else if (S.place) map.flyTo({ center: S.place.coord, zoom: 16.5, padding: panelPadding(), duration: 1200 });
   else map.flyTo({ center: MELBOURNE, zoom: 15.6, pitch: is3d ? 58 : 0, duration: 1200 });
 }
@@ -2449,7 +2521,7 @@ function prepNavRoute(r) {
   const steps = r.legs.flatMap(l => l.steps);
   const scale = cum[cum.length - 1] / (steps.reduce((a, s) => a + s.distance, 0) || 1);
   let acc = 0; const starts = steps.map(s => { const v = acc; acc += s.distance * scale; return v; });
-  Object.assign(NAV, { route: r, coords, cum, total: cum[cum.length - 1], steps, starts, signals: r._signals || [], lastAlong: 0 });
+  Object.assign(NAV, { route: r, coords, cum, total: cum[cum.length - 1], steps, starts, signals: r._signals || [], sigKeys: r._sigKeys || [], lastAlong: 0 });
 }
 const projectOnRoute = p => projectOn(p, NAV.coords, NAV.cum);
 function projectOn(p, coords, cum) {
@@ -2485,6 +2557,7 @@ function startNav(simulate) {
   popup?.remove();
   Object.assign(NAV, { on: true, sim: simulate, simFactor: 1, mode: S.mode, pos: null, anchor: null, arrived: false, offCount: 0, rerouting: false });
   prepNavRoute(r);
+  tripBegin(r);
   resetMotion();
   SW.reset('Waiting for you to set off…', 'wait');
   document.body.classList.add('navigating');
@@ -2504,14 +2577,25 @@ function startNav(simulate) {
     const real = r.transit ? Math.max(3, r.distance / Math.max(60, r.duration)) : { car: 16, bike: 5.5, foot: 1.4 }[S.mode];
     NAV.simFactor = r.transit ? 4 : { car: 3, bike: 3, foot: 6 }[S.mode];
     const speed = real * NAV.simFactor;   // sped-up preview
-    let d = 0, t = 0;
+    let d = 0, t = 0, hold = 0;
+    const redDone = new Set();
     NAV.simTimer = setInterval(() => {
       t += 1;
-      const moving = t > 2 && d < NAV.total;
-      if (moving) d = Math.min(NAV.total, d + speed);
+      let moving = t > 2 && d < NAV.total && hold <= 0;
+      if (hold > 0) hold--;
+      if (moving) {
+        let nd = Math.min(NAV.total, d + speed);
+        const sig = (NAV.signals || []).findIndex(a => a > d + 1 && a - 6 <= nd);
+        if (sig >= 0 && !redDone.has(sig)) {
+          redDone.add(sig);
+          if (hash2(sig + 7, Math.round(NAV.signals[sig])) < 0.55) { nd = Math.max(d, NAV.signals[sig] - 6); hold = 5 + (sig % 4); }
+        }
+        d = nd;
+      }
       const { p } = pointAt(d);
-      SPEEDO.set(moving ? real * 3.6 * (0.9 + Math.random() * 0.2) : 0);
-      onPosition(p, null, moving ? speed : 0);
+      const stoppedNow = hold > 0 && moving === true ? false : hold > 0;
+      SPEEDO.set(moving && !stoppedNow ? real * 3.6 * (0.9 + Math.random() * 0.2) : 0);
+      onPosition(p, null, moving && !stoppedNow ? speed : 0);
       if (d >= NAV.total && t > 3) stopSim();
     }, 1000);
   } else if (!startGPS(true)) {
@@ -2522,6 +2606,8 @@ function startNav(simulate) {
 function stopSim() { if (NAV.simTimer) clearInterval(NAV.simTimer); NAV.simTimer = null; }
 function exitNav() {
   stopSim();
+  if (TRIP.rec && TRIP.rec.startedAt && !TRIP.rec.done) { const card = tripFinish('ended'); if (card) setTimeout(() => showScore(card), 900); }
+  TRIP.rec = null;
   if (NAV.sim) SPEEDO.set(0, GPS.watch == null);
   if (GPS.byNav) stopGPS();
   if (SW.running) SW.pause('Trip ended · ' + SW.fmt(SW.elapsed()), 'done');
@@ -2533,7 +2619,7 @@ function exitNav() {
   if (meMarker && GPS.watch == null) { meMarker.remove(); meMarker = null; resetMotion(); }
   map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   setCollapsed(false);
-  map.easeTo({ pitch: is3d ? 55 : 0, duration: 800 });
+  map.easeTo({ pitch: is3d ? 55 : 0, zoom: Math.min(map.getZoom(), 16), duration: 800 });
   setTimeout(fallbackRecentre, 50);
 }
 $('#navExit').onclick = exitNav;
@@ -2563,10 +2649,12 @@ function onPosition(p, heading, speed) {
   // Stopwatch starts the moment the traveller sets off from their starting place
   if (!SW.started && geoDist(p, NAV.anchor) >= SETOFF_METRES) {
     SW.start('On the way to ' + (S.to ? S.to.title : 'destination'));
+    tripSetOff(projectOnRoute(p).along);
     toast('You\'ve set off — stopwatch started');
   }
 
   const pr = projectOnRoute(p);
+  if (SW.started) tripSample(p, speed, pr.along);
   const snapped = pr.d <= SNAP_METRES;
   let h = heading;
   if (snapped) h = routeHeading(pr.along);
@@ -2586,6 +2674,8 @@ function onPosition(p, heading, speed) {
     $('#navRemT').textContent = '0 min'; $('#navRemD').textContent = 'arrived';
     $('#navEta').textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     toast('Arrived! Trip time ' + SW.fmt(SW.elapsed()), 5000);
+    const card = tripFinish('arrived');
+    if (card) setTimeout(() => showScore(card), 1800);
     if (NAV.sim) { stopSim(); SPEEDO.set(0); }
     setTimeout(() => { if (NAV.on) setProgress(1, true); }, 1200);
     return;
@@ -2603,6 +2693,7 @@ async function reroute(p) {
     const j = await (await fetch(url)).json();
     if (j.code === 'Ok' && j.routes.length) {
       S.routes = [j.routes[0]]; S.sel = 0;
+      if (TRIP.rec) TRIP.rec.reroutes++;
       PROG.frac = 0; drawRoutes(true); prepNavRoute(j.routes[0]); NAV.offCount = 0;
       MOTION.along = null; MOTION.v = 0; loadRouteSignals(j.routes[0]);
     }
@@ -2617,6 +2708,190 @@ function clearRoute() {
   if (S.mode === 'transit') setTimeout(loadNearbyDepartures, 0);
   $('#dirOut').innerHTML = '<p class="hint" style="margin-top:14px">Tip: click anywhere on the map to set a start or destination.</p>';
 }
+
+/* ================= Trip scorecards & history ================= */
+const TRIPS_KEY = 'aumaps.trips', TRIP_KEEP_MS = 48 * 3600 * 1000;
+const TRIP = { rec: null };
+const fmtSecs = sec => {
+  sec = Math.max(0, Math.round(sec));
+  if (sec < 60) return `${sec} s`;
+  if (sec < 3600) { const m = Math.floor(sec / 60), r = sec % 60; return r ? `${m} min ${r} s` : `${m} min`; }
+  const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60); return `${h} h ${m} min`;
+};
+function loadTrips() {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(TRIPS_KEY) || '[]'); } catch (e) {}
+  if (!Array.isArray(list)) list = [];
+  const fresh = list.filter(t => t && Date.now() - (t.endedAt || 0) < TRIP_KEEP_MS);
+  if (fresh.length !== list.length) saveTrips(fresh);
+  return fresh;
+}
+function saveTrips(list) { try { localStorage.setItem(TRIPS_KEY, JSON.stringify(list)); } catch (e) {} TRIP.mem = list; }
+function tripsAll() { const l = loadTrips(); return l.length || !TRIP.mem ? l : TRIP.mem.filter(t => Date.now() - t.endedAt < TRIP_KEEP_MS); }
+function updateTripCount() { const n = tripsAll().length; $('#drTripCount').textContent = n ? String(n) : ''; }
+function tripBegin(r) {
+  TRIP.rec = { id: Date.now(), sim: !!NAV.sim, mode: NAV.mode, from: S.from ? S.from.title : 'Start', to: S.to ? S.to.title : 'Destination',
+    plannedDur: r.duration, plannedDist: NAV.total, startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
+    dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false };
+}
+function tripSetOff(along) {
+  const R = TRIP.rec; if (!R || R.startedAt) return;
+  const frac = Math.max(0, 1 - along / (NAV.total || 1));
+  R.startedAt = Date.now();
+  R.estDur = R.plannedDur * frac;
+  R.etaAtStart = R.startedAt + R.estDur * 1000;
+  R.startAlong = along;
+}
+function tripSample(p, speedMs, along) {
+  const R = TRIP.rec; if (!R || !R.startedAt || R.done) return;
+  const now = performance.now();
+  const kmh = Math.max(0, Math.min(300, ((speedMs || 0) * 3.6) / (NAV.simFactor || 1)));
+  if (R.lastT != null) {
+    const dt = Math.min(5, (now - R.lastT) / 1000);
+    let dd = NAV.sim ? Math.max(0, along - R.lastAlong) : geoDist(R.lastP, p);
+    if (!NAV.sim && (dd > 300 || (kmh < 2 && dd < 5))) dd = 0;        // ignore GPS jumps and standing-still jitter
+    R.dist += dd;
+    const v = (R.lastKmh + kmh) / 2, bin = Math.round(v);
+    R.hist[bin] = (R.hist[bin] || 0) + dt;
+    if (v < 2) { R.stopT += dt; R.stopRun += dt; } else R.stopRun = 0;
+  }
+  R.max = Math.max(R.max, kmh);
+  const sig = NAV.signals || [], keys = NAV.sigKeys || [];
+  for (let i = 0; i < sig.length; i++) {
+    const a = sig[i], k = keys[i] || ('a' + Math.round(a));
+    if (a < R.startAlong - 5 || a > along + 45) continue;
+    if (along >= a + 5) R.passed[k] = 1;
+    // stopped for 3+ seconds just before a set of lights → assume it was red
+    if (R.stopRun >= 3 && along >= a - 40 && along <= a + 8) R.red[k] = 1;
+  }
+  R.lastT = now; R.lastP = p; R.lastAlong = along; R.lastKmh = kmh;
+}
+function tripFinish(status) {
+  const R = TRIP.rec; if (!R || !R.startedAt || R.done) return null;
+  R.done = true;
+  if (status === 'arrived') { const tail = Math.max(0, NAV.total - R.lastAlong); if (tail < 60) R.dist += NAV.sim ? tail : 0; }
+  const elapsed = SW.elapsed() / 1000;
+  const bins = Object.entries(R.hist).map(([k, v]) => [+k, v]).filter(([, v]) => v > 0);
+  const moving = bins.filter(([k]) => k >= 3);
+  const top = Math.round(R.max);
+  const timeTop = moving.filter(([k]) => k >= top - 5).reduce((a, [, v]) => a + v, 0);
+  const steady = moving.filter(([, v]) => v >= 1.5);
+  const low = (steady.length ? steady : moving).reduce((m, [k]) => Math.min(m, k), Infinity);
+  const timeLow = isFinite(low) ? moving.filter(([k]) => k >= low && k <= low + 3).reduce((a, [, v]) => a + v, 0) : 0;
+  const tw = bins.reduce((a, [k, v]) => a + k * v, 0), tt = bins.reduce((a, [, v]) => a + v, 0);
+  const avg = NAV.sim ? (tt ? tw / tt : 0) : (elapsed > 0 ? (R.dist / 1000) / (elapsed / 3600) : 0);
+  const card = {
+    id: R.id, sim: R.sim, mode: R.mode, status, from: R.from, to: R.to,
+    startedAt: R.startedAt, endedAt: Date.now(), estDur: R.estDur, etaAtStart: R.etaAtStart, elapsed,
+    dist: R.dist, delta: R.estDur - elapsed, avg, top, timeTop, low: isFinite(low) ? low : null, timeLow, stopT: R.stopT,
+    lights: Object.keys(R.passed).length, red: Object.keys(R.red).length, lightsKnown: !!(NAV.signals && NAV.signals.length) || R.mode === 'transit' ? !!(NAV.signals && NAV.signals.length) : false,
+    reroutes: R.reroutes, simFactor: NAV.simFactor || 1
+  };
+  const list = tripsAll().filter(t => t.id !== card.id);
+  list.unshift(card);
+  saveTrips(list.slice(0, 60));
+  updateTripCount();
+  return card;
+}
+const MODE_LABEL = { car: '🚗 Drive', bike: '🚲 Cycle', foot: '🚶 Walk', transit: '🚆 Transit' };
+function deltaBadge(t) {
+  if (t.status !== 'arrived') return `<span class="delta neutral">Ended before arrival</span>`;
+  if (t.sim) return `<span class="delta neutral">Preview · sped up</span>`;
+  const d = Math.round(t.delta);
+  if (Math.abs(d) < 30) return `<span class="delta neutral">Right on the estimate</span>`;
+  return d > 0 ? `<span class="delta good">${fmtSecs(d)} faster than estimated</span>` : `<span class="delta bad">${fmtSecs(-d)} over the estimate</span>`;
+}
+function showScore(t) {
+  const clock = ms => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const day = new Date(t.startedAt).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+  const tile = (k, v, sub, cls = '') => `<div class="tile ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
+  const km = (t.dist / 1000);
+  $('#scoreCard').innerHTML = `
+    <div class="score-head">
+      <h2>${t.status === 'arrived' ? '🏁 Trip complete' : '⏹ Trip ended'}</h2>
+      <div class="sub">${esc(t.from)} → ${esc(t.to)}</div>
+      <div class="sub">${day} · ${clock(t.startedAt)} – ${clock(t.endedAt)} · ${MODE_LABEL[t.mode] || ''}${t.sim ? ' · Preview' : ''}</div>
+      <div class="score-big"><b>${SW.fmt(t.elapsed * 1000)}</b>${deltaBadge(t)}</div>
+    </div>
+    <div class="tiles">
+      ${tile('Estimate at start', fmtDur(t.estDur || 0), `ETA was ${clock(t.etaAtStart)}`)}
+      ${tile(t.status === 'arrived' ? 'Arrived' : 'Ended', clock(t.endedAt), t.status === 'arrived' && !t.sim ? (t.delta >= 0 ? `${fmtSecs(t.delta)} early` : `${fmtSecs(-t.delta)} late`) : '')}
+      ${tile('Distance', `${km < 10 ? km.toFixed(2) : km.toFixed(1)} <small>km</small>`, '')}
+      ${tile('Average speed', `${Math.round(t.avg)} <small>km/h</small>`, t.sim ? 'from preview speeds' : 'including stops')}
+      ${tile('Top speed', `${t.top} <small>km/h</small>`, `held for ${fmtSecs(t.timeTop)}`)}
+      ${tile('Lowest speed', t.low != null ? `${t.low} <small>km/h</small>` : '—', t.low != null ? `while moving · ${fmtSecs(t.timeLow)}` : 'no moving data')}
+      ${tile('Time stopped', fmtSecs(t.stopT), 'below 2 km/h')}
+      ${tile('Traffic lights', t.lights, 'passed through')}
+      ${tile('Red lights', t.red, 'stopped 3 s or more', t.red ? 'red' : '')}
+      ${tile('Re-routes', t.reroutes || 0, '')}
+    </div>
+    <div class="score-note">Red lights are estimated: any stop of 3 seconds or more at a set of traffic lights counts as a red light. Traffic light locations come from OpenStreetMap, so some may be missing.${t.sim ? ' This was a sped-up preview, so times and speeds are illustrative only.' : ''} Scorecards are kept on this device for 48 hours.</div>
+    <div class="score-foot"><button class="btn primary" id="scoreClose" style="flex:1;justify-content:center">Done</button><button class="btn ghost" id="scoreHistory">Trip history</button><button class="btn ghost" id="scoreDelete">Delete</button></div>`;
+  $('#scoreModal').classList.add('show');
+  $('#scoreClose').onclick = closeScore;
+  $('#scoreHistory').onclick = () => { closeScore(); openDrawer('trips'); };
+  $('#scoreDelete').onclick = () => { saveTrips(tripsAll().filter(x => x.id !== t.id)); updateTripCount(); closeScore(); renderTripList(); toast('Scorecard deleted'); };
+}
+function closeScore() { $('#scoreModal').classList.remove('show'); }
+$('#scoreModal').addEventListener('click', e => { if (e.target.id === 'scoreModal') closeScore(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeScore(); });
+function renderTripList() {
+  const list = tripsAll();
+  const box = $('#tripList');
+  if (!list.length) { box.innerHTML = '<p class="hint" style="padding:0 4px">No trips yet. Start navigation — when you arrive, your scorecard will appear here.</p>'; return; }
+  const ago = ms => { const h = (Date.now() - ms) / 3600000; return h < 1 ? `${Math.max(1, Math.round(h * 60))} min ago` : `${Math.round(h)} h ago`; };
+  box.innerHTML = list.map((t, i) => `<button class="trip-item" data-i="${i}">
+      <div class="t1">${esc(t.from)} → ${esc(t.to)}${t.sim ? '<span class="tag">Preview</span>' : ''}${t.status !== 'arrived' ? '<span class="tag">Ended early</span>' : !t.sim && Math.abs(t.delta) >= 30 ? `<span class="tag ${t.delta > 0 ? 'good' : 'bad'}">${t.delta > 0 ? '−' : '+'}${fmtSecs(Math.abs(t.delta))}</span>` : ''}</div>
+      <div class="t2">${MODE_LABEL[t.mode] || ''} · ${SW.fmt(t.elapsed * 1000)} · ${(t.dist / 1000).toFixed(1)} km · 🚦 ${t.lights} (${t.red} red) · ${ago(t.endedAt)}</div>
+    </button>`).join('') + `<button class="btn ghost" id="tripsClear" style="margin-top:6px">Clear history</button>`;
+  box.querySelectorAll('.trip-item').forEach(el => el.onclick = () => { closeDrawer(); showScore(list[+el.dataset.i]); });
+  $('#tripsClear').onclick = () => { saveTrips([]); updateTripCount(); renderTripList(); toast('Trip history cleared'); };
+}
+setInterval(updateTripCount, 10 * 60000);
+updateTripCount();
+
+/* ================= Auto-locate & view reset ================= */
+let USER_MOVED = false;
+{
+  const cc = map.getCanvasContainer();
+  ['pointerdown', 'wheel', 'touchstart'].forEach(ev => cc.addEventListener(ev, () => { USER_MOVED = true; }, { passive: true }));
+}
+function autoLocate() {
+  if (!navigator.geolocation) return;
+  GPS.centreOnFix = true;
+  if (GPS.watch == null) startGPS(false);
+  else if (myLoc) { GPS.centreOnFix = false; map.flyTo({ center: myLoc, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200 }); }
+}
+// Resets both the browser's page zoom (pinch / input-focus zoom on phones) and the map camera
+function resetPageZoom() {
+  const vp = $('#vp');
+  vp.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, viewport-fit=cover');
+  setTimeout(() => vp.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover'), 300);
+  window.scrollTo(0, 0);
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  $('#zoomFix').classList.remove('show');
+}
+function resetView() {
+  resetPageZoom();
+  map.stop();
+  map.resize();
+  if (NAV.on) { map.setPadding(navPadding()); followCamera(700); return; }
+  map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
+  const c = myLoc && inAus(myLoc) ? myLoc : [map.getCenter().lng, map.getCenter().lat];
+  map.flyTo({ center: c, zoom: 15.5, pitch: is3d ? 55 : 0, bearing: 0, duration: 900 });
+  toast('View reset');
+}
+$('#zoomFix').onclick = resetView;
+if (window.visualViewport) {
+  const checkScale = () => {
+    const zoomed = window.visualViewport.scale > 1.04;
+    const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+    $('#zoomFix').classList.toggle('show', zoomed && !typing);
+  };
+  window.visualViewport.addEventListener('resize', checkScale);
+  document.addEventListener('focusout', () => setTimeout(() => { if (window.visualViewport.scale > 1.04) resetPageZoom(); checkScale(); }, 150));
+}
+window.addEventListener('orientationchange', () => setTimeout(() => map.resize(), 300));
 
 /* ================= Keep screen awake ================= */
 const WAKE = { lock: null, ns: null, state: 'idle' };
@@ -2674,12 +2949,13 @@ document.addEventListener('visibilitychange', () => {
 renderToggles();
 applyDisplay();
 requestWake();
+if (SET.autoLocate) autoLocate();
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
 });
 if (isMobile()) setCollapsed(true);
-window.__maps = { map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+window.__maps = { TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
