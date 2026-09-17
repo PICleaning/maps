@@ -59,14 +59,15 @@ button{cursor:pointer}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:.2px;white-space:nowrap;color:#fff}
 .brand svg{flex:none}
 .brand small{display:block;font-weight:500;font-size:11px;color:#e6e6e6;letter-spacing:.6px;text-transform:uppercase}
-.search{position:relative;flex:1;max-width:560px}
-.search input{width:100%;height:42px;border-radius:21px;border:1px solid rgba(255,255,255,.22);
+.search{position:relative;flex:1;max-width:340px}
+.search input{width:100%;height:36px;border-radius:18px;font-size:14px;border:1px solid rgba(255,255,255,.22);
   background:rgba(0,0,0,.22);color:#fff;padding:0 42px;outline:none;transition:.15s}
 .search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 .search input::placeholder{color:#e2e2e2}
 .search input:focus{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.5)}
-.search .ico{position:absolute;left:14px;top:11px;opacity:.9;pointer-events:none}
-.search .clear{position:absolute;right:8px;top:7px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;display:none;color:#fff}
+.search .ac{min-width:320px}
+.search .ico{position:absolute;left:13px;top:9px;opacity:.9;pointer-events:none}
+.search .clear{position:absolute;right:5px;top:4px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;display:none;color:#fff}
 .search .clear:hover{background:rgba(255,255,255,.15)}
 .banner-btn{height:40px;padding:0 14px;border-radius:20px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);
   color:#fff;display:flex;align-items:center;gap:8px;white-space:nowrap}
@@ -217,6 +218,7 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .sp-val{position:absolute;left:0;right:0;top:58px;text-align:center;font-size:24px;font-weight:800;color:var(--strong);font-variant-numeric:tabular-nums;line-height:1}
 .sp-unit{position:absolute;left:0;right:0;top:84px;text-align:center;font-size:10px;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
 .speedo.off .sp-val{font-size:15px;top:60px;color:var(--muted)}
+.speedo.off .needle{opacity:0}
 .menu-btn{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--strong);box-shadow:var(--shadow);display:grid;place-items:center}
 .menu-btn:hover{background:var(--hover)}
 
@@ -252,6 +254,31 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .opt[aria-checked="true"] .tickbox{background:var(--route);border-color:var(--route);color:var(--route-ink)}
 .opt .tickbox svg{opacity:0;transform:scale(.4);transition:.15s}
 .opt[aria-checked="true"] .tickbox svg{opacity:1;transform:none}
+
+/* fuel prices */
+.fuel-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fuel-head h2{margin:0;font-size:17px;color:var(--strong);flex:1}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.seg button{border:1px solid var(--line);background:var(--panel-2);border-radius:16px;padding:5px 10px;font-size:12px;color:var(--text)}
+.seg button.on{background:var(--route);border-color:var(--route);color:var(--route-ink);font-weight:600}
+.fuel-row{display:flex;gap:12px;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer}
+.fuel-row:hover{background:var(--hover)}
+.fuel-price{min-width:64px;text-align:center;border-radius:10px;padding:6px 4px;font-weight:800;font-size:17px;color:#fff;line-height:1.05;font-variant-numeric:tabular-nums}
+.fuel-price small{display:block;font-size:9px;font-weight:600;opacity:.85}
+.fuel-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.fuel-note{font-size:12px;color:var(--muted);line-height:1.45;margin:8px 0}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:2px 6px;font-size:12px;font-weight:700;color:#fff;background:#6b7078;white-space:nowrap}
+/* transit */
+.t-when{display:none;align-items:center;gap:8px;margin:-4px 0 12px;font-size:13px;color:var(--muted)}
+body.mode-transit .t-when{display:flex}
+.t-when input{height:32px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--text);padding:0 8px}
+.t-chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:5px;font-size:12px;color:var(--muted)}
+.dep-row{display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.dep-time{font-weight:700;min-width:62px;color:var(--strong);font-variant-numeric:tabular-nums}
+.dep-time small{display:block;font-weight:500;font-size:10px;color:var(--muted)}
+.live{color:#22c55e}
+.credit{font-size:11px;color:var(--muted);margin-top:10px}
+.credit a{color:var(--muted)}
 
 /* toggle switches */
 .tg-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);margin-bottom:8px;background:var(--panel-2);cursor:pointer;user-select:none}
@@ -342,8 +369,8 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
     <div class="word">Australia Maps<small>Streets &amp; places Australia-wide</small></div>
   </div>
   <div class="search">
-    <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input id="q" type="search" placeholder="Search streets, suburbs & places in Australia" autocomplete="off" aria-label="Search Australia">
+    <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search" autocomplete="off" aria-label="Search">
     <button class="clear" id="qClear" aria-label="Clear search">✕</button>
     <div class="ac" id="qAc" role="listbox"></div>
   </div>
@@ -364,6 +391,7 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
   </nav>
 
   <section class="pane on" id="pane-search">
+    <div id="fuelBox"></div>
     <div id="placeCard"></div>
     <h3>Nearby on the map</h3>
     <div class="chips" id="chips"></div>
@@ -401,8 +429,12 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 8h5l3.5 9M10 8 12 17h1.5M14 5h2"/></svg>Cycle</button>
       <button class="mode" data-mode="foot">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="4" r="2"/><path d="m9 21 2-6 3 3v3M8 11l3-4 3 1 2 3 2 1M11 7l-1 6"/></svg>Walk</button>
+      <button class="mode" data-mode="transit">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l1.5-4M15 21l-1.5-4"/><circle cx="8.5" cy="14" r=".6" fill="currentColor"/><circle cx="15.5" cy="14" r=".6" fill="currentColor"/></svg>Transit</button>
     </div>
+    <div class="t-when">Depart <input type="datetime-local" id="departAt" aria-label="Departure time"> <span>(blank = now)</span></div>
     <button class="btn primary go" id="goBtn">Get directions</button>
+    <div id="transitNear"></div>
     <div id="dirOut"><p class="hint" style="margin-top:14px">Tip: click anywhere on the map to set a start or destination.</p></div>
   </section>
 
@@ -732,6 +764,38 @@ function buildStyle(p) {
         'line-opacity-transition': { duration: 500, delay: 0 }, 'line-dasharray': [0, 4, 3] } },
 
     /* labels */
+    /* transit trip detail: walking parts dotted, boarding points marked */
+    { id: 'tleg-walk', type: 'line', source: 'tlegs', filter: ['==', ['get', 'kind'], 'walk'],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': p.bg, 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2, 16, 4.5], 'line-dasharray': [0.1, 1.8] } },
+    { id: 'tleg-stop', type: 'circle', source: 'tlegs', filter: ['==', ['geometry-type'], 'Point'],
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 16, 7], 'circle-color': '#ffffff', 'circle-stroke-width': 3, 'circle-stroke-color': ['get', 'color'] } },
+    { id: 'tleg-label', type: 'symbol', source: 'tlegs', filter: ['all', ['==', ['geometry-type'], 'Point'], ['has', 'label']],
+      layout: { 'text-field': ['get', 'label'], 'text-font': F_BOLD, 'text-size': 11, 'text-offset': [0, -1.4], 'text-anchor': 'bottom', 'text-allow-overlap': true },
+      paint: { 'text-color': '#ffffff', 'text-halo-color': ['get', 'color'], 'text-halo-width': 4 } },
+    /* nearby public transport stops */
+    { id: 'stops-dot', type: 'circle', source: 'stops', minzoom: 13.5, layout: { visibility: 'none' },
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 13.5, ['match', ['get', 'kind'], 'bus', 4, 6], 18, ['match', ['get', 'kind'], 'bus', 9, 12]],
+        'circle-color': ['match', ['get', 'kind'], 'train', '#1f6fd1', 'tram', '#5d9c28', 'bus', '#e8890c', 'ferry', '#1597a8', '#8a63d2'],
+        'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } },
+    { id: 'stops-letter', type: 'symbol', source: 'stops', minzoom: 15, layout: { visibility: 'none',
+        'text-field': ['match', ['get', 'kind'], 'train', 'R', 'tram', 'T', 'bus', 'B', 'ferry', 'F', 'P'], 'text-font': F_BOLD,
+        'text-size': ['interpolate', ['linear'], ['zoom'], 15, 8, 18, 12], 'text-allow-overlap': true, 'text-ignore-placement': true },
+      paint: { 'text-color': '#ffffff' } },
+    { id: 'stops-name', type: 'symbol', source: 'stops', minzoom: 15.5, layout: { visibility: 'none',
+        'text-field': ['get', 'name'], 'text-font': F_REG, 'text-size': 11, 'text-anchor': 'top', 'text-offset': [0, 1.1], 'text-max-width': 9, 'text-optional': true },
+      paint: { 'text-color': p.poiLabel, 'text-halo-color': p.halo, 'text-halo-width': 1.4 } },
+    /* fuel stations with prices */
+    { id: 'fuel-radius', type: 'line', source: 'fuelRadius',
+      paint: { 'line-color': p.boundary, 'line-width': 1.5, 'line-dasharray': [2, 2], 'line-opacity': 0.8 } },
+    { id: 'fuel-dot', type: 'circle', source: 'fuel',
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 5, 12, 9, 16, 15],
+        'circle-color': ['interpolate', ['linear'], ['get', 'rank'], 0, '#16a34a', 0.5, '#d97706', 1, '#dc2626'],
+        'circle-stroke-color': '#ffffff', 'circle-stroke-width': ['case', ['==', ['get', 'best'], true], 3, 1.5] } },
+    { id: 'fuel-label', type: 'symbol', source: 'fuel', minzoom: 9,
+      layout: { 'text-field': ['get', 'label'], 'text-font': F_BOLD, 'text-size': ['interpolate', ['linear'], ['zoom'], 9, 10, 16, 13],
+        'text-anchor': 'bottom', 'text-offset': [0, -0.9], 'symbol-sort-key': ['get', 'price'], 'text-padding': 1 },
+      paint: { 'text-color': '#ffffff', 'text-halo-color': ['interpolate', ['linear'], ['get', 'rank'], 0, '#15803d', 0.5, '#b45309', 1, '#b91c1c'], 'text-halo-width': 3.5 } },
     { id: 'water-name', type: 'symbol', source: 'omt', 'source-layer': 'water_name',
       layout: { 'text-field': nameExpr, 'text-font': F_IT, 'text-size': ['interpolate', ['linear'], ['zoom'], 3, 11, 14, 14], 'text-letter-spacing': 0.1, 'text-max-width': 8 },
       paint: { 'text-color': p.waterLabel, 'text-halo-color': p.waterHalo, 'text-halo-width': 1.2 } },
@@ -808,6 +872,10 @@ function buildStyle(p) {
     sources: {
       omt: { type: 'vector', url: TILES, attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>' },
       dem: { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14, attribution: 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank">AWS Terrain Tiles</a>' },
+      fuel: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      fuelRadius: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      stops: { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, attribution: 'Public transport: <a href="https://transitous.org/sources/" target="_blank">Transitous</a>' },
+      tlegs: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       'dem-hs': { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14 },
       trees3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       bridges3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
@@ -1202,7 +1270,7 @@ function flipToggle(el) {
   if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
 }
 const LABEL_GROUPS = {
-  poiLabels: ['poi-label', 'airport-label', 'peak-label'],
+  poiLabels: ['poi-label', 'airport-label', 'peak-label', 'stops-name'],
   roadLabels: ['road-label', 'road-shield', 'housenumber', 'place-minor', 'place-village', 'place-town', 'place-city', 'place-state', 'water-name', 'waterway-name']
 };
 function applyDisplay() {
@@ -1210,7 +1278,7 @@ function applyDisplay() {
   document.body.classList.toggle('hide-stopwatch', !SET.showStopwatch);
   if (!map.getLayer('road-label')) return;
   for (const [key, ids] of Object.entries(LABEL_GROUPS))
-    for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', SET[key] ? 'visible' : 'none');
+    for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', SET[key] && (id !== 'stops-name' || S.mode === 'transit') ? 'visible' : 'none');
   map.setLayoutProperty('signals', 'visibility', SET.traffic ? 'visible' : 'none');
   refreshExplore();
 }
@@ -1366,7 +1434,11 @@ function showPlace(p, { fly = true } = {}) {
   showTab('search');
 }
 const qIn = $('#q');
-attachAC(qIn, $('#qAc'), p => { qIn.value = p.title; $('#qClear').style.display = 'block'; qIn.blur(); showPlace(p); });
+const FUEL_RE = /\b(fuel|petrol|servo|service station|gas station|diesel|unleaded|lpg|e10|u91|u95|u98)\b/i;
+attachAC(qIn, $('#qAc'), p => { qIn.value = p.title; $('#qClear').style.display = 'block'; qIn.blur(); showPlace(p); }, {
+  extra: () => FUEL_RE.test(qIn.value) ? [{ title: 'Fuel prices near here', sub: 'Stations within 20 km, cheapest first', icon: '⛽',
+    action: () => { qIn.blur(); openFuel(qIn.value); } }] : []
+});
 qIn.addEventListener('input', () => { $('#qClear').style.display = qIn.value ? 'block' : 'none'; });
 $('#qClear').onclick = () => { qIn.value = ''; $('#qClear').style.display = 'none'; $('#qAc').classList.remove('open'); setMarker('place', null); $('#placeCard').innerHTML = ''; qIn.focus(); };
 
@@ -1387,6 +1459,7 @@ let activeCat = null;
 $('#chips').innerHTML = CATS.map(c => `<button class="chip" data-c="${c.id}">${c.icon} ${c.label}</button>`).join('');
 $('#chips').addEventListener('click', e => {
   const b = e.target.closest('.chip'); if (!b) return;
+  if (b.dataset.c === 'fuel') { FUEL.active ? closeFuel() : openFuel(); return; }
   activeCat = activeCat && activeCat.id === b.dataset.c ? null : CATS.find(c => c.id === b.dataset.c);
   document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', !!activeCat && c.dataset.c === activeCat.id));
   map.setFilter('poi-hl', ['in', ['get', 'class'], ['literal', activeCat ? activeCat.cls : ['__none__']]]);
@@ -1480,6 +1553,10 @@ function popupContent(p) {
 }
 map.on('click', async e => {
   if (NAV.on) return;
+  const fuelHit = FUEL.active ? map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 10], [e.point.x + 10, e.point.y + 10]], { layers: ['fuel-dot', 'fuel-label'] })[0] : null;
+  if (fuelHit) { const st = fuelVisible()[fuelHit.properties.i]; if (st) showFuelStation(st); return; }
+  const stopHit = S.mode === 'transit' ? map.queryRenderedFeatures([[e.point.x - 8, e.point.y - 8], [e.point.x + 8, e.point.y + 8]], { layers: ['stops-dot'] })[0] : null;
+  if (stopHit) { showStopPopup(stopHit); return; }
   const sig = SET.traffic ? map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 14], [e.point.x + 10, e.point.y + 4]], { layers: ['signals'] })[0] : null;
   if (sig) {
     popup?.remove();
@@ -1509,7 +1586,7 @@ map.on('click', async e => {
   }
 });
 map.on('mousemove', e => {
-  const f = map.queryRenderedFeatures(e.point, { layers: ['route-alt', 'poi-dot', 'poi-hl', 'signals'] });
+  const f = map.queryRenderedFeatures(e.point, { layers: ['route-alt', 'poi-dot', 'poi-hl', 'signals', 'fuel-dot', 'stops-dot'] });
   map.getCanvas().style.cursor = f.length ? 'pointer' : '';
 });
 
@@ -1527,9 +1604,11 @@ $('#swapBtn').onclick = () => {
   if (S.from && S.to) route();
 };
 document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
+  const was = S.mode;
   S.mode = b.dataset.mode;
   document.querySelectorAll('.mode').forEach(x => x.classList.toggle('on', x === b));
-  if (S.from && S.to) route();
+  setTransitMode(S.mode === 'transit');
+  if (S.from && S.to && (was !== S.mode)) route();
 });
 $('#goBtn').onclick = () => route();
 
@@ -1553,6 +1632,7 @@ function useMyLocation(which) {
 }
 
 function maneuverIcon(step) {
+  if (step.kind) return `<span style="font-size:16px;line-height:1">${TICON[step.kind] || '🚉'}</span>`;
   const m = step.maneuver, t = m.type;
   if (t === 'depart') return '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="3"/></svg>';
   if (t === 'arrive') return '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3v18h2v-7h10l-2-3.5L17 7H7V3z"/></svg>';
@@ -1565,6 +1645,7 @@ function maneuverIcon(step) {
 const compass = b => ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'][Math.round(((b % 360) + 360) % 360 / 45) % 8];
 const ordinal = n => { n = n || 1; const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 function instruction(s, isLast) {
+  if (s.text) return s.text;
   const m = s.maneuver, t = m.type, mod = m.modifier || '';
   const nm = s.name || s.ref || '';
   const onto = nm ? ` onto ${nm}` : '';
@@ -1594,6 +1675,7 @@ async function route() {
   if (!S.from || !S.to) { out.innerHTML = `<div class="err">Choose both a start point and a destination.</div>`; return; }
   if (!inAus(S.from.coord) || !inAus(S.to.coord)) { out.innerHTML = `<div class="err">Both points must be inside Australia.</div>`; return; }
   routeCtrl?.abort(); routeCtrl = new AbortController();
+  if (S.mode === 'transit') return routeTransit(routeCtrl.signal);
   out.innerHTML = `<div class="hint" style="display:flex;gap:10px;align-items:center;margin-top:14px"><div class="spinner"></div>Finding the best route…</div>`;
   const pts = `${S.from.coord[0]},${S.from.coord[1]};${S.to.coord[0]},${S.to.coord[1]}`;
   const url = `${ROUTER[S.mode]}/route/v1/driving/${pts}?overview=full&geometries=geojson&steps=true&alternatives=true`;
@@ -1620,6 +1702,7 @@ function drawRoutes(reveal) {
   const feats = S.routes.map((r, i) => ({ type: 'Feature', properties: { idx: i, sel: i === S.sel }, geometry: r.geometry }));
   feats.sort((a, b) => (a.properties.sel ? 1 : 0) - (b.properties.sel ? 1 : 0));
   src.setData({ type: 'FeatureCollection', features: feats });
+  drawTransitLegs();
   if (reveal && feats.length) revealRoute();
 }
 function selectRoute(i) { S.sel = +i; PROG.frac = 0; drawRoutes(true); renderRoutes(); }
@@ -1632,21 +1715,22 @@ function viaName(r) {
 function renderRoutes() {
   const out = $('#dirOut');
   const r = S.routes[S.sel];
-  const eta = new Date(Date.now() + r.duration * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const eta = r.transit ? fmtClock(r.it.endTime) : new Date(Date.now() + r.duration * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const steps = r.legs.flatMap(l => l.steps);
-  out.innerHTML = `<div class="routes">${S.routes.map((x, i) => `
+  out.innerHTML = `<div class="routes">${S.routes.map((x, i) => x.transit ? transitCard(x, i) : `
       <div class="route-card ${i === S.sel ? 'on' : ''}" data-i="${i}">
         <div><div class="dur">${fmtDur(x.duration)}</div><div class="via">via ${esc(viaName(x) || 'local roads')}</div></div>
         <div style="text-align:right"><div class="dist">${fmtDist(x.distance)}</div>${i === 0 ? '<div class="via">Fastest</div>' : ''}</div>
       </div>`).join('')}</div>
-    <div class="hint" style="margin-top:10px">Arrive around <b>${eta}</b></div>
+    <div class="hint" style="margin-top:10px">${r.transit ? `Leave ${leaveIn(r.it.startTime)} · arrive <b>${eta}</b>` : `Arrive around <b>${eta}</b>`}</div>
     <div class="hint" id="routeSig" style="margin-top:2px"></div>
     <div class="btns">
       <button class="btn primary" id="navStart" style="flex:1;justify-content:center">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg> Start</button>
-      <button class="btn ghost" id="navSim" title="Watch a sped-up preview of this trip">▶ Preview drive</button>
+      <button class="btn ghost" id="navSim" title="Watch a sped-up preview of this trip">▶ Preview ${r.transit ? 'trip' : 'drive'}</button>
     </div>
     <p class="hint" style="font-size:12px;margin:8px 0 0">The trip stopwatch starts automatically once you move off from your start point.</p>
+    ${r.transit ? TRANSIT_CREDIT : ''}
     <div class="steps"><h3 style="margin-top:6px">Steps</h3>${steps.map((s, i) => `
       <div class="step" data-i="${i}"><div class="arr">${maneuverIcon(s)}</div>
       <div><div class="txt">${esc(instruction(s, i === steps.length - 1))}</div>${s.distance > 0 ? `<div class="d">${fmtDist(s.distance)}</div>` : ''}</div></div>`).join('')}
@@ -1749,7 +1833,7 @@ function simplifyLine(coords, tol) {                       // Douglas–Peucker 
   return coords.filter((_, i) => keep[i]);
 }
 async function loadRouteSignals(r) {
-  if (!r || !SET.traffic || r._sigLoading || r._signals) return;
+  if (!r || r.transit || !SET.traffic || r._sigLoading || r._signals) return;
   if (r.distance > 150000) return;                         // very long trips: map shows lights as you go
   r._sigLoading = true; updateSignalInfo();
   const coords = r.geometry.coordinates;
@@ -1775,6 +1859,341 @@ function updateSignalInfo() {
   const r = S.routes[S.sel], el = document.getElementById('routeSig');
   if (el) el.textContent = !r || !SET.traffic ? '' : r._signals ? `🚦 ${r._signals.length} set${r._signals.length === 1 ? '' : 's'} of traffic lights on this route` : r._sigLoading ? '🚦 Checking traffic lights…' : '';
   if (NAV.on && NAV.route === r) { NAV.signals = r._signals || []; if (NAV.lastAlong != null) updateNavCard(NAV.lastAlong); }
+}
+
+/* ================= Fuel prices (community feed of official state data) ================= */
+const FUEL_FEED = 'https://raw.githubusercontent.com/jande425/aus-fuel-data-public/main/data/';
+const FUEL_RADIUS = 20000;
+const STATE_BOXES = { nsw: [140.99, -37.6, 153.7, -28.1], act: [148.7, -36.0, 149.45, -35.1], vic: [140.9, -39.25, 150.05, -33.95], qld: [137.9, -29.2, 153.6, -9.8],
+  sa: [128.9, -38.1, 141.05, -25.95], wa: [112.8, -35.2, 129.05, -13.6], tas: [143.7, -43.8, 148.6, -39.4], nt: [128.9, -26.05, 138.05, -10.8] };
+const FUEL_TYPES = [['U91', 'Unleaded 91'], ['E10', 'E10'], ['U95', 'Premium 95'], ['U98', 'Premium 98'], ['Diesel', 'Diesel'], ['Premium Diesel', 'Prem. diesel'], ['LPG', 'LPG']];
+const FUEL = { cache: {}, active: false, type: 'U91', sort: 'price', center: null, near: 'map', stations: [], loading: false, err: '' };
+const fmtAgo = iso => {
+  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (!isFinite(m)) return '';
+  if (m < 60) return `${Math.max(1, m)} min ago`;
+  if (m < 60 * 36) return `${Math.round(m / 60)} h ago`;
+  return `${Math.round(m / 1440)} days ago`;
+};
+function loadFuelState(st) {
+  const c = FUEL.cache[st];
+  if (c && Date.now() - c.t < 10 * 60000) return c.p;
+  const pr = fetch(FUEL_FEED + st + '/latest.json').then(r => { if (!r.ok) throw new Error('Fuel prices unavailable (' + r.status + ')'); return r.json(); });
+  FUEL.cache[st] = { t: Date.now(), p: pr };
+  pr.catch(() => { delete FUEL.cache[st]; });
+  return pr;
+}
+function openFuel(query) {
+  const m = (query || '').match(/\b(e10|u91|u95|u98|diesel|lpg)\b/i);
+  if (m) FUEL.type = { e10: 'E10', u91: 'U91', u95: 'U95', u98: 'U98', diesel: 'Diesel', lpg: 'LPG' }[m[1].toLowerCase()];
+  FUEL.active = true;
+  if (activeCat) { activeCat = null; map.setFilter('poi-hl', ['in', ['get', 'class'], ['literal', ['__none__']]]); refreshCats(); }
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.c === 'fuel'));
+  $('#placeCard').innerHTML = ''; setMarker('place', null);
+  showTab('search');
+  const c = FUEL.near === 'me' && myLoc ? myLoc : [map.getCenter().lng, map.getCenter().lat];
+  searchFuel(c);
+}
+function closeFuel() {
+  FUEL.active = false; FUEL.stations = [];
+  $('#fuelBox').innerHTML = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  if (map.getSource('fuel')) { map.getSource('fuel').setData(EMPTY_FC); map.getSource('fuelRadius').setData(EMPTY_FC); }
+}
+async function searchFuel(center) {
+  FUEL.center = center; FUEL.loading = true; FUEL.err = '';
+  renderFuel();
+  const kx = mLon(center[1]);
+  const bb = [center[0] - FUEL_RADIUS / kx, center[1] - FUEL_RADIUS / M_LAT, center[0] + FUEL_RADIUS / kx, center[1] + FUEL_RADIUS / M_LAT];
+  const states = Object.entries(STATE_BOXES).filter(([, b]) => !(b[2] < bb[0] || b[0] > bb[2] || b[3] < bb[1] || b[1] > bb[3])).map(([k]) => k);
+  const results = await Promise.allSettled(states.map(loadFuelState));
+  if (FUEL.center !== center) return;
+  const seen = new Set(), list = [];
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue;
+    for (const st of r.value.stations || []) {
+      if (st.lat == null || st.lng == null || seen.has(st.code)) continue;
+      const d = geoDist(center, [st.lng, st.lat]);
+      if (d > FUEL_RADIUS) continue;
+      seen.add(st.code);
+      list.push({ ...st, dist: d, feedTime: r.value.fetched_at });
+    }
+  }
+  FUEL.loading = false;
+  FUEL.stations = list;
+  if (!list.length) FUEL.err = results.some(r => r.status === 'rejected') ? 'Couldn\'t load fuel prices right now. Check your connection and try again.' : 'No fuel stations with published prices within 20 km.';
+  renderFuel();
+  const ring = []; for (let i = 0; i <= 64; i++) { const a = i / 64 * Math.PI * 2; ring.push([center[0] + Math.sin(a) * FUEL_RADIUS / kx, center[1] + Math.cos(a) * FUEL_RADIUS / M_LAT]); }
+  map.getSource('fuelRadius')?.setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: ring } });
+  if (list.length) map.fitBounds([[bb[0], bb[1]], [bb[2], bb[3]]], { padding: panelPadding(20), pitch: 0, bearing: 0, duration: 1200 });
+}
+function fuelVisible() {
+  const t = FUEL.type;
+  const withPrice = FUEL.stations.filter(s => s.prices && typeof s.prices[t] === 'number' && s.prices[t] > 50);
+  withPrice.sort(FUEL.sort === 'price' ? (a, b) => a.prices[t] - b.prices[t] || a.dist - b.dist : (a, b) => a.dist - b.dist);
+  return withPrice;
+}
+function renderFuel() {
+  const box = $('#fuelBox');
+  if (!FUEL.active) { box.innerHTML = ''; return; }
+  const t = FUEL.type, list = fuelVisible();
+  const prices = list.map(s => s.prices[t]);
+  const lo = Math.min(...prices), hi = Math.max(...prices);
+  const rank = v => hi > lo ? (v - lo) / (hi - lo) : 0;
+  const colour = v => { const r = rank(v); return r < 0.34 ? '#16a34a' : r < 0.67 ? '#d97706' : '#dc2626'; };
+  const nearTxt = FUEL.near === 'me' && myLoc ? 'your location' : 'the map centre';
+  let html = `<div class="card">
+    <div class="fuel-head"><h2>⛽ Fuel prices</h2><button class="btn ghost" id="fuelClose" style="padding:5px 10px">✕</button></div>
+    <div class="seg" id="fuelTypes">${FUEL_TYPES.map(([k, l]) => `<button data-t="${k}" class="${k === t ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <div class="seg" id="fuelSort"><button data-s="price" class="${FUEL.sort === 'price' ? 'on' : ''}">Cheapest</button><button data-s="dist" class="${FUEL.sort === 'dist' ? 'on' : ''}">Nearest</button>
+      <button id="fuelHere">↻ Search this area</button><button id="fuelMe">🎯 Near me</button></div>
+    <div class="fuel-note">Within 20 km of ${nearTxt}. Prices in cents per litre.</div>`;
+  if (FUEL.loading) html += `<div class="hint" style="display:flex;gap:10px;align-items:center"><div class="spinner"></div>Loading prices…</div>`;
+  else if (FUEL.err) html += `<div class="err">${esc(FUEL.err)}</div>`;
+  else if (!list.length) html += `<p class="hint">No stations nearby have a ${esc(t)} price listed.</p>`;
+  else {
+    const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+    html += `<div class="fuel-note">${list.length} stations · cheapest <b>${lo.toFixed(1)}</b> · average ${avg.toFixed(1)}</div>` +
+      list.slice(0, 80).map((st, i) => `<div class="fuel-row" data-i="${i}">
+        <div class="fuel-price" style="background:${colour(st.prices[t])}">${st.prices[t].toFixed(1)}<small>¢/L</small></div>
+        <div class="row-main"><div class="ac-t">${esc(st.brand || '')}${st.brand && st.name ? ' · ' : ''}${esc(st.name || '')}</div>
+          <div class="fuel-meta">${esc(st.address || '')}</div>
+          <div class="fuel-meta">${fmtDist(st.dist)} away${st.updated ? ` · updated ${fmtAgo(st.updated)}` : ''}</div></div></div>`).join('');
+    if (list.some(st => st.state === 'VIC')) html += `<div class="fuel-note">Victorian prices are published by the state with a 24-hour delay.</div>`;
+  }
+  html += `<div class="credit">Prices from official state fuel reporting schemes via the community <a href="https://github.com/jande425/aus-fuel-data-public" target="_blank">aus-fuel-data</a> feed. Always check the price at the pump.</div></div>`;
+  box.innerHTML = html;
+  $('#fuelClose').onclick = closeFuel;
+  $('#fuelTypes').onclick = e => { const b = e.target.closest('[data-t]'); if (b) { FUEL.type = b.dataset.t; renderFuel(); } };
+  $('#fuelSort').onclick = e => { const b = e.target.closest('[data-s]'); if (b) { FUEL.sort = b.dataset.s; renderFuel(); } };
+  $('#fuelHere').onclick = () => { FUEL.near = 'map'; searchFuel([map.getCenter().lng, map.getCenter().lat]); };
+  $('#fuelMe').onclick = () => {
+    if (!navigator.geolocation) return toast('Location is not available in this browser');
+    toast('Finding your location…');
+    navigator.geolocation.getCurrentPosition(pos => {
+      const c = [pos.coords.longitude, pos.coords.latitude];
+      if (!inAus(c)) return toast('Your location appears to be outside Australia');
+      myLoc = c; FUEL.near = 'me'; feedFix(c, pos.coords.heading, null, 0); searchFuel(c);
+    }, err => toast('Could not get location: ' + err.message), { enableHighAccuracy: true, timeout: 12000 });
+  };
+  box.querySelectorAll('.fuel-row').forEach(el => el.onclick = () => showFuelStation(list[+el.dataset.i]));
+  // map layer
+  if (map.getSource('fuel')) map.getSource('fuel').setData({ type: 'FeatureCollection', features: list.map((st, i) => ({
+    type: 'Feature', properties: { i, price: st.prices[t], label: st.prices[t].toFixed(1), rank: rank(st.prices[t]), best: st.prices[t] === lo },
+    geometry: { type: 'Point', coordinates: [st.lng, st.lat] } })) });
+}
+function showFuelStation(st) {
+  const d = document.createElement('div'); d.className = 'pop';
+  const rows = Object.entries(st.prices || {}).sort((a, b) => a[1] - b[1]).map(([k, v]) =>
+    `<div style="display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:2px 0"><span>${esc(k)}</span><b>${Number(v).toFixed(1)} ¢/L</b></div>`).join('');
+  d.innerHTML = `<div class="pop-t">⛽ ${esc(st.brand || '')}${st.brand ? ' · ' : ''}${esc(st.name || '')}</div>
+    <div class="pop-s">${esc(st.address || '')}</div>
+    <div style="margin-top:8px">${rows}</div>
+    <div class="pop-s" style="margin-top:6px">${st.updated ? 'Updated ' + fmtAgo(st.updated) : ''}${st.state === 'VIC' ? ' · VIC prices are 24 h delayed' : ''}</div>
+    <div class="btns"><button class="btn primary" data-go>Directions</button></div>`;
+  d.querySelector('[data-go]').onclick = () => {
+    popup?.remove();
+    setWaypoint('to', { title: `${st.brand || ''} ${st.name || ''}`.trim(), sub: st.address || '', icon: '⛽', coord: [st.lng, st.lat] });
+    showTab('dir');
+    if (!S.from) { if (myLoc) setWaypoint('from', { title: 'Your location', sub: fmtCoord(myLoc), icon: '🎯', coord: myLoc }); else toast('Now choose a starting point'); }
+  };
+  popup?.remove();
+  popup = new maplibregl.Popup({ offset: 14, maxWidth: '280px' }).setLngLat([st.lng, st.lat]).setDOMContent(d).addTo(map);
+  map.easeTo({ center: [st.lng, st.lat], zoom: Math.max(map.getZoom(), 14), padding: panelPadding(), duration: 900 });
+}
+
+/* ================= Public transport (Transitous / MOTIS) ================= */
+const TRANSITOUS = 'https://api.transitous.org/api/';
+const TRANSIT_CREDIT = '<div class="credit">Public transport data: <a href="https://transitous.org/sources/" target="_blank">Transitous and its data sources</a>. Times are scheduled unless marked live.</div>';
+const MOTIS_V = {};
+async function motis(ep, params, signal) {
+  const path = { plan: 'plan', stoptimes: 'stoptimes', stops: 'map/stops' }[ep];
+  const versions = MOTIS_V[ep] ? [MOTIS_V[ep]] : ['v6', 'v5', 'v4', 'v3', 'v2'];
+  const qs = new URLSearchParams(params).toString();
+  let lastErr;
+  for (const v of versions) {
+    const r = await fetch(`${TRANSITOUS}${v}/${path}?${qs}`, { signal });
+    if (r.status === 404) { lastErr = new Error('not found'); continue; }
+    if (r.status === 429) throw new Error('The public transport service is busy — try again in a minute');
+    if (!r.ok) throw new Error('Public transport service error (' + r.status + ')');
+    MOTIS_V[ep] = v;
+    return r.json();
+  }
+  throw lastErr || new Error('Public transport service unavailable');
+}
+const TMODE = m => /RAIL|SUBURBAN|METRO|SUBWAY|TRAIN/.test(m || '') ? 'train' : m === 'TRAM' || m === 'CABLE_CAR' ? 'tram' : /BUS|COACH/.test(m || '') ? 'bus' : m === 'FERRY' ? 'ferry' : m === 'WALK' ? 'walk' : 'transit';
+const TICON = { train: '🚆', tram: '🚊', bus: '🚌', ferry: '⛴️', walk: '🚶', transit: '🚉' };
+const TCOLOR = { train: '#1f6fd1', tram: '#5d9c28', bus: '#e8890c', ferry: '#1597a8', transit: '#8a63d2', walk: '#6b7078' };
+const fmtClock = iso => iso ? new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+const leaveIn = iso => { const m = Math.round((new Date(iso) - Date.now()) / 60000); return m <= 0 ? 'now' : m < 60 ? `in ${m} min (${fmtClock(iso)})` : `at ${fmtClock(iso)}`; };
+function decodePolyline(str, precision = 6) {
+  let i = 0, lat = 0, lng = 0; const out = [], f = Math.pow(10, precision);
+  while (i < str.length) {
+    for (const k of [0, 1]) {
+      let b, shift = 0, result = 0;
+      do { b = str.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+      const d = (result & 1) ? ~(result >> 1) : (result >> 1);
+      if (k === 0) lat += d; else lng += d;
+    }
+    out.push([lng / f, lat / f]);
+  }
+  return out;
+}
+const legColour = l => l.routeColor ? '#' + String(l.routeColor).replace('#', '') : TCOLOR[TMODE(l.mode)];
+const lineName = l => l.routeShortName || l.displayName || l.tripShortName || l.routeLongName || TMODE(l.mode);
+function itinToRoute(it) {
+  const coords = [], steps = [], legs = [];
+  let total = 0;
+  for (const l of it.legs) {
+    let g = l.legGeometry && l.legGeometry.points ? decodePolyline(l.legGeometry.points, l.legGeometry.precision || 6) : [];
+    if (g.length < 2) g = [[l.from.lon, l.from.lat], [l.to.lon, l.to.lat]];
+    let dist = 0; for (let k = 1; k < g.length; k++) dist += geoDist(g[k - 1], g[k]);
+    const kind = TMODE(l.mode);
+    legs.push({ ...l, g, kind, dist });
+    coords.push(...(coords.length ? g.slice(1) : g));
+    const loc = [l.from.lon, l.from.lat];
+    if (kind === 'walk') {
+      steps.push({ kind, distance: dist, text: `Walk ${fmtDur(l.duration)} to ${l.to.name === 'END' ? (S.to ? S.to.title : 'your destination') : l.to.name}`, maneuver: { type: 'notification', location: loc } });
+    } else {
+      const n = (l.intermediateStops || []).length + 1;
+      steps.push({ kind, distance: dist, maneuver: { type: 'notification', location: loc },
+        text: `${fmtClock(l.startTime)} · ${TICON[kind]} ${lineName(l)}${l.headsign ? ' towards ' + l.headsign : ''} from ${l.from.name}${l.realTime ? ' (live)' : ''}` });
+      steps.push({ kind, distance: 0, maneuver: { type: 'notification', location: [l.to.lon, l.to.lat] },
+        text: `Get off at ${l.to.name} · ${fmtClock(l.endTime)} · ${n} stop${n === 1 ? '' : 's'}` });
+    }
+    total += dist;
+  }
+  steps.push({ distance: 0, maneuver: { type: 'arrive', location: coords[coords.length - 1] } });
+  return { transit: true, it, tlegs: legs, distance: total, duration: it.duration, geometry: { type: 'LineString', coordinates: coords }, legs: [{ steps }] };
+}
+function transitCard(x, i) {
+  const it = x.it;
+  const chain = x.tlegs.filter(l => l.kind !== 'walk' || l.duration > 120).map(l => l.kind === 'walk'
+    ? `<span>🚶${Math.round(l.duration / 60)}</span>`
+    : `<span class="pill" style="background:${legColour(l)}">${TICON[l.kind]} ${esc(lineName(l))}</span>`).join('<span>›</span>');
+  return `<div class="route-card ${i === S.sel ? 'on' : ''}" data-i="${i}">
+    <div style="min-width:0"><div class="dur">${fmtDur(it.duration)}</div>
+      <div class="via">${fmtClock(it.startTime)} → ${fmtClock(it.endTime)} · ${it.transfers} change${it.transfers === 1 ? '' : 's'}</div>
+      <div class="t-chain">${chain}</div></div>
+    <div style="text-align:right;flex:none"><div class="dist">${fmtDist(x.distance)}</div><div class="via">${leaveIn(it.startTime).replace(/ \(.*\)/, '')}</div></div></div>`;
+}
+function drawTransitLegs() {
+  const src = map.getSource('tlegs'); if (!src) return;
+  const r = S.routes[S.sel];
+  if (!r || !r.transit) { src.setData(EMPTY_FC); return; }
+  const feats = [];
+  for (const l of r.tlegs) {
+    if (l.kind === 'walk') { feats.push({ type: 'Feature', properties: { kind: 'walk' }, geometry: { type: 'LineString', coordinates: l.g } }); continue; }
+    const color = legColour(l);
+    feats.push({ type: 'Feature', properties: { kind: 'board', color, label: `${lineName(l)} · ${fmtClock(l.startTime)}` }, geometry: { type: 'Point', coordinates: [l.from.lon, l.from.lat] } });
+    feats.push({ type: 'Feature', properties: { kind: 'alight', color }, geometry: { type: 'Point', coordinates: [l.to.lon, l.to.lat] } });
+  }
+  src.setData({ type: 'FeatureCollection', features: feats });
+}
+async function routeTransit(signal) {
+  const out = $('#dirOut');
+  out.innerHTML = `<div class="hint" style="display:flex;gap:10px;align-items:center;margin-top:14px"><div class="spinner"></div>Finding public transport options…</div>`;
+  const when = $('#departAt').value ? new Date($('#departAt').value) : new Date();
+  try {
+    const j = await motis('plan', {
+      fromPlace: `${S.from.coord[1]},${S.from.coord[0]}`, toPlace: `${S.to.coord[1]},${S.to.coord[0]}`,
+      time: when.toISOString(), arriveBy: 'false'
+    }, signal);
+    const its = (j.itineraries || []).filter(it => it.legs && it.legs.some(l => TMODE(l.mode) !== 'walk'));
+    if (!its.length) throw new Error('No public transport found for this trip at that time. Try another time — some regional areas aren\'t covered');
+    $('#transitNear').innerHTML = '';
+    S.routes = its.slice(0, 5).map(itinToRoute);
+    S.sel = 0; PROG.frac = 0;
+    drawRoutes(true);
+    renderRoutes();
+    const b = new maplibregl.LngLatBounds();
+    S.routes[0].geometry.coordinates.forEach(c => b.extend(c));
+    map.fitBounds(b, { padding: panelPadding(70), duration: 1400, pitch: 0 });
+  } catch (e) {
+    if (e.name === 'AbortError') return;
+    S.routes = []; drawRoutes();
+    out.innerHTML = `<div class="err">${esc(e.message || 'Public transport search failed')}.</div>${TRANSIT_CREDIT}`;
+  }
+}
+/* nearby stops & scheduled departures */
+const STOPS = { feats: new Map(), cells: new Set(), busy: false, again: false, cell: 0.01, pauseUntil: 0 };
+function setTransitMode(on) {
+  document.body.classList.toggle('mode-transit', on);
+  for (const id of ['stops-dot', 'stops-letter', 'stops-name'])
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on && (id !== 'stops-name' || SET.poiLabels) ? 'visible' : 'none');
+  if (on) {
+    if (map.getZoom() < 14.5 && !S.routes.length) map.easeTo({ zoom: 15.5, duration: 900 });
+    loadStopsInView(); loadNearbyDepartures();
+  } else $('#transitNear').innerHTML = '';
+}
+async function loadStopsInView() {
+  if (S.mode !== 'transit' || map.getZoom() < 13.5 || Date.now() < STOPS.pauseUntil) return;
+  if (STOPS.busy) { STOPS.again = true; return; }
+  const c = map.getCenter(), C = STOPS.cell, R = Math.min(2000, 900 * Math.pow(2, 15.5 - map.getZoom())), kx = mLon(c.lat);
+  const cells = [];
+  for (let i = Math.floor((c.lng - R / kx) / C); i <= Math.floor((c.lng + R / kx) / C); i++)
+    for (let j = Math.floor((c.lat - R / M_LAT) / C); j <= Math.floor((c.lat + R / M_LAT) / C); j++)
+      if (!STOPS.cells.has(i + ':' + j)) cells.push([i, j]);
+  if (!cells.length) return;
+  const is = cells.map(x => x[0]), js = cells.map(x => x[1]);
+  const w = Math.min(...is) * C, e = (Math.max(...is) + 1) * C, so = Math.min(...js) * C, n = (Math.max(...js) + 1) * C;
+  STOPS.busy = true;
+  try {
+    const list = await motis('stops', { min: `${so.toFixed(5)},${w.toFixed(5)}`, max: `${n.toFixed(5)},${e.toFixed(5)}` });
+    for (const pl of Array.isArray(list) ? list : []) {
+      if (!pl.stopId || STOPS.feats.has(pl.stopId)) continue;
+      const modes = pl.modes || [];
+      const kind = modes.some(m => TMODE(m) === 'train') ? 'train' : modes.some(m => TMODE(m) === 'tram') ? 'tram' : modes.some(m => TMODE(m) === 'ferry') ? 'ferry' : modes.some(m => TMODE(m) === 'bus') ? 'bus' : 'transit';
+      STOPS.feats.set(pl.stopId, { type: 'Feature', properties: { id: pl.stopId, name: pl.name, kind }, geometry: { type: 'Point', coordinates: [pl.lon, pl.lat] } });
+    }
+    cells.forEach(x => STOPS.cells.add(x[0] + ':' + x[1]));
+    map.getSource('stops')?.setData({ type: 'FeatureCollection', features: [...STOPS.feats.values()] });
+  } catch (err) { console.warn('[stops]', err.message); STOPS.pauseUntil = Date.now() + 20000; }
+  STOPS.busy = false;
+  if (STOPS.again) { STOPS.again = false; loadStopsInView(); }
+}
+map.on('moveend', debounce(() => { if (S.mode === 'transit') { loadStopsInView(); if (!S.routes.length) loadNearbyDepartures(); } }, 800));
+const depTime = st => {
+  const pl = st.place || {};
+  const sched = pl.scheduledDeparture || pl.scheduledArrival, exp = pl.departure || pl.arrival;
+  const late = st.realTime && exp && sched ? Math.round((new Date(exp) - new Date(sched)) / 60000) : 0;
+  return `<div class="dep-time">${fmtClock(st.realTime ? exp : sched)}<small>${st.realTime ? `<span class="live">live${late > 0 ? ` · +${late} min` : ''}</span>` : 'scheduled'}</small></div>`;
+};
+const depRow = (st, showStop) => `<div class="dep-row">${depTime(st)}
+  <span class="pill" style="background:${legColour(st)}">${TICON[TMODE(st.mode)]} ${esc(lineName(st))}</span>
+  <div class="row-main"><div class="ac-t" style="font-size:13px">${esc(st.headsign || st.tripTo?.name || '')}</div>${showStop ? `<div class="ac-s">${esc(st.place?.name || '')}</div>` : ''}</div></div>`;
+let nearCtrl;
+async function loadNearbyDepartures() {
+  const box = $('#transitNear');
+  if (S.mode !== 'transit' || S.routes.length) { box.innerHTML = ''; return; }
+  nearCtrl?.abort(); nearCtrl = new AbortController();
+  const c = map.getCenter();
+  box.innerHTML = `<h3 style="margin-top:16px">Departures near the map centre</h3><div class="hint" style="display:flex;gap:10px;align-items:center"><div class="spinner"></div>Loading timetable…</div>`;
+  try {
+    const j = await motis('stoptimes', { center: `${c.lat.toFixed(5)},${c.lng.toFixed(5)}`, radius: 600, n: 16, time: new Date().toISOString() }, nearCtrl.signal);
+    const list = (j.stopTimes || []).filter(st => !st.cancelled).slice(0, 16);
+    box.innerHTML = `<h3 style="margin-top:16px">Departures near the map centre</h3>` +
+      (list.length ? list.map(st => depRow(st, true)).join('') : '<p class="hint">No departures found within 600 m. Move the map closer to a station or stop.</p>') + TRANSIT_CREDIT;
+  } catch (e) {
+    if (e.name !== 'AbortError') box.innerHTML = `<h3 style="margin-top:16px">Departures near the map centre</h3><div class="err">${esc(e.message)}</div>`;
+  }
+}
+async function showStopPopup(f) {
+  const d = document.createElement('div'); d.className = 'pop';
+  const coord = f.geometry.coordinates, name = f.properties.name, kind = f.properties.kind;
+  d.innerHTML = `<div class="pop-t">${TICON[kind] || '🚉'} ${esc(name)}</div><div class="pop-s">Next departures</div><div id="stopDeps"><div class="hint" style="display:flex;gap:8px;align-items:center;margin-top:6px"><div class="spinner"></div>Loading…</div></div>
+    <div class="btns"><button class="btn primary" data-a="to">Directions to</button><button class="btn ghost" data-a="from">From here</button></div>`;
+  d.addEventListener('click', e => {
+    const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+    popup?.remove(); setWaypoint(a, { title: name, sub: 'Public transport stop', icon: TICON[kind] || '🚉', coord }); showTab('dir');
+  });
+  popup?.remove();
+  popup = new maplibregl.Popup({ offset: 12, maxWidth: '320px' }).setLngLat(coord).setDOMContent(d).addTo(map);
+  try {
+    const j = await motis('stoptimes', { stopId: f.properties.id, n: 8, time: new Date().toISOString() });
+    const list = (j.stopTimes || []).filter(st => !st.cancelled).slice(0, 8);
+    d.querySelector('#stopDeps').innerHTML = (list.length ? list.map(st => depRow(st, false)).join('') : '<p class="hint">No upcoming departures listed.</p>') + '<div class="credit">Data: <a href="https://transitous.org/sources/" target="_blank">Transitous</a></div>';
+  } catch (e) { d.querySelector('#stopDeps').innerHTML = `<div class="err">${esc(e.message)}</div>`; }
 }
 
 /* ================= Stopwatch ================= */
@@ -2082,8 +2501,8 @@ function startNav(simulate) {
   map.once('moveend', () => { if (NAV.on && NAV.follow === 'pending') setFollowing(true); });
 
   if (simulate) {
-    const real = { car: 16, bike: 5.5, foot: 1.4 }[S.mode];
-    NAV.simFactor = { car: 3, bike: 3, foot: 6 }[S.mode];
+    const real = r.transit ? Math.max(3, r.distance / Math.max(60, r.duration)) : { car: 16, bike: 5.5, foot: 1.4 }[S.mode];
+    NAV.simFactor = r.transit ? 4 : { car: 3, bike: 3, foot: 6 }[S.mode];
     const speed = real * NAV.simFactor;   // sped-up preview
     let d = 0, t = 0;
     NAV.simTimer = setInterval(() => {
@@ -2195,6 +2614,7 @@ function clearRoute() {
   if (NAV.on) exitNav();
   S.routes = []; S.from = S.to = null; fromIn.value = toIn.value = '';
   setMarker('a', null); setMarker('b', null); drawRoutes();
+  if (S.mode === 'transit') setTimeout(loadNearbyDepartures, 0);
   $('#dirOut').innerHTML = '<p class="hint" style="margin-top:14px">Tip: click anywhere on the map to set a start or destination.</p>';
 }
 
@@ -2259,7 +2679,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
 });
 if (isMobile()) setCollapsed(true);
-window.__maps = { map, S, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+window.__maps = { map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
