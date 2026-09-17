@@ -331,6 +331,30 @@ body.hide-stopwatch .stopwatch{display:none}
 .mk-me{will-change:transform}
 .sig-note{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.4}
 
+/* stop prompt, red-light chip, trip highlights */
+.stop-prompt{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);z-index:66;width:min(380px,calc(100vw - 24px));opacity:0;pointer-events:none;
+  background:#5c6066;color:#fff;border-radius:16px;box-shadow:0 12px 34px rgba(0,0,0,.55);padding:14px 16px;transition:opacity .25s,transform .25s}
+.stop-prompt.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.stop-prompt h4{margin:0 0 4px;font-size:17px}
+.stop-prompt p{margin:0 0 12px;font-size:13px;opacity:.85}
+.stop-prompt .row2{display:flex;gap:8px}
+.stop-prompt button{flex:1;border:0;border-radius:12px;padding:13px 8px;font-weight:700;font-size:15px}
+.stop-prompt .yes{background:#ef4444;color:#fff}
+.stop-prompt .no{background:rgba(255,255,255,.16);color:#fff}
+.stop-prompt .bar{height:3px;border-radius:2px;background:rgba(255,255,255,.25);margin-top:10px;overflow:hidden}
+.stop-prompt .bar i{display:block;height:100%;width:100%;background:#fff;opacity:.6}
+.red-chip{display:none;align-items:center;gap:6px;background:#dc2626;color:#fff;border-radius:12px;padding:3px 9px;font-weight:700;font-size:12px}
+.red-chip.show{display:inline-flex}
+.hl-card{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:21;width:min(420px,calc(100vw - 24px));display:none;
+  background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+.hl-card.show{display:block}
+.hl-card h4{margin:0;font-size:15px;color:var(--strong)}
+.hl-card .sub{font-size:12px;color:var(--muted);margin:2px 0 8px}
+.hl-legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px}
+.hl-legend span{display:inline-flex;align-items:center;gap:5px}
+.hl-legend i{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+body.navigating .hl-card{display:none}
+
 /* navigation */
 .navcard{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:17;width:min(420px,calc(100vw - 480px));min-width:300px;
   background:rgba(92,96,102,.98);color:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.45);display:none;overflow:hidden}
@@ -357,6 +381,9 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
 
 /* ---------- Mobile ---------- */
 @media (max-width:760px){
+  .stop-prompt{bottom:calc(48vh + 12px)}
+  body.sheet-down .stop-prompt, body.navigating .stop-prompt{bottom:84px}
+  .hl-card{top:70px;left:10px;right:10px;width:auto;transform:none}
   .banner{height:60px;padding:0 10px;gap:8px}
   .brand .word{display:none}
   .banner-btn span{display:none}
@@ -572,6 +599,10 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
       <div id="optDisplay"></div>
     </div>
     <div class="set-group">
+      <h3>Saved traffic lights</h3>
+      <div id="optUserSignals"></div>
+    </div>
+    <div class="set-group">
       <h3>Screen</h3>
       <div id="optDevice"></div>
     </div>
@@ -591,6 +622,7 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
     <span><b id="navRemT">—</b> · <span id="navRemD">—</span></span>
     <span>ETA <b id="navEta">—</b></span>
     <span id="navSig"></span>
+    <span class="red-chip" id="redChip">● Red light</span>
     <span class="sp"></span>
     <button class="nav-exit" id="navExit">Exit</button>
   </div>
@@ -601,6 +633,20 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
 </button>
 <div class="toast" id="toast"></div>
 <button class="zoomfix" id="zoomFix">↺ Reset zoom</button>
+<div class="stop-prompt" id="stopPrompt" role="alertdialog" aria-live="assertive">
+  <h4>🚦 Stopped at traffic lights?</h4>
+  <p id="stopPromptTxt">You've been stopped near an intersection.</p>
+  <div class="row2"><button class="yes" id="stopYes">Yes, red light</button><button class="no" id="stopNo">No</button></div>
+  <div class="bar"><i></i></div>
+</div>
+<div class="hl-card" id="hlCard">
+  <div style="display:flex;align-items:flex-start;gap:8px">
+    <div style="flex:1;min-width:0"><h4 id="hlTitle">Trip highlights</h4><div class="sub" id="hlSub"></div></div>
+    <button class="btn ghost" id="hlBack" style="padding:5px 10px">Scorecard</button>
+    <button class="btn ghost" id="hlClose" style="padding:5px 10px">✕</button>
+  </div>
+  <div class="hl-legend" id="hlLegend"></div>
+</div>
 <div class="modal" id="scoreModal" role="dialog" aria-modal="true" aria-label="Trip scorecard"><div class="score" id="scoreCard"></div></div>
 
 <script>
@@ -807,6 +853,22 @@ function buildStyle(p) {
         'line-opacity-transition': { duration: 500, delay: 0 }, 'line-dasharray': [0, 4, 3] } },
 
     /* labels */
+    /* trip highlights (from a scorecard) */
+    { id: 'triphl-path', type: 'line', source: 'triphl', filter: ['==', ['get', 'kind'], 'path'],
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': '#60a5fa', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 3, 16, 7], 'line-opacity': 0.9 } },
+    { id: 'triphl-pt', type: 'circle', source: 'triphl', filter: ['==', ['geometry-type'], 'Point'],
+      paint: {
+        'circle-radius': ['match', ['get', 'kind'], 'top', 10, 'light', 5, 'red', 8, 'confirmed', 9,
+          ['interpolate', ['linear'], ['coalesce', ['get', 'dur'], 3], 3, 7, 60, 14]],
+        'circle-color': ['match', ['get', 'kind'], 'top', '#facc15', 'light', '#22c55e', 'red', '#dc2626', 'confirmed', '#a855f7', 'stop-red', '#dc2626', 'stop-confirmed', '#a855f7', '#f59e0b'],
+        'circle-opacity': ['match', ['get', 'kind'], 'stop-red', 0.35, 'stop-confirmed', 0.35, 1],
+        'circle-stroke-color': ['match', ['get', 'kind'], 'top', '#1b1b1b', '#ffffff'], 'circle-stroke-width': 2.5 } },
+    { id: 'triphl-label', type: 'symbol', source: 'triphl', filter: ['all', ['==', ['geometry-type'], 'Point'], ['has', 'label']],
+      layout: { 'text-field': ['get', 'label'], 'text-font': F_BOLD, 'text-size': 12, 'text-anchor': 'bottom', 'text-offset': [0, -1.1],
+        'symbol-sort-key': ['match', ['get', 'kind'], 'top', 0, 'confirmed', 1, 'red', 2, 3], 'text-padding': 2 },
+      paint: { 'text-color': '#ffffff', 'text-halo-width': 3.5,
+        'text-halo-color': ['match', ['get', 'kind'], 'top', '#a16207', 'red', '#b91c1c', 'stop-red', '#b91c1c', 'confirmed', '#7e22ce', 'stop-confirmed', '#7e22ce', '#b45309'] } },
     /* transit trip detail: walking parts dotted, boarding points marked */
     { id: 'tleg-walk', type: 'line', source: 'tlegs', filter: ['==', ['get', 'kind'], 'walk'],
       layout: { 'line-cap': 'round', 'line-join': 'round' },
@@ -877,6 +939,8 @@ function buildStyle(p) {
       filter: ['<=', ['get', 'rank'], ['step', ['zoom'], 3, 15, 12, 16, 30, 17, 100]],
       layout: { 'text-field': nameExpr, 'text-font': F_REG, 'text-size': 11, 'text-anchor': 'left', 'text-offset': [0.8, 0], 'text-max-width': 9, 'text-optional': true },
       paint: { 'text-color': p.poiLabel, 'text-halo-color': p.halo, 'text-halo-width': 1.4 } },
+    { id: 'signals-user', type: 'circle', source: 'signals', minzoom: 13, filter: ['==', ['get', 'kind'], 'user'],
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 7, 18, 14], 'circle-color': 'rgba(168,85,247,0.25)', 'circle-stroke-color': '#a855f7', 'circle-stroke-width': 2, 'circle-translate': [0, 2] } },
     { id: 'signals', type: 'symbol', source: 'signals', minzoom: 13,
       layout: { 'icon-image': 'tlight', 'icon-anchor': 'bottom', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
         'icon-pitch-alignment': 'viewport', 'icon-rotation-alignment': 'viewport',
@@ -920,6 +984,7 @@ function buildStyle(p) {
       fuelRadius: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       stops: { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, attribution: 'Public transport: <a href="https://transitous.org/sources/" target="_blank">Transitous</a>' },
       tlegs: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      triphl: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       'dem-hs': { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14 },
       trees3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       bridges3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
@@ -992,7 +1057,7 @@ function set3d(on, { animate = true } = {}) {
   if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
 }
 $('#btn3d').onclick = () => set3d(!is3d);
-map.on('load', () => { applyRouteColor(); addSignalIcon(); applyDisplay(); loadSignalsInView(); });
+map.on('load', () => { applyRouteColor(); addSignalIcon(); refreshSignalSource(); applyDisplay(); loadSignalsInView(); });
 map.on('styleimagemissing', e => { if (e.id === 'tlight') addSignalIcon(); });
 
 function showAustralia() {
@@ -1356,6 +1421,7 @@ function applyDisplay() {
   for (const [key, ids] of Object.entries(LABEL_GROUPS))
     for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', SET[key] && (id !== 'stops-name' || S.mode === 'transit') ? 'visible' : 'none');
   map.setLayoutProperty('signals', 'visibility', SET.traffic ? 'visible' : 'none');
+  map.setLayoutProperty('signals-user', 'visibility', SET.traffic ? 'visible' : 'none');
   refreshExplore();
 }
 function chooseSetting(el) {
@@ -1629,6 +1695,8 @@ function popupContent(p) {
 }
 map.on('click', async e => {
   if (NAV.on) return;
+  const hlHit = HL ? map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 10], [e.point.x + 10, e.point.y + 10]], { layers: ['triphl-pt'] })[0] : null;
+  if (hlHit) { highlightPopup(hlHit); return; }
   const fuelHit = FUEL.active ? map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 10], [e.point.x + 10, e.point.y + 10]], { layers: ['fuel-dot', 'fuel-label'] })[0] : null;
   if (fuelHit) { const st = fuelVisible()[fuelHit.properties.i]; if (st) showFuelStation(st); return; }
   const stopHit = S.mode === 'transit' ? map.queryRenderedFeatures([[e.point.x - 8, e.point.y - 8], [e.point.x + 8, e.point.y + 8]], { layers: ['stops-dot'] })[0] : null;
@@ -1662,7 +1730,7 @@ map.on('click', async e => {
   }
 });
 map.on('mousemove', e => {
-  const f = map.queryRenderedFeatures(e.point, { layers: ['route-alt', 'poi-dot', 'poi-hl', 'signals', 'fuel-dot', 'stops-dot'] });
+  const f = map.queryRenderedFeatures(e.point, { layers: ['route-alt', 'poi-dot', 'poi-hl', 'signals', 'fuel-dot', 'stops-dot', 'triphl-pt'] });
   map.getCanvas().style.cursor = f.length ? 'pointer' : '';
 });
 
@@ -1869,6 +1937,47 @@ function addSignals(elements) {
   if (added && map.getSource('signals')) map.getSource('signals').setData({ type: 'FeatureCollection', features: [...SIG.feats.values()] });
   return added;
 }
+const sigKey = c => c[1].toFixed(4) + ',' + c[0].toFixed(4);
+const USIG_KEY = 'aumaps.userSignals';
+let USER_SIGNALS = (() => { try { const l = JSON.parse(localStorage.getItem(USIG_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } })();
+function saveUserSignals() { try { localStorage.setItem(USIG_KEY, JSON.stringify(USER_SIGNALS)); } catch (e) {} renderUserSignalSetting(); }
+function refreshSignalSource() { map.getSource('signals')?.setData({ type: 'FeatureCollection', features: [...SIG.feats.values()] }); }
+function addUserSignalsToMap() {
+  for (const u of USER_SIGNALS) {
+    const id = 'u' + u.id;
+    if (!SIG.feats.has(id)) SIG.feats.set(id, { type: 'Feature', properties: { id, kind: 'user' }, geometry: { type: 'Point', coordinates: [u.lon, u.lat] } });
+  }
+  refreshSignalSource();
+}
+function nearestSignal(p) {
+  let best = null, bd = Infinity;
+  for (const f of SIG.feats.values()) {
+    const c = f.geometry.coordinates;
+    if (Math.abs(c[1] - p[1]) > 0.002 || Math.abs(c[0] - p[0]) > 0.003) continue;
+    const d = geoDist(p, c); if (d < bd) { bd = d; best = c; }
+  }
+  return { d: bd, c: best };
+}
+// Remembers a traffic light you confirmed (kept on this device until you remove it in Settings)
+function confirmUserSignal(p) {
+  const near = nearestSignal(p);
+  if (near.d < 20) return near.c;                          // already on the map
+  const u = { id: Date.now(), lat: +p[1].toFixed(6), lon: +p[0].toFixed(6), created: Date.now() };
+  USER_SIGNALS.push(u); saveUserSignals(); addUserSignalsToMap();
+  return [u.lon, u.lat];
+}
+function renderUserSignalSetting() {
+  const box = document.getElementById('optUserSignals'); if (!box) return;
+  const n = USER_SIGNALS.length;
+  box.innerHTML = `<p class="hint" style="margin:0 4px 8px">${n ? `You've confirmed <b>${n}</b> traffic light${n === 1 ? ' that wasn\'t' : 's that weren\'t'} on the map. They're remembered on this device and used on every trip.` : 'When you confirm a red-light stop where the map has no traffic lights, it\'s saved here and used on future trips.'}</p>` +
+    (n ? `<button class="btn ghost" id="clearUserSignals">Remove my saved traffic lights</button>` : '');
+  const b = document.getElementById('clearUserSignals');
+  if (b) b.onclick = () => {
+    USER_SIGNALS = []; saveUserSignals();
+    for (const k of [...SIG.feats.keys()]) if (String(k).startsWith('u')) SIG.feats.delete(k);
+    refreshSignalSource(); toast('Saved traffic lights removed');
+  };
+}
 const sigQuery = area => `[out:json][timeout:25];(node["highway"="traffic_signals"]${area};node["crossing"="traffic_signals"]${area};);out;`;
 async function loadSignalsInView() {
   if (!SET.traffic || map.getZoom() < 13 || Date.now() < SIG.pauseUntil) return;
@@ -1921,20 +2030,24 @@ async function loadRouteSignals(r) {
   let tol = 6, pts = simplifyLine(coords, tol);
   while (pts.length > 280) { tol *= 1.6; pts = simplifyLine(coords, tol); }
   const path = pts.map(c => c[1].toFixed(5) + ',' + c[0].toFixed(5)).join(',');
+  const cum = cumOf(coords), hits = [];
   try {
     const j = await overpass(sigQuery(`(around:${Math.round(tol + 14)},${path})`));
     addSignals(j.elements);
-    const cum = cumOf(coords), hits = [];
     for (const el of j.elements || []) {
       if (el.type !== 'node') continue;
       const pr = projectOn([el.lon, el.lat], coords, cum);
-      if (pr.d < 30) hits.push({ a: pr.along, k: el.lat.toFixed(4) + ',' + el.lon.toFixed(4) });
+      if (pr.d < 30) hits.push({ a: pr.along, k: sigKey([el.lon, el.lat]) });
     }
-    hits.sort((x, y) => x.a - y.a);
-    const ded = hits.filter((h, i) => i === 0 || h.a - hits[i - 1].a > 45);   // one entry per intersection
-    r._signals = ded.map(h => h.a);
-    r._sigKeys = ded.map(h => h.k);
   } catch (err) { console.warn('[signals]', err.message); }
+  for (const u of USER_SIGNALS) {                          // lights you confirmed yourself
+    const pr = projectOn([u.lon, u.lat], coords, cum);
+    if (pr.d < 30) hits.push({ a: pr.along, k: sigKey([u.lon, u.lat]), user: true });
+  }
+  hits.sort((x, y) => x.a - y.a);
+  const ded = hits.filter((h, i) => i === 0 || h.a - hits[i - 1].a > 45);   // one entry per intersection
+  r._signals = ded.map(h => h.a);
+  r._sigKeys = ded.map(h => h.k);
   r._sigLoading = false;
   updateSignalInfo();
 }
@@ -2587,6 +2700,7 @@ function startNav(simulate) {
   popup?.remove();
   Object.assign(NAV, { on: true, sim: simulate, simFactor: 1, mode: S.mode, pos: null, anchor: null, arrived: false, offCount: 0, rerouting: false });
   prepNavRoute(r);
+  hideTripHighlights();
   tripBegin(r);
   resetMotion();
   SW.reset('Waiting for you to set off…', 'wait');
@@ -2616,9 +2730,15 @@ function startNav(simulate) {
       if (moving) {
         let nd = Math.min(NAV.total, d + speed);
         const sig = (NAV.signals || []).findIndex(a => a > d + 1 && a - 6 <= nd);
-        if (sig >= 0 && !redDone.has(sig)) {
-          redDone.add(sig);
+        if (sig >= 0 && !redDone.has('s' + Math.round(NAV.signals[sig]))) {
+          redDone.add('s' + Math.round(NAV.signals[sig]));
           if (hash2(sig + 7, Math.round(NAV.signals[sig])) < 0.55) { nd = Math.max(d, NAV.signals[sig] - 6); hold = 5 + (sig % 4); }
+        } else {
+          const ti = NAV.starts.findIndex((a, i) => i > 0 && i < NAV.steps.length - 1 && a > d + 1 && a - 6 <= nd && !(NAV.signals || []).some(x => Math.abs(x - a) < 50));
+          if (ti >= 0 && !redDone.has('t' + ti)) {
+            redDone.add('t' + ti);
+            if (hash2(ti + 3, 11) < 0.6) { nd = Math.max(d, NAV.starts[ti] - 6); hold = 6; }
+          }
         }
         d = nd;
       }
@@ -2636,6 +2756,7 @@ function startNav(simulate) {
 function stopSim() { if (NAV.simTimer) clearInterval(NAV.simTimer); NAV.simTimer = null; }
 function exitNav() {
   stopSim();
+  hideStopPrompt(); setRedChip(false);
   if (TRIP.rec && TRIP.rec.startedAt && !TRIP.rec.done) { const card = tripFinish('ended'); if (card) setTimeout(() => showScore(card), 900); }
   TRIP.rec = null;
   if (NAV.sim) SPEEDO.set(0, GPS.watch == null);
@@ -2762,7 +2883,8 @@ function updateTripCount() { const n = tripsAll().length; $('#drTripCount').text
 function tripBegin(r) {
   TRIP.rec = { id: Date.now(), sim: !!NAV.sim, mode: NAV.mode, from: S.from ? S.from.title : 'Start', to: S.to ? S.to.title : 'Destination',
     plannedDur: r.duration, plannedDist: NAV.total, startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
-    dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false };
+    dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, userKeys: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false,
+    path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0 };
 }
 function tripSetOff(along) {
   const R = TRIP.rec; if (!R || R.startedAt) return;
@@ -2785,7 +2907,9 @@ function tripSample(p, speedMs, along) {
     R.hist[bin] = (R.hist[bin] || 0) + dt;
     if (v < 2) { R.stopT += dt; R.stopRun += dt; } else R.stopRun = 0;
   }
-  R.max = Math.max(R.max, kmh);
+  if (kmh > R.max) { R.max = kmh; R.topAt = p.slice(); }
+  if (!R.path.length || geoDist(R.path[R.path.length - 1], p) > 8) R.path.push(p.slice());
+  trackStop(R, p, kmh, along, now);
   const sig = NAV.signals || [], keys = NAV.sigKeys || [];
   for (let i = 0; i < sig.length; i++) {
     const a = sig[i], k = keys[i] || ('a' + Math.round(a));
@@ -2796,9 +2920,101 @@ function tripSample(p, speedMs, along) {
   }
   R.lastT = now; R.lastP = p; R.lastAlong = along; R.lastKmh = kmh;
 }
+/* stop detection: 3 s at ~0 km/h → red light if lights are there, otherwise ask when it looks like an intersection */
+const STOP_SECS = 3;
+function knownSignalNear(p, along) {
+  const sig = NAV.signals || [];
+  for (const a of sig) if (along >= a - 40 && along <= a + 10) return true;
+  return nearestSignal(p).d < 35;
+}
+function segDist(p, a, b, kx) {
+  const ax = (a[0] - p[0]) * kx, ay = (a[1] - p[1]) * M_LAT, dx = (b[0] - a[0]) * kx, dy = (b[1] - a[1]) * M_LAT;
+  const L2 = dx * dx + dy * dy, t = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0;
+  return Math.hypot(ax + t * dx, ay + t * dy);
+}
+function nearIntersection(p) {
+  const steps = NAV.steps || [];
+  for (let i = 1; i < steps.length - 1; i++) {                // a turn / junction on your route
+    const loc = steps[i].maneuver && steps[i].maneuver.location;
+    if (loc && steps[i].maneuver.type !== 'notification' && geoDist(loc, p) < 40) return true;
+  }
+  let feats = [];
+  try { feats = map.querySourceFeatures('omt', { sourceLayer: 'transportation_name' }); } catch (e) {}
+  const kx = mLon(p[1]), names = new Set();
+  for (const f of feats) {                                   // two or more named roads meeting within ~25 m
+    if (!/^(motorway|trunk|primary|secondary|tertiary|minor)$/.test(f.properties.class || '')) continue;
+    const nm = f.properties.name || f.properties.ref;
+    if (!nm || names.has(nm)) continue;
+    let hit = false;
+    for (const line of linesOf(f.geometry)) {
+      for (let i = 0; i < line.length - 1 && !hit; i++) if (segDist(p, line[i], line[i + 1], kx) < 25) hit = true;
+      if (hit) break;
+    }
+    if (hit) { names.add(nm); if (names.size >= 2) return true; }
+  }
+  return false;
+}
+function trackStop(R, p, kmh, along, now) {
+  if (!R.curStop && kmh < 2) R.curStop = { c: p.slice(), along, t0: now, kind: 'stop', checked: false };
+  const cs = R.curStop; if (!cs) return;
+  const dur = (now - cs.t0) / 1000;
+  if (kmh > 5) {                                             // moving again
+    if (dur >= STOP_SECS) R.stops.push({ c: cs.c, dur: Math.round(dur), kind: cs.kind, at: Date.now() });
+    R.curStop = null;
+    hideStopPrompt();
+    setRedChip(false);
+    return;
+  }
+  if (cs.kind === 'red' || cs.kind === 'confirmed') setRedChip(true, dur);
+  if (dur < STOP_SECS || cs.checked) return;
+  cs.checked = true;
+  const nearEnds = geoDist(cs.c, NAV.coords[0]) < 50 || geoDist(cs.c, NAV.coords[NAV.coords.length - 1]) < 60;
+  if (knownSignalNear(cs.c, along)) { cs.kind = 'red'; setRedChip(true, dur); return; }
+  if (nearEnds || R.declined.some(d => geoDist(d, cs.c) < 40)) return;
+  if (nearIntersection(cs.c)) showStopPrompt(cs, dur);
+}
+function setRedChip(on, dur) {
+  const el = $('#redChip');
+  el.classList.toggle('show', !!on);
+  if (on) el.textContent = `● Red light · ${Math.round(dur)} s`;
+}
+let promptStop = null;
+function showStopPrompt(cs, dur) {
+  promptStop = cs;
+  $('#stopPromptTxt').textContent = `You've been stopped near an intersection for ${Math.round(dur)} seconds. It'll close when you drive off.`;
+  $('#stopPrompt').classList.add('show');
+}
+function hideStopPrompt() { promptStop = null; $('#stopPrompt').classList.remove('show'); }
+$('#stopYes').onclick = () => {
+  const R = TRIP.rec, cs = promptStop;
+  hideStopPrompt();
+  if (!R || !cs) return;
+  const c = confirmUserSignal(cs.c);
+  cs.kind = 'confirmed';
+  const k = sigKey(c);
+  R.red[k] = 1; R.userKeys[k] = 1; R.confirmed++;
+  if (NAV.coords) {                                           // count it on this trip too
+    const a = projectOnRoute(c).along;
+    if (!(NAV.signals || []).some(x => Math.abs(x - a) < 30)) {
+      const idx = (NAV.signals || []).findIndex(x => x > a);
+      const at = idx < 0 ? NAV.signals.length : idx;
+      NAV.signals.splice(at, 0, a); (NAV.sigKeys = NAV.sigKeys || []).splice(at, 0, k);
+    }
+  }
+  setRedChip(true, (performance.now() - cs.t0) / 1000);
+  toast('Thanks — traffic light saved to your map');
+};
+$('#stopNo').onclick = () => {
+  const R = TRIP.rec, cs = promptStop;
+  hideStopPrompt();
+  if (R && cs) R.declined.push(cs.c);
+};
+
 function tripFinish(status) {
   const R = TRIP.rec; if (!R || !R.startedAt || R.done) return null;
   R.done = true;
+  hideStopPrompt(); setRedChip(false);
+  if (R.curStop) { const dur = (performance.now() - R.curStop.t0) / 1000; if (dur >= STOP_SECS) R.stops.push({ c: R.curStop.c, dur: Math.round(dur), kind: R.curStop.kind, at: Date.now() }); R.curStop = null; }
   if (status === 'arrived') { const tail = Math.max(0, NAV.total - R.lastAlong); if (tail < 60) R.dist += NAV.sim ? tail : 0; }
   const elapsed = SW.elapsed() / 1000;
   const bins = Object.entries(R.hist).map(([k, v]) => [+k, v]).filter(([, v]) => v > 0);
@@ -2815,7 +3031,14 @@ function tripFinish(status) {
     startedAt: R.startedAt, endedAt: Date.now(), estDur: R.estDur, etaAtStart: R.etaAtStart, elapsed,
     dist: R.dist, delta: R.estDur - elapsed, avg, top, timeTop, low: isFinite(low) ? low : null, timeLow, stopT: R.stopT,
     lights: Object.keys(R.passed).length, red: Object.keys(R.red).length, lightsKnown: !!(NAV.signals && NAV.signals.length) || R.mode === 'transit' ? !!(NAV.signals && NAV.signals.length) : false,
-    reroutes: R.reroutes, simFactor: NAV.simFactor || 1
+    reroutes: R.reroutes, simFactor: NAV.simFactor || 1,
+    confirmed: R.confirmed,
+    topAt: R.topAt, stopsList: R.stops.slice(0, 80),
+    lightsMap: [...new Set([...Object.keys(R.passed), ...Object.keys(R.red)])].map(k => {
+      const [la, lo] = k.split(',').map(Number);
+      return isFinite(la) && isFinite(lo) ? { c: [lo, la], red: !!R.red[k], user: !!R.userKeys[k] } : null;
+    }).filter(Boolean),
+    path: (() => { let tol = 5, pts = simplifyLine(R.path, tol); while (pts.length > 500) { tol *= 1.6; pts = simplifyLine(R.path, tol); } return pts.map(c => [+c[0].toFixed(6), +c[1].toFixed(6)]); })()
   };
   const list = tripsAll().filter(t => t.id !== card.id);
   list.unshift(card);
@@ -2853,16 +3076,66 @@ function showScore(t) {
       ${tile('Time stopped', fmtSecs(t.stopT), 'below 2 km/h')}
       ${tile('Traffic lights', t.lights, 'passed through')}
       ${tile('Red lights', t.red, 'stopped 3 s or more', t.red ? 'red' : '')}
-      ${tile('Re-routes', t.reroutes || 0, '')}
+      ${tile('Confirmed by you', t.confirmed || 0, 'red lights you confirmed')}
     </div>
     <div class="score-note">Red lights are estimated: any stop of 3 seconds or more at a set of traffic lights counts as a red light. Traffic light locations come from OpenStreetMap, so some may be missing.${t.sim ? ' This was a sped-up preview, so times and speeds are illustrative only.' : ''} Scorecards are kept on this device for 48 hours.</div>
-    <div class="score-foot"><button class="btn primary" id="scoreClose" style="flex:1;justify-content:center">Done</button><button class="btn ghost" id="scoreHistory">Trip history</button><button class="btn ghost" id="scoreDelete">Delete</button></div>`;
+    <div class="score-foot"><button class="btn primary" id="scoreClose" style="flex:1;justify-content:center">Done</button><button class="btn ghost" id="scoreMap">🗺 Map highlights</button><button class="btn ghost" id="scoreHistory">History</button><button class="btn ghost" id="scoreDelete">Delete</button></div>`;
   $('#scoreModal').classList.add('show');
   $('#scoreClose').onclick = closeScore;
   $('#scoreHistory').onclick = () => { closeScore(); openDrawer('trips'); };
+  $('#scoreMap').onclick = () => showTripOnMap(t);
+  $('#scoreMap').disabled = !(t.path && t.path.length > 1);
   $('#scoreDelete').onclick = () => { saveTrips(tripsAll().filter(x => x.id !== t.id)); updateTripCount(); closeScore(); renderTripList(); toast('Scorecard deleted'); };
 }
 function closeScore() { $('#scoreModal').classList.remove('show'); }
+
+/* ---- trip highlights on the map ---- */
+let HL = null;
+function showTripOnMap(t) {
+  closeScore(); closeDrawer();
+  if (NAV.on) exitNav();
+  if (FUEL.active) closeFuel();
+  HL = t;
+  const feats = [], pt = (c, kind, label, extra = {}) => feats.push({ type: 'Feature', properties: { kind, ...(label ? { label } : {}), ...extra }, geometry: { type: 'Point', coordinates: c } });
+  if (t.path && t.path.length > 1) feats.push({ type: 'Feature', properties: { kind: 'path' }, geometry: { type: 'LineString', coordinates: t.path } });
+  const stops = t.stopsList || [], lights = t.lightsMap || [];
+  stops.forEach((st, i) => pt(st.c, 'stop-' + st.kind, st.kind === 'stop' ? `Stopped ${fmtSecs(st.dur)}` : '', { dur: st.dur, i }));
+  lights.forEach((l, i) => pt(l.c, l.user ? 'confirmed' : l.red ? 'red' : 'light',
+    l.user ? 'Confirmed red' : l.red ? `Red light${(() => { const s = stops.find(x => geoDist(x.c, l.c) < 50 && x.kind !== 'stop'); return s ? ' · ' + fmtSecs(s.dur) : ''; })()}` : '', { i }));
+  if (t.topAt) pt(t.topAt, 'top', `Top speed ${t.top} km/h`);
+  map.getSource('triphl')?.setData({ type: 'FeatureCollection', features: feats });
+  const plain = stops.filter(x => x.kind === 'stop').length, reds = lights.filter(l => l.red && !l.user).length, conf = lights.filter(l => l.user).length, greens = lights.filter(l => !l.red).length;
+  $('#hlTitle').textContent = `${t.from} → ${t.to}`;
+  $('#hlSub').textContent = `${new Date(t.startedAt).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })} · ${SW.fmt(t.elapsed * 1000)} · ${(t.dist / 1000).toFixed(1)} km`;
+  $('#hlLegend').innerHTML = `
+    <span><i style="background:#facc15"></i>Top speed ${t.top} km/h</span>
+    <span><i style="background:#dc2626"></i>Red lights ${reds}</span>
+    <span><i style="background:#a855f7"></i>Confirmed ${conf}</span>
+    <span><i style="background:#f59e0b"></i>Other stops ${plain}</span>
+    <span><i style="background:#22c55e"></i>Lights passed on green ${greens}</span>
+    <span><i style="background:#60a5fa;border-radius:3px"></i>Your path</span>`;
+  $('#hlCard').classList.add('show');
+  const b = new maplibregl.LngLatBounds();
+  (t.path || []).forEach(c => b.extend(c)); stops.forEach(x => b.extend(x.c)); lights.forEach(x => b.extend(x.c)); if (t.topAt) b.extend(t.topAt);
+  setTimeout(() => { if (b.isEmpty()) return; const pp = panelPadding(40); fitView(b, { padding: fitPadding({ ...pp, top: Math.max(pp.top, isMobile() ? 150 : 170), right: Math.max(pp.right, 90) }), pitch: 0, bearing: 0, duration: 1200, maxZoom: 17 }); }, 150);
+}
+function hideTripHighlights() { HL = null; map.getSource('triphl')?.setData(EMPTY_FC); $('#hlCard').classList.remove('show'); }
+$('#hlClose').onclick = hideTripHighlights;
+$('#hlBack').onclick = () => { if (HL) showScore(HL); };
+function highlightPopup(f) {
+  const t = HL; if (!t) return;
+  const k = f.properties.kind, c = f.geometry.coordinates;
+  let title = '', sub = '';
+  if (k === 'top') { title = `⚡ Top speed · ${t.top} km/h`; sub = `You held within 5 km/h of this for ${fmtSecs(t.timeTop)}.`; }
+  else if (k.startsWith('stop')) { const st = (t.stopsList || [])[f.properties.i]; title = k === 'stop-stop' ? '⏸ Stop' : k === 'stop-confirmed' ? '🟣 Confirmed red light' : '🔴 Red light stop'; sub = st ? `Stopped for ${fmtSecs(st.dur)}${st.at ? ' · ' + new Date(st.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''}` : ''; }
+  else if (k === 'confirmed') { title = '🟣 Traffic light you confirmed'; sub = 'Saved to your map and used on future trips.'; }
+  else if (k === 'red') { title = '🔴 Red light'; sub = 'You waited here 3 seconds or more.'; }
+  else { title = '🟢 Traffic lights passed'; sub = 'You went through without stopping.'; }
+  const d = document.createElement('div'); d.className = 'pop';
+  d.innerHTML = `<div class="pop-t">${title}</div><div class="pop-s">${sub}</div><div class="pop-s" style="margin-top:4px">${fmtCoord(c)}</div>`;
+  popup?.remove();
+  popup = new maplibregl.Popup({ offset: 12, maxWidth: '280px' }).setLngLat(c).setDOMContent(d).addTo(map);
+}
 $('#scoreModal').addEventListener('click', e => { if (e.target.id === 'scoreModal') closeScore(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeScore(); });
 function renderTripList() {
@@ -2997,12 +3270,14 @@ renderToggles();
 applyDisplay();
 requestWake();
 if (SET.autoLocate) autoLocate();
+renderUserSignalSetting();
+addUserSignalsToMap();
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
 });
 if (isMobile()) setCollapsed(true);
-window.__maps = { TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+window.__maps = { get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
