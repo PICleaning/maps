@@ -237,11 +237,19 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 /* top-right: stopwatch + buttons */
 .tr-stack{position:fixed;right:10px;top:78px;z-index:18;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .map-ctl{display:flex;flex-direction:column;gap:8px}
-.stopwatch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 14px;box-shadow:var(--shadow);min-width:196px}
+.stopwatch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 14px;box-shadow:var(--shadow);min-width:196px;position:relative}
+/* red-light timer pops out of the trip stopwatch */
+.red-pill{position:absolute;right:calc(100% + 8px);top:12px;display:flex;align-items:center;gap:6px;white-space:nowrap;
+  background:#dc2626;color:#fff;border-radius:14px;padding:6px 11px;font-weight:700;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.45);
+  opacity:0;transform:translateX(12px) scale(.85);transform-origin:right center;pointer-events:none;
+  transition:opacity .22s ease,transform .32s cubic-bezier(.2,1.3,.4,1)}
+.red-pill.show{opacity:1;transform:none}
+.red-pill b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:14px}
+.red-pill i{width:8px;height:8px;border-radius:50%;background:#fff;flex:none;font-style:normal}
 .sw-top{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
 .sw-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
 .sw-dot.wait{background:var(--amber)}
-.sw-dot.run{background:var(--route);animation:pulse 1.4s infinite}
+.sw-dot.run{background:var(--route)}
 .sw-dot.done{background:var(--strong)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 var(--route)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .sw-time{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:30px;font-weight:700;color:var(--strong);font-variant-numeric:tabular-nums;margin:3px 0 1px;letter-spacing:.5px}
@@ -373,14 +381,13 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .stop-prompt.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .stop-prompt h4{margin:0 0 4px;font-size:17px}
 .stop-prompt p{margin:0 0 12px;font-size:13px;opacity:.85}
-.stop-prompt .row2{display:flex;gap:8px}
+.stop-prompt .row2{display:flex;gap:8px;flex-wrap:wrap}
 .stop-prompt button{flex:1;border:0;border-radius:12px;padding:13px 8px;font-weight:700;font-size:15px}
 .stop-prompt .yes{background:#ef4444;color:#fff}
 .stop-prompt .no{background:rgba(255,255,255,.16);color:#fff}
+.stop-prompt .traffic{flex-basis:100%;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22)}
 .stop-prompt .bar{height:3px;border-radius:2px;background:rgba(255,255,255,.25);margin-top:10px;overflow:hidden}
 .stop-prompt .bar i{display:block;height:100%;width:100%;background:#fff;opacity:.6}
-.red-chip{display:none;align-items:center;gap:6px;background:#dc2626;color:#fff;border-radius:12px;padding:3px 9px;font-weight:700;font-size:12px}
-.red-chip.show{display:inline-flex}
 .hl-card{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:21;width:min(420px,calc(100vw - 24px));display:none;
   background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
 .hl-card.show{display:block}
@@ -392,21 +399,60 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 body.navigating .hl-card{display:none}
 
 /* navigation */
-.navcard{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:17;width:min(420px,calc(100vw - 480px));min-width:300px;
-  background:rgba(92,96,102,.98);color:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.45);display:none;overflow:hidden}
+/* search bar turns into a directions banner once a route is ready */
+.route-banner{display:none;flex:1;min-width:0;align-items:center;gap:10px;height:44px;padding:0 6px 0 12px;
+  border-radius:22px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25)}
+body.route-ready .route-banner{display:flex}
+body.route-ready .search{display:none}
+.rb-ico{width:26px;height:26px;border-radius:50%;background:var(--route);color:var(--route-ink);display:grid;place-items:center;flex:none}
+.rb-txt{flex:1;min-width:0;line-height:1.2}
+.rb-t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-s{font-size:12px;color:#e6e6e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-go{height:34px;padding:0 16px;border:0;border-radius:17px;background:var(--route);color:var(--route-ink);font-weight:700;font-size:14px;
+  display:flex;align-items:center;gap:7px;flex:none}
+.rb-x{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#fff;flex:none}
+.rb-x:hover{background:rgba(255,255,255,.16)}
+
+/* navigation: Apple-style instruction banner on top, ETA banner across the bottom */
+body.navigating .banner{display:none}
+body.navigating #map{top:0}
+.navcard{position:fixed;top:0;left:0;right:0;z-index:21;
+  background:rgba(92,96,102,.98);color:#fff;border-radius:0 0 18px 18px;box-shadow:0 8px 26px rgba(0,0,0,.45);display:none;overflow:hidden;
+  padding-top:env(safe-area-inset-top)}
 body.navigating .navcard{display:block;animation:drop .35s ease}
-@keyframes drop{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}
-.nav-main{display:flex;gap:14px;align-items:center;padding:14px 16px}
+@keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+.nav-main{display:flex;gap:14px;align-items:center;padding:14px 18px}
 .nav-arr{width:46px;height:46px;border-radius:12px;background:rgba(0,0,0,.25);display:grid;place-items:center;flex:none;color:#fff}
 .nav-arr svg{width:28px;height:28px}
-.nav-dist{font-size:22px;font-weight:700}
-.nav-txt{font-size:15px;line-height:1.3}
-.nav-foot{display:flex;align-items:center;gap:10px;padding:9px 16px;background:rgba(0,0,0,.22);font-size:13px}
-.nav-foot .sp{flex:1}
-.nav-exit{border:0;border-radius:16px;padding:6px 12px;background:#ef4444;color:#fff;font-weight:600;font-size:12px}
+.nav-dist{font-size:24px;font-weight:700;line-height:1.15}
+.nav-txt{font-size:15px;line-height:1.3;opacity:.95}
+.nav-sig{font-size:13px;font-weight:600;background:rgba(0,0,0,.28);border-radius:12px;padding:4px 9px;white-space:nowrap;flex:none}
+.nav-sig:empty{display:none}
+.nav-then{display:flex;gap:8px;align-items:center;padding:8px 18px;background:rgba(0,0,0,.22);font-size:13px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-then span{opacity:.7;text-transform:uppercase;letter-spacing:.6px;font-size:11px;font-weight:700}
+.eta-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:21;width:min(720px,100%);display:none;align-items:center;gap:12px;
+  background:rgba(92,96,102,.98);color:#fff;border-radius:20px 20px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.45);
+  padding:14px 18px calc(14px + env(safe-area-inset-bottom))}
+body.navigating .eta-bar{display:flex;animation:rise .35s ease}
+@keyframes rise{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
+.eta-cols{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:space-around;gap:8px}
+.eta-col{text-align:center;min-width:0}
+.eta-v{font-size:25px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
+.eta-v.big{font-size:32px;color:var(--route)}
+:root[data-theme="light"] .eta-v.big{color:#fff}
+.eta-v small{font-size:14px;font-weight:600;opacity:.8;margin-left:2px}
+.eta-k{font-size:11px;letter-spacing:.8px;text-transform:uppercase;opacity:.75;margin-top:3px}
+.nav-exit{border:0;border-radius:20px;padding:11px 18px;background:#ef4444;color:#fff;font-weight:700;font-size:14px;flex:none}
+body.navigating .tr-stack{top:calc(104px + env(safe-area-inset-top))}
+body.navigating .bl-stack{bottom:calc(112px + env(safe-area-inset-bottom))}
+body.navigating .stop-prompt{bottom:calc(132px + env(safe-area-inset-bottom))}
+body.navigating .toast{bottom:calc(122px + env(safe-area-inset-bottom))}
+body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(100px + env(safe-area-inset-bottom))}
 .recentre{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:19;display:none;align-items:center;gap:8px;
   border:0;border-radius:24px;padding:11px 18px;background:#5c6066;color:#fff;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.45)}
 .recentre.show{display:flex}
+body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
 
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#111214;color:#fff;border:1px solid #3c3f45;
   padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
@@ -418,7 +464,7 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
 /* ---------- Mobile ---------- */
 @media (max-width:760px){
   .stop-prompt{bottom:calc(48vh + 12px)}
-  body.sheet-down .stop-prompt, body.navigating .stop-prompt{bottom:84px}
+  body.sheet-down .stop-prompt{bottom:84px}
   .hl-card{top:70px;left:10px;right:10px;width:auto;transform:none}
   .banner{height:60px;padding:0 10px;gap:8px}
   .brand .word{display:none}
@@ -444,15 +490,27 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
   .sw-time{font-size:21px}
   .sw-status{max-width:128px;font-size:11px}
   .sw-btn{height:26px}
-  .navcard{left:10px;right:172px;width:auto;min-width:0;transform:none}
-  @keyframes drop{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
   .nav-main{padding:10px 12px;gap:10px}
   .nav-arr{width:38px;height:38px}
-  .nav-dist{font-size:18px}
+  .nav-dist{font-size:20px}
   .nav-txt{font-size:13px}
-  .nav-foot{flex-wrap:wrap;padding:7px 12px;font-size:12px}
+  .nav-then{padding:6px 12px;font-size:12px}
+  .route-banner{height:40px;padding:0 5px 0 10px;gap:8px}
+  .rb-s{font-size:11px}
+  .rb-go{padding:0 13px;height:31px;font-size:13px}
+  .rb-go span{display:inline}
+  .eta-bar{padding:12px 12px calc(12px + env(safe-area-inset-bottom));gap:8px}
+  .eta-v{font-size:21px}
+  .eta-v.big{font-size:27px}
+  .eta-k{font-size:10px}
+  .nav-exit{padding:10px 14px;font-size:13px}
   .recentre{bottom:calc(48vh + 16px);left:auto;right:64px;transform:none}
   body.sheet-down .recentre{bottom:70px}
+  body.navigating .tr-stack{top:calc(100px + env(safe-area-inset-top))}
+  body.navigating .bl-stack{bottom:calc(112px + env(safe-area-inset-bottom))}
+  body.navigating .recentre{bottom:calc(120px + env(safe-area-inset-bottom));right:14px}
+  body.navigating .stop-prompt{bottom:calc(128px + env(safe-area-inset-bottom))}
+  body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(96px + env(safe-area-inset-bottom))}
 }
 </style>
 </head>
@@ -468,6 +526,12 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
     <input id="q" type="search" placeholder="Search" autocomplete="off" aria-label="Search">
     <button class="clear" id="qClear" aria-label="Clear search">✕</button>
     <div class="ac" id="qAc" role="listbox"></div>
+  </div>
+  <div class="route-banner" id="routeBanner">
+    <span class="rb-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M9 13v-2a1 1 0 0 1 1-1h5"/></svg></span>
+    <span class="rb-txt"><span class="rb-t" id="rbTitle">Destination</span><span class="rb-s" id="rbSub"></span></span>
+    <button class="rb-go" id="rbGo">Start</button>
+    <button class="rb-x" id="rbClear" title="Clear route" aria-label="Clear route">✕</button>
   </div>
   <button class="banner-btn" id="dirBtn" title="Directions">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M9 13v-2a1 1 0 0 1 1-1h5"/><path d="m13 8 2 2-2 2"/></svg>
@@ -554,6 +618,7 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
 <!-- top right -->
 <div class="tr-stack">
   <div class="stopwatch" id="stopwatch" aria-live="polite">
+    <div class="red-pill" id="redPill" aria-live="polite"><i></i>Red light <b id="redPillTime">0:00</b></div>
     <div class="sw-top"><span class="sw-dot" id="swDot"></span>Trip stopwatch</div>
     <div class="sw-time" id="swTime">00:00:00</div>
     <div class="sw-status" id="swStatus">Starts when you set off</div>
@@ -662,19 +727,21 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
 <div class="navcard" id="navcard">
   <div class="nav-main">
     <div class="nav-arr" id="navArr"></div>
-    <div style="min-width:0">
+    <div style="min-width:0;flex:1">
       <div class="nav-dist" id="navDist">—</div>
       <div class="nav-txt" id="navTxt">Waiting for GPS…</div>
     </div>
+    <span class="nav-sig" id="navSig"></span>
   </div>
-  <div class="nav-foot">
-    <span><b id="navRemT">—</b> · <span id="navRemD">—</span></span>
-    <span>ETA <b id="navEta">—</b></span>
-    <span id="navSig"></span>
-    <span class="red-chip" id="redChip">● Red light</span>
-    <span class="sp"></span>
-    <button class="nav-exit" id="navExit">Exit</button>
+  <div class="nav-then" id="navThen" hidden></div>
+</div>
+<div class="eta-bar" id="etaBar" aria-live="polite">
+  <div class="eta-cols">
+    <div class="eta-col"><div class="eta-v" id="etaArrive">—</div><div class="eta-k">arrival</div></div>
+    <div class="eta-col"><div class="eta-v big" id="etaMin">—</div><div class="eta-k" id="etaMinK">min</div></div>
+    <div class="eta-col"><div class="eta-v" id="etaKm">—</div><div class="eta-k">remaining</div></div>
   </div>
+  <button class="nav-exit" id="navExit">End</button>
 </div>
 <button class="recentre" id="recentrePill">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg>
@@ -685,7 +752,8 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
 <div class="stop-prompt" id="stopPrompt" role="alertdialog" aria-live="assertive">
   <h4>🚦 Stopped at traffic lights?</h4>
   <p id="stopPromptTxt">You've been stopped near an intersection.</p>
-  <div class="row2"><button class="yes" id="stopYes">Yes, red light</button><button class="no" id="stopNo">No</button></div>
+  <div class="row2"><button class="yes" id="stopYes">Yes</button><button class="no" id="stopNo">No</button>
+    <button class="no traffic" id="stopTraffic">Stuck in traffic</button></div>
   <div class="bar"><i></i></div>
 </div>
 <div class="hl-card" id="hlCard">
@@ -919,14 +987,14 @@ function buildStyle(p) {
       paint: {
         'circle-radius': ['match', ['get', 'kind'], 'top', 10, 'light', 5, 'red', 8, 'confirmed', 9,
           ['interpolate', ['linear'], ['coalesce', ['get', 'dur'], 3], 3, 7, 60, 14]],
-        'circle-color': ['match', ['get', 'kind'], 'top', '#facc15', 'light', '#22c55e', 'red', '#dc2626', 'confirmed', '#a855f7', 'stop-red', '#dc2626', 'stop-confirmed', '#a855f7', '#f59e0b'],
-        'circle-opacity': ['match', ['get', 'kind'], 'stop-red', 0.35, 'stop-confirmed', 0.35, 1],
+        'circle-color': ['match', ['get', 'kind'], 'top', '#facc15', 'light', '#22c55e', 'red', '#dc2626', 'confirmed', '#a855f7', 'stop-red', '#dc2626', 'stop-confirmed', '#a855f7', 'stop-traffic', '#38bdf8', '#f59e0b'],
+        'circle-opacity': ['match', ['get', 'kind'], 'stop-red', 0.35, 'stop-confirmed', 0.35, 'stop-traffic', 0.4, 1],
         'circle-stroke-color': ['match', ['get', 'kind'], 'top', '#1b1b1b', '#ffffff'], 'circle-stroke-width': 2.5 } },
     { id: 'triphl-label', type: 'symbol', source: 'triphl', filter: ['all', ['==', ['geometry-type'], 'Point'], ['has', 'label']],
       layout: { 'text-field': ['get', 'label'], 'text-font': F_BOLD, 'text-size': 12, 'text-anchor': 'bottom', 'text-offset': [0, -1.1],
         'symbol-sort-key': ['match', ['get', 'kind'], 'top', 0, 'confirmed', 1, 'red', 2, 3], 'text-padding': 2 },
       paint: { 'text-color': '#ffffff', 'text-halo-width': 3.5,
-        'text-halo-color': ['match', ['get', 'kind'], 'top', '#a16207', 'red', '#b91c1c', 'stop-red', '#b91c1c', 'confirmed', '#7e22ce', 'stop-confirmed', '#7e22ce', '#b45309'] } },
+        'text-halo-color': ['match', ['get', 'kind'], 'top', '#a16207', 'red', '#b91c1c', 'stop-red', '#b91c1c', 'confirmed', '#7e22ce', 'stop-confirmed', '#7e22ce', 'stop-traffic', '#0369a1', '#b45309'] } },
     /* transit trip detail: walking parts dotted, boarding points marked */
     { id: 'tleg-walk', type: 'line', source: 'tlegs', filter: ['==', ['get', 'kind'], 'walk'],
       layout: { 'line-cap': 'round', 'line-join': 'round' },
@@ -1837,7 +1905,23 @@ function updateGoBtn() {
   b.dataset.ready = ready ? '1' : '';
   b.disabled = !!S.loading;
   b.innerHTML = S.loading ? 'Finding route…' : ready ? `${START_SVG} Start` : 'Get directions';
+  updateRouteBanner(ready);
 }
+// the search bar becomes a directions banner as soon as there's a route to start
+function updateRouteBanner(ready) {
+  document.body.classList.toggle('route-ready', !!ready);
+  if (!ready) return;
+  const r = S.routes[S.sel] || S.routes[0];
+  $('#rbTitle').textContent = (S.to && S.to.title) || 'Destination';
+  const bits = [];
+  if (r && r.duration) bits.push(fmtDur(r.duration));
+  if (r && r.distance) bits.push(fmtDist(r.distance));
+  if (S.from && S.from.title) bits.push('from ' + S.from.title);
+  $('#rbSub').textContent = bits.join(' · ');
+  $('#rbGo').innerHTML = `${START_SVG} <span>Start</span>`;
+}
+$('#rbGo').onclick = () => startNav(false);
+$('#rbClear').onclick = () => clearRoute();
 $('#goBtn').onclick = () => { if ($('#goBtn').dataset.ready) startNav(false); else route(); };
 [fromIn, toIn].forEach(inp => inp.addEventListener('input', () => { if (S.routes.length) { S.stale = true; updateGoBtn(); } }));
 
@@ -2703,7 +2787,7 @@ const SETOFF_METRES = 25, ARRIVE_METRES = 25, OFFROUTE_METRES = 60, SNAP_METRES 
 const NAV = { on: false, follow: false };
 function navPadding() {
   const h = map.getContainer().clientHeight;
-  return { top: Math.round(h * 0.44), bottom: isMobile() ? 70 : 30, left: 0, right: 0 };
+  return { top: Math.round(h * 0.44), bottom: (isMobile() ? 70 : 30) + 96, left: 0, right: 0 };
 }
 function setFollowing(v) {
   NAV.follow = v;
@@ -2849,7 +2933,7 @@ function startNav(simulate) {
 function stopSim() { if (NAV.simTimer) clearInterval(NAV.simTimer); NAV.simTimer = null; }
 function exitNav() {
   stopSim();
-  hideStopPrompt(); setRedChip(false);
+  hideStopPrompt(); stopRedTimer();
   if (TRIP.rec && TRIP.rec.startedAt && !TRIP.rec.done) { const card = tripFinish('ended'); if (card) setTimeout(() => showScore(card), 900); }
   else if (TRIP.rec && !TRIP.rec.startedAt && NAV.on) toast("Navigation ended before you set off — nothing to add to trip history");
   TRIP.rec = null;
@@ -2870,20 +2954,29 @@ function exitNav() {
 }
 $('#navExit').onclick = exitNav;
 
+function setEtaBar(remT, remD) {
+  $('#etaArrive').textContent = new Date(Date.now() + Math.max(0, remT) * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const mins = Math.max(0, Math.round(remT / 60));
+  if (mins >= 60) { $('#etaMin').textContent = `${Math.floor(mins / 60)}<small>hr</small> ${mins % 60}`; $('#etaMinK').textContent = 'min'; }
+  else { $('#etaMin').textContent = String(mins); $('#etaMinK').textContent = 'min'; }
+  const d = fmtDist(Math.max(0, remD)).split(' ');
+  $('#etaKm').innerHTML = `${d[0]}<small>${d[1]}</small>`;
+}
 function updateNavCard(along) {
   const r = NAV.route, rem = Math.max(0, NAV.total - along);
   const remT = r.duration * (rem / (NAV.total || 1));
-  $('#navRemT').textContent = fmtDur(remT);
-  $('#navRemD').textContent = fmtDist(rem);
-  $('#navEta').textContent = new Date(Date.now() + remT * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  setEtaBar(remT, rem);
   const ns = SET.traffic ? (NAV.signals || []).find(a => a > along + 3) : null;
-  $('#navSig').textContent = ns != null && ns - along <= 2000 ? `🚦 in ${fmtDist(ns - along)}` : '';
+  $('#navSig').textContent = ns != null && ns - along <= 2000 ? `🚦 ${fmtDist(ns - along)}` : '';
   let k = NAV.starts.findIndex((s, i) => i > 0 && s > along + 3);
   if (k < 0) k = NAV.steps.length - 1;
   const st = NAV.steps[k];
   $('#navArr').innerHTML = maneuverIcon(st);
   $('#navDist').textContent = fmtDist(Math.max(0, NAV.starts[k] - along));
   $('#navTxt').textContent = instruction(st, k === NAV.steps.length - 1);
+  const then = $('#navThen'), nx = NAV.steps[k + 1];
+  if (nx) { then.hidden = false; then.innerHTML = `<span>Then</span>${esc(instruction(nx, k + 1 === NAV.steps.length - 1))}`; }
+  else then.hidden = true;
 }
 
 function onPosition(p, heading, speed) {
@@ -2917,8 +3010,8 @@ function onPosition(p, heading, speed) {
     $('#navArr').innerHTML = maneuverIcon({ maneuver: { type: 'arrive' } });
     $('#navDist').textContent = 'You have arrived';
     $('#navTxt').textContent = (S.to ? S.to.title : 'Destination') + ' · trip time ' + SW.fmt(SW.elapsed());
-    $('#navRemT').textContent = '0 min'; $('#navRemD').textContent = 'arrived';
-    $('#navEta').textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    $('#navThen').hidden = true; $('#navSig').textContent = '';
+    setEtaBar(0, 0);
     toast('Arrived! Trip time ' + SW.fmt(SW.elapsed()), 5000);
     const card = tripFinish('arrived');
     setTimeout(() => { if (NAV.on) exitNav(); if (card) setTimeout(() => showScore(card), 700); }, 1500);
@@ -3152,8 +3245,16 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '1.0.8';
+const APP_VERSION = '1.1.0';
 const CHANGELOG = [
+  { v: '1.1.0', items: [
+    'Apple Maps-style layout: a big ETA banner across the bottom with arrival time, minutes and distance left',
+    'Your search bar turns into a directions banner as soon as a route is ready — tap Start straight from there',
+    'The turn-by-turn banner now sits across the top, with the next turn shown underneath',
+    'The red-light timer pops out of the trip stopwatch as a small pill (no more flashing dot)',
+    'Stop within 30 m of any intersection and you can answer Yes, No or Stuck in traffic',
+    'Traffic lights you confirm are now placed on the intersection itself, not where you stopped',
+    'Scorecards show your total time waiting at red lights and traffic hold-ups'] },
   { v: '1.0.8', items: ['New name and icon: One Maps — add it to your home screen', 'Explore now finds attractions, cafés, restaurants and bars near you', 'Home, Work and up to 5 Favourites for one-tap directions', '"Get directions" turns into "Start" as soon as your route is ready', 'Navigation ends automatically within 25 m of your destination and opens your scorecard', 'Exiting navigation also saves the trip to your history', 'Trip history is now kept for 30 days', 'This "What\'s new" page'] },
   { v: '1.0.7', items: ['Automatic red-light detection when you\'re stopped 3 seconds at traffic lights', '"Stopped at traffic lights?" prompt at intersections without known lights', 'Traffic lights you confirm are saved and used on every trip', 'Map highlights on scorecards: top speed, stops, red lights and confirmed lights'] },
   { v: '1.0.6', items: ['Fixed the map freezing and not letting you move around', 'Routes now always fit on phone screens', '3D hills moved to an optional setting for smoother performance', 'Self-recovery if the map ever stalls'] },
@@ -3206,7 +3307,7 @@ function updateTripCount() { const n = tripsAll().length; $('#drTripCount').text
 function tripBegin(r) {
   TRIP.rec = { id: Date.now(), sim: !!NAV.sim, mode: NAV.mode, from: S.from ? S.from.title : 'Start', to: S.to ? S.to.title : 'Destination',
     plannedDur: r.duration, plannedDist: NAV.total, startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
-    dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, userKeys: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false,
+    dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, userKeys: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false, redTime: 0, traffic: 0,
     path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0 };
 }
 function tripSetOff(along) {
@@ -3244,7 +3345,7 @@ function tripSample(p, speedMs, along) {
   R.lastT = now; R.lastP = p; R.lastAlong = along; R.lastKmh = kmh;
 }
 /* stop detection: 3 s at ~0 km/h → red light if lights are there, otherwise ask when it looks like an intersection */
-const STOP_SECS = 3;
+const STOP_SECS = 3, STOP_PROMPT_METRES = 30;
 function knownSignalNear(p, along) {
   const sig = NAV.signals || [];
   for (const a of sig) if (along >= a - 40 && along <= a + 10) return true;
@@ -3255,56 +3356,103 @@ function segDist(p, a, b, kx) {
   const L2 = dx * dx + dy * dy, t = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0;
   return Math.hypot(ax + t * dx, ay + t * dy);
 }
-function nearIntersection(p) {
-  const steps = NAV.steps || [];
-  for (let i = 1; i < steps.length - 1; i++) {                // a turn / junction on your route
-    const loc = steps[i].maneuver && steps[i].maneuver.location;
-    if (loc && steps[i].maneuver.type !== 'notification' && geoDist(loc, p) < 40) return true;
-  }
-  let feats = [];
-  try { feats = map.querySourceFeatures('omt', { sourceLayer: 'transportation_name' }); } catch (e) {}
-  const kx = mLon(p[1]), names = new Set();
-  for (const f of feats) {                                   // two or more named roads meeting within ~25 m
-    if (!/^(motorway|trunk|primary|secondary|tertiary|minor)$/.test(f.properties.class || '')) continue;
-    const nm = f.properties.name || f.properties.ref;
-    if (!nm || names.has(nm)) continue;
-    let hit = false;
-    for (const line of linesOf(f.geometry)) {
-      for (let i = 0; i < line.length - 1 && !hit; i++) if (segDist(p, line[i], line[i + 1], kx) < 25) hit = true;
-      if (hit) break;
-    }
-    if (hit) { names.add(nm); if (names.size >= 2) return true; }
-  }
-  return false;
+// where two segments actually cross, in metres relative to p (null when they don't)
+function segCross(a, b, c, d, p, kx) {
+  const X = q => (q[0] - p[0]) * kx, Y = q => (q[1] - p[1]) * M_LAT;
+  const x1 = X(a), y1 = Y(a), x2 = X(b), y2 = Y(b), x3 = X(c), y3 = Y(c), x4 = X(d), y4 = Y(d);
+  const den = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3);
+  if (!den) return null;
+  const t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / den;
+  const u = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / den;
+  if (t < 0 || t > 1 || u < 0 || u > 1) return null;
+  const ends = q => q < 0.02 || q > 0.98;
+  if (ends(t) && ends(u)) return null;                        // two halves of the same road meeting end to end
+  return [x1 + t * (x2 - x1), y1 + t * (y2 - y1)];
 }
+const ROAD_CLASS = /^(motorway|trunk|primary|secondary|tertiary|minor|residential|unclassified)$/;
+// the intersection you're stopped at, within R metres — returns its coordinates, or null
+function intersectionNear(p, R = 30) {
+  const steps = NAV.steps || [];
+  let best = null, bd = Infinity;
+  for (let i = 1; i < steps.length - 1; i++) {                // a turn / junction on your route comes first
+    const loc = steps[i].maneuver && steps[i].maneuver.location;
+    if (!loc || steps[i].maneuver.type === 'notification') continue;
+    const d = geoDist(loc, p);
+    if (d < Math.max(R + 15, 45) && d < bd) { bd = d; best = loc.slice(); }
+  }
+  if (best) return best;
+  let feats = [];
+  try { feats = map.querySourceFeatures('omt', { sourceLayer: 'transportation' }); } catch (e) {}
+  const kx = mLon(p[1]), near = [], reach = R + 25;
+  for (let fi = 0; fi < feats.length; fi++) {                 // road segments in reach of where you stopped
+    const f = feats[fi];
+    if (!ROAD_CLASS.test((f.properties && f.properties.class) || '')) continue;
+    const key = f.id != null ? 'i' + f.id : 'n' + ((f.properties && (f.properties.name || f.properties.ref)) || fi);
+    for (const line of linesOf(f.geometry)) {
+      for (let i = 0; i < line.length - 1; i++) {
+        if (segDist(p, line[i], line[i + 1], kx) > reach) continue;
+        near.push([line[i], line[i + 1], key]);
+        if (near.length > 400) break;
+      }
+      if (near.length > 400) break;
+    }
+    if (near.length > 400) break;
+  }
+  for (let i = 0; i < near.length; i++) {
+    for (let j = i + 1; j < near.length; j++) {
+      if (near[i][2] === near[j][2]) continue;                // same road split into pieces
+      const x = segCross(near[i][0], near[i][1], near[j][0], near[j][1], p, kx);
+      if (!x) continue;
+      const d = Math.hypot(x[0], x[1]);
+      if (d < R && d < bd) { bd = d; best = [p[0] + x[0] / kx, p[1] + x[1] / M_LAT]; }
+    }
+  }
+  return best;
+}
+function nearIntersection(p) { return !!intersectionNear(p, 30); }
 function trackStop(R, p, kmh, along, now) {
-  if (!R.curStop && kmh < 2) R.curStop = { c: p.slice(), along, t0: now, kind: 'stop', checked: false };
+  if (!R.curStop && kmh < 2) R.curStop = { c: p.slice(), along, t0: now, kind: 'stop', checked: false, ix: null };
   const cs = R.curStop; if (!cs) return;
   const dur = (now - cs.t0) / 1000;
   if (kmh > 5) {                                             // moving again
     if (dur >= STOP_SECS) R.stops.push({ c: cs.c, dur: Math.round(dur), kind: cs.kind, at: Date.now() });
     R.curStop = null;
     hideStopPrompt();
-    setRedChip(false);
+    stopRedTimer();
     return;
   }
-  if (cs.kind === 'red' || cs.kind === 'confirmed') setRedChip(true, dur);
   if (dur < STOP_SECS || cs.checked) return;
   cs.checked = true;
   const nearEnds = geoDist(cs.c, NAV.coords[0]) < 50 || geoDist(cs.c, NAV.coords[NAV.coords.length - 1]) < 60;
-  if (knownSignalNear(cs.c, along)) { cs.kind = 'red'; setRedChip(true, dur); return; }
+  if (knownSignalNear(cs.c, along)) { cs.kind = 'red'; startRedTimer('red', cs.t0); return; }
   if (nearEnds || R.declined.some(d => geoDist(d, cs.c) < 40)) return;
-  if (nearIntersection(cs.c)) showStopPrompt(cs, dur);
+  // stopped within 30 m of an intersection and the red-light timer hasn't started — ask
+  const ix = intersectionNear(cs.c, STOP_PROMPT_METRES);
+  if (ix && !RED.on) { cs.ix = ix; showStopPrompt(cs, dur); }
 }
-function setRedChip(on, dur) {
-  const el = $('#redChip');
-  el.classList.toggle('show', !!on);
-  if (on) el.textContent = `● Red light · ${Math.round(dur)} s`;
+/* red-light timer: pops out of the trip stopwatch as a small pill while you wait */
+const RED = { on: false, t0: 0, timer: null, kind: null };
+function redFmt(sec) { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
+function drawRedPill() { $('#redPillTime').textContent = redFmt((performance.now() - RED.t0) / 1000); }
+function startRedTimer(kind, t0) {
+  if (RED.on) { if (kind) RED.kind = kind; return; }
+  RED.on = true; RED.kind = kind || 'red'; RED.t0 = t0 != null ? t0 : performance.now();
+  drawRedPill();
+  $('#redPill').classList.add('show');
+  RED.timer = setInterval(drawRedPill, 250);
+}
+function stopRedTimer() {
+  if (!RED.on) return 0;
+  const sec = (performance.now() - RED.t0) / 1000;
+  clearInterval(RED.timer); RED.timer = null; RED.on = false; RED.kind = null;
+  $('#redPill').classList.remove('show');
+  if (TRIP.rec && sec > 0) TRIP.rec.redTime = (TRIP.rec.redTime || 0) + sec;
+  return sec;
 }
 let promptStop = null;
 function showStopPrompt(cs, dur) {
   promptStop = cs;
-  $('#stopPromptTxt').textContent = `You've been stopped near an intersection for ${Math.round(dur)} seconds. It'll close when you drive off.`;
+  $('#stopPromptTxt').textContent = `You've been stopped at this intersection for ${Math.round(dur)} seconds. Were you waiting at a red light?`;
   $('#stopPrompt').classList.add('show');
 }
 function hideStopPrompt() { promptStop = null; $('#stopPrompt').classList.remove('show'); }
@@ -3312,7 +3460,7 @@ $('#stopYes').onclick = () => {
   const R = TRIP.rec, cs = promptStop;
   hideStopPrompt();
   if (!R || !cs) return;
-  const c = confirmUserSignal(cs.c);
+  const c = confirmUserSignal(cs.ix || cs.c);                 // the light goes on the intersection, not where you stopped
   cs.kind = 'confirmed';
   const k = sigKey(c);
   R.red[k] = 1; R.userKeys[k] = 1; R.confirmed++;
@@ -3324,19 +3472,28 @@ $('#stopYes').onclick = () => {
       NAV.signals.splice(at, 0, a); (NAV.sigKeys = NAV.sigKeys || []).splice(at, 0, k);
     }
   }
-  setRedChip(true, (performance.now() - cs.t0) / 1000);
+  startRedTimer('confirmed', cs.t0);
   toast('Thanks — traffic light saved to your map');
 };
 $('#stopNo').onclick = () => {
   const R = TRIP.rec, cs = promptStop;
   hideStopPrompt();
-  if (R && cs) R.declined.push(cs.c);
+  if (R && cs) R.declined.push(cs.ix || cs.c);
+};
+$('#stopTraffic').onclick = () => {                            // held up by traffic, not a red light
+  const R = TRIP.rec, cs = promptStop;
+  hideStopPrompt();
+  if (!R || !cs) return;
+  cs.kind = 'traffic';
+  R.declined.push(cs.ix || cs.c);
+  R.traffic = (R.traffic || 0) + 1;
+  toast('Noted — counted as a traffic hold-up, not a red light');
 };
 
 function tripFinish(status) {
   const R = TRIP.rec; if (!R || !R.startedAt || R.done) return null;
   R.done = true;
-  hideStopPrompt(); setRedChip(false);
+  hideStopPrompt(); stopRedTimer();
   if (R.curStop) { const dur = (performance.now() - R.curStop.t0) / 1000; if (dur >= STOP_SECS) R.stops.push({ c: R.curStop.c, dur: Math.round(dur), kind: R.curStop.kind, at: Date.now() }); R.curStop = null; }
   if (status === 'arrived') { const tail = Math.max(0, NAV.total - R.lastAlong); if (tail < 60) R.dist += NAV.sim ? tail : 0; }
   const elapsed = SW.elapsed() / 1000;
@@ -3355,7 +3512,7 @@ function tripFinish(status) {
     dist: R.dist, delta: R.estDur - elapsed, avg, top, timeTop, low: isFinite(low) ? low : null, timeLow, stopT: R.stopT,
     lights: Object.keys(R.passed).length, red: Object.keys(R.red).length, lightsKnown: !!(NAV.signals && NAV.signals.length) || R.mode === 'transit' ? !!(NAV.signals && NAV.signals.length) : false,
     reroutes: R.reroutes, simFactor: NAV.simFactor || 1,
-    confirmed: R.confirmed,
+    confirmed: R.confirmed, redTime: R.redTime || 0, traffic: R.traffic || 0,
     topAt: R.topAt, stopsList: R.stops.slice(0, 80),
     lightsMap: [...new Set([...Object.keys(R.passed), ...Object.keys(R.red)])].map(k => {
       const [la, lo] = k.split(',').map(Number);
@@ -3399,7 +3556,9 @@ function showScore(t) {
       ${tile('Time stopped', fmtSecs(t.stopT), 'below 2 km/h')}
       ${tile('Traffic lights', t.lights, 'passed through')}
       ${tile('Red lights', t.red, 'stopped 3 s or more', t.red ? 'red' : '')}
+      ${tile('Time at red lights', fmtSecs(t.redTime || 0), 'waiting on red', t.redTime ? 'red' : '')}
       ${tile('Confirmed by you', t.confirmed || 0, 'red lights you confirmed')}
+      ${tile('Stuck in traffic', t.traffic || 0, 'hold-ups you marked')}
     </div>
     <div class="score-note">Red lights are estimated: any stop of 3 seconds or more at a set of traffic lights counts as a red light. Traffic light locations come from OpenStreetMap, so some may be missing.${t.sim ? ' This was a sped-up preview, so times and speeds are illustrative only.' : ''} Scorecards are kept on this device for 30 days.</div>
     <div class="score-foot"><button class="btn primary" id="scoreClose" style="flex:1;justify-content:center">Done</button><button class="btn ghost" id="scoreMap">🗺 Map highlights</button><button class="btn ghost" id="scoreHistory">History</button><button class="btn ghost" id="scoreDelete">Delete</button></div>`;
@@ -3422,12 +3581,13 @@ function showTripOnMap(t) {
   const feats = [], pt = (c, kind, label, extra = {}) => feats.push({ type: 'Feature', properties: { kind, ...(label ? { label } : {}), ...extra }, geometry: { type: 'Point', coordinates: c } });
   if (t.path && t.path.length > 1) feats.push({ type: 'Feature', properties: { kind: 'path' }, geometry: { type: 'LineString', coordinates: t.path } });
   const stops = t.stopsList || [], lights = t.lightsMap || [];
-  stops.forEach((st, i) => pt(st.c, 'stop-' + st.kind, st.kind === 'stop' ? `Stopped ${fmtSecs(st.dur)}` : '', { dur: st.dur, i }));
+  stops.forEach((st, i) => pt(st.c, 'stop-' + st.kind, st.kind === 'stop' ? `Stopped ${fmtSecs(st.dur)}` : st.kind === 'traffic' ? `Traffic · ${fmtSecs(st.dur)}` : '', { dur: st.dur, i }));
   lights.forEach((l, i) => pt(l.c, l.user ? 'confirmed' : l.red ? 'red' : 'light',
     l.user ? 'Confirmed red' : l.red ? `Red light${(() => { const s = stops.find(x => geoDist(x.c, l.c) < 50 && x.kind !== 'stop'); return s ? ' · ' + fmtSecs(s.dur) : ''; })()}` : '', { i }));
   if (t.topAt) pt(t.topAt, 'top', `Top speed ${t.top} km/h`);
   map.getSource('triphl')?.setData({ type: 'FeatureCollection', features: feats });
-  const plain = stops.filter(x => x.kind === 'stop').length, reds = lights.filter(l => l.red && !l.user).length, conf = lights.filter(l => l.user).length, greens = lights.filter(l => !l.red).length;
+  const plain = stops.filter(x => x.kind === 'stop').length, jams = stops.filter(x => x.kind === 'traffic').length,
+    reds = lights.filter(l => l.red && !l.user).length, conf = lights.filter(l => l.user).length, greens = lights.filter(l => !l.red).length;
   $('#hlTitle').textContent = `${t.from} → ${t.to}`;
   $('#hlSub').textContent = `${new Date(t.startedAt).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })} · ${SW.fmt(t.elapsed * 1000)} · ${(t.dist / 1000).toFixed(1)} km`;
   $('#hlLegend').innerHTML = `
@@ -3435,6 +3595,7 @@ function showTripOnMap(t) {
     <span><i style="background:#dc2626"></i>Red lights ${reds}</span>
     <span><i style="background:#a855f7"></i>Confirmed ${conf}</span>
     <span><i style="background:#f59e0b"></i>Other stops ${plain}</span>
+    <span><i style="background:#38bdf8"></i>Stuck in traffic ${jams}</span>
     <span><i style="background:#22c55e"></i>Lights passed on green ${greens}</span>
     <span><i style="background:#60a5fa;border-radius:3px"></i>Your path</span>`;
   $('#hlCard').classList.add('show');
@@ -3450,7 +3611,7 @@ function highlightPopup(f) {
   const k = f.properties.kind, c = f.geometry.coordinates;
   let title = '', sub = '';
   if (k === 'top') { title = `⚡ Top speed · ${t.top} km/h`; sub = `You held within 5 km/h of this for ${fmtSecs(t.timeTop)}.`; }
-  else if (k.startsWith('stop')) { const st = (t.stopsList || [])[f.properties.i]; title = k === 'stop-stop' ? '⏸ Stop' : k === 'stop-confirmed' ? '🟣 Confirmed red light' : '🔴 Red light stop'; sub = st ? `Stopped for ${fmtSecs(st.dur)}${st.at ? ' · ' + new Date(st.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''}` : ''; }
+  else if (k.startsWith('stop')) { const st = (t.stopsList || [])[f.properties.i]; title = k === 'stop-stop' ? '⏸ Stop' : k === 'stop-confirmed' ? '🟣 Confirmed red light' : k === 'stop-traffic' ? '🚧 Stuck in traffic' : '🔴 Red light stop'; sub = st ? `Stopped for ${fmtSecs(st.dur)}${st.at ? ' · ' + new Date(st.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''}` : ''; }
   else if (k === 'confirmed') { title = '🟣 Traffic light you confirmed'; sub = 'Saved to your map and used on future trips.'; }
   else if (k === 'red') { title = '🔴 Red light'; sub = 'You waited here 3 seconds or more.'; }
   else { title = '🟢 Traffic lights passed'; sub = 'You went through without stopping.'; }
@@ -3600,7 +3761,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
 });
 if (isMobile()) setCollapsed(true);
-window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
