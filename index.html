@@ -296,6 +296,8 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .dr-sep{height:1px;background:var(--line);margin:8px 4px}
 .dr-spacer{flex:1}
 .dr-foot{font-size:11px;color:var(--muted);padding:8px 12px 4px}
+.dr-credit{font-size:9.5px;line-height:1.45;color:var(--muted);opacity:.75;padding:2px 12px 10px}
+.dr-credit a{color:inherit;text-decoration:underline}
 .set-title{display:flex;align-items:center;gap:6px;font-weight:700;font-size:16px;margin:2px 0 10px;color:var(--strong)}
 .set-group{margin:8px 2px 18px}
 .opt{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);margin-bottom:8px;cursor:pointer;background:var(--panel-2);user-select:none}
@@ -386,6 +388,15 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .stop-prompt .yes{background:#ef4444;color:#fff}
 .stop-prompt .no{background:rgba(255,255,255,.16);color:#fff}
 .stop-prompt .traffic{flex-basis:100%;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22)}
+.stop-prompt .closed{background:#ef4444;color:#fff}
+.stop-prompt .jam{background:#f59e0b;color:#231a05}
+.stop-prompt .small{font-size:12px;opacity:.8;margin:10px 0 0}
+.av-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);margin-bottom:8px;font-size:13px}
+.av-item b{color:var(--strong)}
+.av-item .sp{flex:1;min-width:0}
+.av-item small{display:block;color:var(--muted);font-size:11px}
+.av-x{border:0;background:transparent;color:var(--muted);width:28px;height:28px;border-radius:50%;flex:none}
+.av-x:hover{background:var(--hover);color:var(--strong)}
 .stop-prompt .bar{height:3px;border-radius:2px;background:rgba(255,255,255,.25);margin-top:10px;overflow:hidden}
 .stop-prompt .bar i{display:block;height:100%;width:100%;background:#fff;opacity:.6}
 .hl-card{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:21;width:min(420px,calc(100vw - 24px));display:none;
@@ -437,9 +448,9 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
 body.navigating .eta-bar{display:flex;animation:rise .35s ease}
 @keyframes rise{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
 .eta-cols{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:space-around;gap:8px}
-.eta-col{text-align:center;min-width:0}
-.eta-v{font-size:25px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
-.eta-v.big{font-size:32px;color:var(--route)}
+.eta-col{text-align:center;min-width:0;flex:1 1 0}
+.eta-v{font-size:23px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
+.eta-v.big{font-size:31px;color:var(--route)}
 :root[data-theme="light"] .eta-v.big{color:#fff}
 .eta-v small{font-size:14px;font-weight:600;opacity:.8;margin-left:2px}
 .eta-k{font-size:11px;letter-spacing:.8px;text-transform:uppercase;opacity:.75;margin-top:3px}
@@ -500,8 +511,9 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
   .rb-go{padding:0 13px;height:31px;font-size:13px}
   .rb-go span{display:inline}
   .eta-bar{padding:12px 12px calc(12px + env(safe-area-inset-bottom));gap:8px}
-  .eta-v{font-size:21px}
-  .eta-v.big{font-size:27px}
+  .eta-v{font-size:18px}
+  .eta-v.big{font-size:25px}
+  .eta-v small{font-size:12px}
   .eta-k{font-size:10px}
   .nav-exit{padding:10px 14px;font-size:13px}
   .recentre{bottom:calc(48vh + 16px);left:auto;right:64px;transform:none}
@@ -684,7 +696,8 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
     <div class="dr-sep"></div>
     <button class="dr-item" data-go="settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
     <button class="dr-item" data-go="whatsnew"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>What's new<span class="newdot" id="newDot" hidden>NEW</span></button>
-    <div class="dr-foot">One Maps <span id="verLabel"></span> · Map data © OpenStreetMap contributors</div>
+    <div class="dr-foot">One Maps <span id="verLabel"></span></div>
+    <div class="dr-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · tiles <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> / <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> · routing OSRM · search Photon · traffic lights Overpass · transit <a href="https://transitous.org/sources/" target="_blank" rel="noopener">Transitous</a></div>
   </div>
   <div class="dr-view" id="drPlaces">
     <div id="placesBody"></div>
@@ -715,6 +728,10 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
     <div class="set-group">
       <h3>Saved traffic lights</h3>
       <div id="optUserSignals"></div>
+    </div>
+    <div class="set-group">
+      <h3>Roads you're avoiding</h3>
+      <div id="optAvoid"></div>
     </div>
     <div class="set-group">
       <h3>Screen</h3>
@@ -754,6 +771,14 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
   <p id="stopPromptTxt">You've been stopped near an intersection.</p>
   <div class="row2"><button class="yes" id="stopYes">Yes</button><button class="no" id="stopNo">No</button>
     <button class="no traffic" id="stopTraffic">Stuck in traffic</button></div>
+  <div class="bar"><i></i></div>
+</div>
+<div class="stop-prompt" id="detourPrompt" role="alertdialog" aria-live="assertive">
+  <h4>🔀 Why this way?</h4>
+  <p id="detourTxt">You've turned off your route.</p>
+  <div class="row2"><button class="yes closed" id="detourClosed">Road closed</button><button class="no jam" id="detourJam">Traffic</button>
+    <button class="no traffic" id="detourOther">Something else</button></div>
+  <p class="small" id="detourSkip"></p>
   <div class="bar"><i></i></div>
 </div>
 <div class="hl-card" id="hlCard">
@@ -825,7 +850,7 @@ const PAL = {
 
 /* ================= Settings ================= */
 const SETTINGS_KEY = 'aumaps.settings';
-const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false };
+const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false, sensors: true };
 try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
 if (!ROUTE_COLORS[SET.route]) SET.route = 'green';
 if (!PAL[SET.theme]) SET.theme = 'dark';
@@ -1134,7 +1159,7 @@ const map = new maplibregl.Map({
   minZoom: 3,
   maxZoom: 19,
   maxBounds: MAX_BOUNDS,
-  attributionControl: { compact: true }
+  attributionControl: false
 });
 map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 map.addControl(new maplibregl.FullscreenControl(), 'bottom-right');
@@ -1524,6 +1549,7 @@ const TOGGLES = [
   { key: 'poiLabels', icon: '🏪', label: 'Shop & place names', desc: 'Names of stores, cafés, parks, airports and more' },
   { key: 'roadLabels', icon: '🛣️', label: 'Street & suburb names', desc: 'Road, suburb, town and water names' }
 ];
+const SENSOR_TOGGLE = { key: 'sensors', icon: '📶', label: 'Motion sensors', desc: "Use the phone's motion sensors with GPS so your speed reacts straight away and reads zero when you're stopped" };
 const toggleRow = (t, desc, id) => `
   <div class="tg-row" role="switch" tabindex="0" data-toggle="${t.key}" aria-checked="${!!SET[t.key]}">
     <span class="tg-ico">${t.icon}</span>
@@ -1531,7 +1557,8 @@ const toggleRow = (t, desc, id) => `
 function renderToggles() {
   $('#optDisplay').innerHTML = TOGGLES.map(t => toggleRow(t, t.desc)).join('');
   $('#optDevice').innerHTML = toggleRow({ key: 'keepAwake', icon: '📱', label: 'Keep screen awake' }, wakeStatusText(), 'wakeDesc') +
-    toggleRow({ key: 'autoLocate', icon: '📍', label: 'Find my location on start' }, 'Centre the map on you when the app opens');
+    toggleRow({ key: 'autoLocate', icon: '📍', label: 'Find my location on start' }, 'Centre the map on you when the app opens') +
+    toggleRow(SENSOR_TOGGLE, SENSOR_TOGGLE.desc);
 }
 function flipToggle(el) {
   const key = el.dataset.toggle;
@@ -1540,6 +1567,7 @@ function flipToggle(el) {
   applyDisplay();
   if (key === 'keepAwake') { SET.keepAwake ? requestWake(true) : releaseWake(); }
   if (key === 'autoLocate' && SET.autoLocate) autoLocate();
+  if (key === 'sensors') { SET.sensors ? startMotionSensors(true) : stopMotionSensors(); }
   if (key === 'terrain') set3d(is3d, { animate: false });
   if (key === 'traffic' && SET.traffic) { loadSignalsInView(); if (S.routes[S.sel]) loadRouteSignals(S.routes[S.sel]); }
   if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
@@ -2003,13 +2031,14 @@ async function routeInner() {
   if (S.mode === 'transit') return routeTransit(routeCtrl.signal);
   out.innerHTML = `<div class="hint" style="display:flex;gap:10px;align-items:center;margin-top:14px"><div class="spinner"></div>Finding the best route…</div>`;
   const pts = `${S.from.coord[0]},${S.from.coord[1]};${S.to.coord[0]},${S.to.coord[1]}`;
-  const url = `${ROUTER[S.mode]}/route/v1/driving/${pts}?overview=full&geometries=geojson&steps=true&alternatives=true`;
+  const url = `${ROUTER[S.mode]}/route/v1/driving/${pts}?overview=full&geometries=geojson&steps=true&alternatives=3`;
   try {
     const r = await fetch(url, { signal: routeCtrl.signal });
     const j = await r.json();
     if (j.code !== 'Ok' || !j.routes?.length) throw new Error(j.message || 'No route found between these points');
     S.routes = j.routes.slice(0, 3);
-    S.sel = 0;
+    const pick = pickRoute(S.routes);
+    S.sel = pick.sel; S.avoid = pick;
     PROG.frac = 0;
     drawRoutes(true);
     renderRoutes();
@@ -2027,6 +2056,7 @@ function drawRoutes(reveal) {
   const feats = S.routes.map((r, i) => ({ type: 'Feature', properties: { idx: i, sel: i === S.sel }, geometry: r.geometry }));
   feats.sort((a, b) => (a.properties.sel ? 1 : 0) - (b.properties.sel ? 1 : 0));
   src.setData({ type: 'FeatureCollection', features: feats });
+  refreshSignalSource();
   drawTransitLegs();
   if (reveal && feats.length) revealRoute();
 }
@@ -2049,6 +2079,7 @@ function renderRoutes() {
       </div>`).join('')}</div>
     <div class="hint" style="margin-top:10px">${r.transit ? `Leave ${leaveIn(r.it.startTime)} · arrive <b>${eta}</b>` : `Arrive around <b>${eta}</b>`}</div>
     <div class="hint" id="routeSig" style="margin-top:2px"></div>
+    <div class="hint" id="routeAvoid" style="margin-top:2px"></div>
     <div class="btns">
       <button class="btn primary" id="navStart" style="flex:1;justify-content:center;display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg> Start</button>
@@ -2066,6 +2097,7 @@ function renderRoutes() {
     const s = steps[+el.dataset.i];
     map.flyTo({ center: s.maneuver.location, zoom: 17, bearing: is3d ? s.maneuver.bearing_after || 0 : 0, pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1100 });
   });
+  updateAvoidInfo();
   $('#clearRoute').onclick = clearRoute;
   $('#navStart').onclick = () => startNav(false);
   $('#navSim').onclick = () => startNav(true);
@@ -2110,14 +2142,36 @@ function addSignals(elements) {
     SIG.feats.set(el.id, { type: 'Feature', properties: { id: el.id, kind: t.crossing === 'traffic_signals' ? 'ped' : 'road' }, geometry: { type: 'Point', coordinates: [el.lon, el.lat] } });
     added++;
   }
-  if (added && map.getSource('signals')) map.getSource('signals').setData({ type: 'FeatureCollection', features: [...SIG.feats.values()] });
+  if (added) refreshSignalSource();
   return added;
 }
 const sigKey = c => c[1].toFixed(4) + ',' + c[0].toFixed(4);
 const USIG_KEY = 'aumaps.userSignals';
 let USER_SIGNALS = (() => { try { const l = JSON.parse(localStorage.getItem(USIG_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } })();
 function saveUserSignals() { try { localStorage.setItem(USIG_KEY, JSON.stringify(USER_SIGNALS)); } catch (e) {} renderUserSignalSetting(); }
-function refreshSignalSource() { map.getSource('signals')?.setData({ type: 'FeatureCollection', features: [...SIG.feats.values()] }); }
+const SIG_ON_ROUTE = 32, SIG_GROUP = 45;
+function activeRoute() { return NAV.on ? NAV.route : (S.routes && S.routes[S.sel]) || null; }
+/* with a destination set, the map shows only the lights you'll actually drive up to:
+   anything more than ~30 m off your line is hidden, and one intersection shows one light */
+function visibleSignals() {
+  const feats = [...SIG.feats.values()];
+  const r = activeRoute();
+  if (!r || r.transit || !r.geometry) return feats;
+  const hits = [];
+  for (const f of feats) {
+    const pr = projectNear(f.geometry.coordinates, r);
+    if (pr.d <= SIG_ON_ROUTE) hits.push({ f, a: pr.along, d: pr.d });
+  }
+  hits.sort((x, y) => x.a - y.a || x.d - y.d);
+  const out = [];
+  for (const h of hits) {
+    const prev = out[out.length - 1];
+    if (prev && h.a - prev.a < SIG_GROUP) { if (h.d < prev.d) out[out.length - 1] = h; continue; }
+    out.push(h);
+  }
+  return out.map(h => h.f);
+}
+function refreshSignalSource() { map.getSource('signals')?.setData({ type: 'FeatureCollection', features: visibleSignals() }); }
 function addUserSignalsToMap() {
   for (const u of USER_SIGNALS) {
     const id = 'u' + u.id;
@@ -2154,6 +2208,56 @@ function renderUserSignalSetting() {
     refreshSignalSource(); toast('Saved traffic lights removed');
   };
 }
+/* ============ Roads you've reported closed or jammed (avoided for 60 days) ============ */
+const AVOID_KEY = 'onemaps.avoid', AVOID_DAYS = 60, AVOID_NEAR = 45;
+let AVOID = (() => { try { const l = JSON.parse(localStorage.getItem(AVOID_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } })();
+function saveAvoid() { try { localStorage.setItem(AVOID_KEY, JSON.stringify(AVOID)); } catch (e) {} renderAvoidSetting(); }
+function activeAvoid() {
+  const now = Date.now(), live = AVOID.filter(a => a && a.until > now);
+  if (live.length !== AVOID.length) { AVOID = live; try { localStorage.setItem(AVOID_KEY, JSON.stringify(AVOID)); } catch (e) {} }
+  return AVOID;
+}
+function addAvoid(name, c, kind) {
+  const a = { id: Date.now(), name: name || 'Unnamed road', kind: kind === 'closed' ? 'closed' : 'traffic',
+    lat: +c[1].toFixed(6), lon: +c[0].toFixed(6), created: Date.now(), until: Date.now() + AVOID_DAYS * 86400000 };
+  AVOID = activeAvoid().filter(x => geoDist([x.lon, x.lat], c) > 120);   // one entry per spot
+  AVOID.push(a); saveAvoid();
+  return a;
+}
+function removeAvoid(id) { AVOID = activeAvoid().filter(a => a.id !== id); saveAvoid(); }
+function routeAvoidHits(r) { return activeAvoid().filter(a => projectNear([a.lon, a.lat], r).d < AVOID_NEAR); }
+/* pick the quickest route that doesn't use a road you've reported */
+function pickRoute(routes) {
+  if (!routes || !routes.length) return { sel: 0, avoided: [], stuck: [] };
+  const hits = routes.map(routeAvoidHits);
+  let sel = 0;
+  for (let i = 0; i < routes.length; i++) if (hits[i].length < hits[sel].length) sel = i;
+  const chosen = new Set(hits[sel].map(a => a.id));
+  return { sel, avoided: hits[0].filter(a => !chosen.has(a.id)), stuck: hits[sel] };
+}
+function avoidLabel(a) { return `${a.name} (${a.kind === 'closed' ? 'closed' : 'traffic'})`; }
+function updateAvoidInfo() {
+  const el = document.getElementById('routeAvoid'); if (!el) return;
+  const info = S.avoid;
+  if (!info || (!info.avoided.length && !info.stuck.length)) { el.textContent = ''; return; }
+  el.innerHTML = info.avoided.length
+    ? `↪️ Avoiding ${info.avoided.map(a => esc(avoidLabel(a))).join(', ')} — you reported ${info.avoided.length === 1 ? 'it' : 'them'}.`
+    : `⚠️ No way around ${info.stuck.map(a => esc(a.name)).join(', ')} — this route still uses it.`;
+}
+function renderAvoidSetting() {
+  const box = document.getElementById('optAvoid'); if (!box) return;
+  const list = activeAvoid();
+  if (!list.length) { box.innerHTML = `<p class="hint" style="margin:0 4px">When you drive around a closure or a jam and tell the app why, that road is avoided on new routes for ${AVOID_DAYS} days. Nothing's on the list yet.</p>`; return; }
+  const days = a => Math.max(1, Math.ceil((a.until - Date.now()) / 86400000));
+  box.innerHTML = list.map(a => `<div class="av-item"><span>${a.kind === 'closed' ? '⛔' : '🚧'}</span>
+      <span class="sp"><b>${esc(a.name)}</b><small>${a.kind === 'closed' ? 'Reported closed' : 'Reported heavy traffic'} · ${days(a)} day${days(a) === 1 ? '' : 's'} left</small></span>
+      <button class="av-x" data-avoid="${a.id}" title="Stop avoiding" aria-label="Stop avoiding ${esc(a.name)}">✕</button></div>`).join('') +
+    `<button class="btn ghost" id="clearAvoid">Clear the whole list</button>`;
+  box.querySelectorAll('[data-avoid]').forEach(b => b.onclick = () => { removeAvoid(+b.dataset.avoid); toast('Back to normal on that road'); });
+  const c = document.getElementById('clearAvoid');
+  if (c) c.onclick = () => { AVOID = []; saveAvoid(); toast('Avoided roads cleared'); };
+}
+
 const sigQuery = area => `[out:json][timeout:25];(node["highway"="traffic_signals"]${area};node["crossing"="traffic_signals"]${area};);out;`;
 async function loadSignalsInView() {
   if (!SET.traffic || map.getZoom() < 13 || Date.now() < SIG.pauseUntil) return;
@@ -2180,6 +2284,39 @@ async function loadSignalsInView() {
 map.on('moveend', debounce(loadSignalsInView, 700));
 
 const cumOf = coords => { const cum = [0]; for (let i = 1; i < coords.length; i++) cum.push(cum[i - 1] + geoDist(coords[i - 1], coords[i])); return cum; };
+/* grid index over a route so a point can be tested against it without walking every segment */
+const RIX_CELL = 0.0025;                                    // ~250 m cells
+function routeIndex(r) {
+  if (!r || !r.geometry || !r.geometry.coordinates) return null;
+  if (r._rix) return r._rix;
+  const coords = r.geometry.coordinates, cum = cumOf(coords), grid = new Map();
+  for (let i = 0; i < coords.length - 1; i++) {
+    const x1 = Math.floor(coords[i][0] / RIX_CELL), y1 = Math.floor(coords[i][1] / RIX_CELL);
+    const x2 = Math.floor(coords[i + 1][0] / RIX_CELL), y2 = Math.floor(coords[i + 1][1] / RIX_CELL);
+    for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++)
+      for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
+        const k = x + ':' + y, a = grid.get(k);
+        if (a) { if (a[a.length - 1] !== i) a.push(i); } else grid.set(k, [i]);
+      }
+  }
+  return (r._rix = { coords, cum, grid });
+}
+function projectNear(p, r) {                                // { d, along } of p against route r
+  const ix = routeIndex(r); if (!ix) return { d: Infinity, along: 0 };
+  const cx = Math.floor(p[0] / RIX_CELL), cy = Math.floor(p[1] / RIX_CELL), kx = mLon(p[1]);
+  let best = { d: Infinity, along: 0 };
+  for (let x = cx - 1; x <= cx + 1; x++) for (let y = cy - 1; y <= cy + 1; y++) {
+    const arr = ix.grid.get(x + ':' + y); if (!arr) continue;
+    for (const i of arr) {
+      const a = ix.coords[i], b = ix.coords[i + 1];
+      const ax = (a[0] - p[0]) * kx, ay = (a[1] - p[1]) * M_LAT, dx = (b[0] - a[0]) * kx, dy = (b[1] - a[1]) * M_LAT;
+      const L2 = dx * dx + dy * dy, t = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0;
+      const d = Math.hypot(ax + t * dx, ay + t * dy);
+      if (d < best.d) best = { d, along: ix.cum[i] + t * (ix.cum[i + 1] - ix.cum[i]) };
+    }
+  }
+  return best;
+}
 function simplifyLine(coords, tol) {                       // Douglas–Peucker in metres
   if (coords.length < 3) return coords.slice();
   const kx = mLon(coords[0][1]), keep = new Uint8Array(coords.length);
@@ -2644,45 +2781,140 @@ const SPEEDO = {
     $('#spNeedle').style.transform = `rotate(${-135 + 270 * frac}deg)`;
     if (!this.raf && !silent) this.raf = requestAnimationFrame(t => this.tick(t));
   },
-  tick() {
-    this.shown += (this.target - this.shown) * 0.12;
-    if (Math.abs(this.target - this.shown) < 0.3) this.shown = this.target;
+  tick(now) {
+    const t = now || performance.now();
+    const dt = Math.max(0.001, Math.min(0.1, (t - (this.lastT || t - 16)) / 1000));
+    this.lastT = t;
+    this.shown += (this.target - this.shown) * (1 - Math.exp(-dt * 7));
+    if (Math.abs(this.target - this.shown) < 0.25) this.shown = this.target;
     if (this.state === 'on') $('#spVal').textContent = Math.round(this.shown);
-    this.raf = this.shown !== this.target ? requestAnimationFrame(t => this.tick(t)) : 0;
-  }
+    this.raf = this.shown !== this.target ? requestAnimationFrame(t2 => this.tick(t2)) : 0;
+  },
+  setQuality(acc) { if (this.state === 'on') $('#spUnit').textContent = acc != null && acc > 40 ? 'km/h · weak GPS' : 'km/h'; }
 };
 SPEEDO.init();
 
+/* ============ Phone motion sensors: used to sharpen the speed reading ============ */
+const MSENSE = { avail: typeof DeviceMotionEvent !== 'undefined', on: false, mag: 0, still: 0, g: null, t: 0 };
+function onDeviceMotion(e) {
+  const a = e.accelerationIncludingGravity || e.acceleration;
+  if (!a || a.x == null) return;
+  const v = [a.x, a.y, a.z];
+  if (!MSENSE.g) MSENSE.g = v.slice();
+  else for (let i = 0; i < 3; i++) MSENSE.g[i] += (v[i] - MSENSE.g[i]) * 0.06;        // slow estimate of gravity
+  const lin = Math.hypot(v[0] - MSENSE.g[0], v[1] - MSENSE.g[1], v[2] - MSENSE.g[2]); // what's left is real movement
+  MSENSE.mag = MSENSE.mag * 0.85 + lin * 0.15;
+  MSENSE.still = MSENSE.mag < 0.25 ? Math.min(60, MSENSE.still + 1) : 0;
+  MSENSE.t = Date.now();
+}
+function startMotionSensors(gesture) {
+  if (MSENSE.on || !MSENSE.avail || SET.sensors === false) return false;
+  const attach = () => { window.addEventListener('devicemotion', onDeviceMotion, { passive: true }); MSENSE.on = true; };
+  const req = typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission;
+  if (typeof req === 'function') {                                                    // iOS asks, and only from a tap
+    if (!gesture) return false;
+    try { req.call(DeviceMotionEvent).then(st => { if (st === 'granted') attach(); }).catch(() => {}); } catch (e) {}
+    return true;
+  }
+  attach();
+  return true;
+}
+function stopMotionSensors() {
+  if (!MSENSE.on) return;
+  window.removeEventListener('devicemotion', onDeviceMotion);
+  Object.assign(MSENSE, { on: false, mag: 0, still: 0, g: null });
+}
+/* speed: a small filter that blends what the GPS reports with how far you actually moved,
+   weighted by how good each reading is, and loosened when the sensors feel you speeding up */
+const SPD = { v: 0, p: 9, big: 0 };
+function resetSpeedFilter() { SPD.v = 0; SPD.p = 9; SPD.big = 0; }
+function fuseSpeed(z, sigma, dt) {
+  const shake = MSENSE.on ? Math.min(6, MSENSE.mag * 3) : 1.2;
+  SPD.p += (5.5 + shake * 3) * Math.max(0.05, Math.min(5, dt));       // a car can gain or lose ~3 m/s a second
+  if (z == null || isNaN(z)) return SPD.v;
+  const inn = z - SPD.v;
+  if (Math.abs(inn) > 8) {                                            // two wildly different readings in a row:
+    if (++SPD.big >= 2) { SPD.v = Math.max(0, z); SPD.p = 12; SPD.big = 0; return SPD.v; }   // believe them
+  } else SPD.big = 0;
+  const R = Math.max(0.2, sigma * sigma), K = SPD.p / (SPD.p + R);
+  SPD.v = Math.max(0, SPD.v + K * inn);
+  SPD.p *= (1 - K);
+  return SPD.v;
+}
+
 /* ================= GPS ================= */
-const GPS = { watch: null, last: null, byNav: false };
+const GPS_MAX_ACC = 65;
+const GPS = { watch: null, last: null, byNav: false, acc: null, errs: 0, staleTimer: 0 };
 function startGPS(byNav = false) {
   if (!navigator.geolocation) { toast('GPS is not available in this browser'); return false; }
   if (GPS.watch != null) return true;
   GPS.byNav = byNav;
+  resetSpeedFilter();
+  startMotionSensors(true);
+  startStaleWatch();
   SPEEDO.setState('wait');
   GPS.watch = navigator.geolocation.watchPosition(onGpsFix, err => {
-    toast('GPS unavailable: ' + err.message, 4000);
-    stopGPS('GPS blocked');
-    if (NAV.on && !NAV.sim && !SW.started) { $('#navTxt').textContent = 'GPS unavailable — use ▶ on the stopwatch'; }
-  }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 30000 });
+    if (err && err.code === 1) {                                        // permission denied: nothing more to try
+      toast('Location is switched off for this app — turn it on to use GPS', 5000);
+      stopGPS('location off');
+      if (NAV.on && !NAV.sim && !SW.started) { $('#navTxt').textContent = 'GPS unavailable — use ▶ on the stopwatch'; }
+      return;
+    }
+    GPS.errs = (GPS.errs || 0) + 1;                                     // a dropout (tunnel, car park): keep watching
+    if (GPS.errs === 4) toast('Weak GPS signal — still looking', 3000);
+    if (SPEEDO.state === 'on') SPEEDO.setState('wait');
+    if (GPS.errs > 40) { stopGPS('no GPS signal'); toast('No GPS signal — tap the speedometer to try again', 4000); }
+  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 30000 });
   return true;
 }
+/* if fixes stop arriving (tunnel, car park), don't keep showing a speed we no longer know */
+function startStaleWatch() {
+  clearInterval(GPS.staleTimer);
+  GPS.staleTimer = setInterval(() => {
+    if (GPS.watch == null || !GPS.last) return;
+    const age = (Date.now() - GPS.last.t) / 1000;
+    if (age < 4) return;
+    SPD.p = Math.min(40, SPD.p + 4);
+    SPD.v *= 0.75;
+    SPEEDO.set(SPEEDO.target * 0.75);
+    if (age > 12 && SPEEDO.state === 'on') SPEEDO.setState('wait');
+  }, 1000);
+}
 function stopGPS(msg) {
+  clearInterval(GPS.staleTimer); GPS.staleTimer = 0;
   if (GPS.watch != null) navigator.geolocation.clearWatch(GPS.watch);
-  GPS.watch = null; GPS.last = null; GPS.byNav = false;
+  GPS.watch = null; GPS.last = null; GPS.byNav = false; GPS.acc = null;
+  resetSpeedFilter();
   SPEEDO.setState('off', msg);
 }
 function toggleGPS() {
   if (GPS.watch != null) { if (NAV.on && !NAV.sim) return toast('GPS is needed while navigating'); stopGPS(); }
   else if (startGPS(false)) toast('Speedometer on — waiting for GPS');
 }
-$('#speedo').onclick = toggleGPS;
+$('#speedo').onclick = () => { startMotionSensors(true); toggleGPS(); };
 function onGpsFix(pos) {
   const c = [pos.coords.longitude, pos.coords.latitude], t = pos.timestamp || Date.now();
-  let v = pos.coords.speed;
-  if ((v == null || isNaN(v)) && GPS.last) { const dt = (t - GPS.last.t) / 1000; if (dt > 0.3) v = geoDist(GPS.last.c, c) / dt; }
-  GPS.last = { c, t };
-  SPEEDO.set(v != null && !isNaN(v) ? v * 3.6 : 0);
+  const acc = pos.coords.accuracy != null && !isNaN(pos.coords.accuracy) ? pos.coords.accuracy : 30;
+  const prev = GPS.last;
+  if (acc > GPS_MAX_ACC && prev && t - prev.t < 12000) return;          // a wild fix: wait for a better one
+  const dt = prev ? Math.max(0.05, Math.min(30, (t - prev.t) / 1000)) : 1;
+  let z = pos.coords.speed, sigma = 1.2;
+  if (z == null || isNaN(z) || z < 0) {                                 // no speed from the chip — work it out
+    if (prev) {
+      const moved = geoDist(prev.c, c), noise = Math.max(3, (acc + prev.acc) * 0.5);
+      z = moved <= noise ? 0 : moved / dt;                              // wobble smaller than the error reads as 0
+      sigma = Math.max(1, noise * 0.7 / dt);                            // consecutive fixes drift together, so
+
+    } else z = null;
+  } else {
+    const sa = pos.coords.speedAccuracy;
+    sigma = Math.max(0.5, sa != null && !isNaN(sa) && sa > 0 ? sa : acc / 15);
+  }
+  let v = fuseSpeed(z, sigma, dt);
+  if (v < 0.7 || (MSENSE.on && MSENSE.still > 5 && v < 2.5)) v = 0;     // standing still
+  GPS.last = { c, t, acc }; GPS.acc = acc; GPS.errs = 0;
+  SPEEDO.set(v * 3.6);
+  SPEEDO.setQuality(acc);
   myLoc = c;
   if (GPS.centreOnFix) {
     GPS.centreOnFix = false;
@@ -2693,8 +2925,9 @@ function onGpsFix(pos) {
     if (map.loaded()) go();
     else { let done = false; const once = () => { if (!done) { done = true; go(); } }; map.once('idle', once); setTimeout(once, 6000); }
   }
-  if (NAV.on && !NAV.sim) onPosition(c, pos.coords.heading, v);
-  else if (!NAV.on) feedFix(c, pos.coords.heading, null, v);
+  const head = v > 1.5 ? pos.coords.heading : null;                    // heading is meaningless when you're stopped
+  if (NAV.on && !NAV.sim) onPosition(c, head, v);
+  else if (!NAV.on) feedFix(c, head, null, v);
 }
 
 /* ================= Smooth position indicator ================= */
@@ -2741,14 +2974,14 @@ function feedFix(p, heading, along, speed) {
 function motionFrame(now) {
   MOTION.raf = 0;
   const f = MOTION.fix; if (!f) return;
-  const dt = Math.max(0.001, Math.min(0.08, (now - MOTION.last) / 1000));
+  const dt = Math.max(0.001, Math.min(0.1, (now - MOTION.last) / 1000));
   MOTION.last = now;
   const age = Math.max(0, Math.min(2.5, (now - f.t) / 1000));
   const onRoute = NAV.on && NAV.coords && f.along != null && MOTION.along != null;
   let desiredH = MOTION.head, settled;
   if (onRoute) {
     const target = Math.min(NAV.total, f.along + f.speed * age);
-    const w = 1.35;
+    const w = 1.55;
     const acc = w * w * (target - MOTION.along) + 2 * w * (f.speed - MOTION.v);
     MOTION.v = Math.max(0, Math.min(80, MOTION.v + acc * dt));
     MOTION.along = Math.min(NAV.total, MOTION.along + MOTION.v * dt);
@@ -2764,7 +2997,7 @@ function motionFrame(now) {
     settled = f.speed <= 0.7 && geoDist(MOTION.pos, target) < 0.15;
   }
   const dh = angDiff(desiredH, MOTION.head);
-  MOTION.head = norm360(MOTION.head + dh * (1 - Math.exp(-dt * 4)));
+  MOTION.head = norm360(MOTION.head + dh * (1 - Math.exp(-dt * 5)));
   setMe(MOTION.pos, MOTION.head);
   let camBusy = false;
   if (NAV.on) {
@@ -2773,7 +3006,7 @@ function motionFrame(now) {
       if (MOTION.camH == null) MOTION.camH = map.getBearing();
       if (MOTION.camZ == null) MOTION.camZ = map.getZoom();
       const ch = angDiff(MOTION.head, MOTION.camH), zt = followZoom(f.speed);
-      MOTION.camH = norm360(MOTION.camH + ch * (1 - Math.exp(-dt * 2)));
+      MOTION.camH = norm360(MOTION.camH + ch * (1 - Math.exp(-dt * 2.4)));
       MOTION.camZ += (zt - MOTION.camZ) * (1 - Math.exp(-dt * 0.9));
       map.jumpTo({ center: MOTION.pos, bearing: MOTION.camH, zoom: MOTION.camZ });
       camBusy = Math.abs(ch) > 0.2 || Math.abs(zt - MOTION.camZ) > 0.01;
@@ -2841,6 +3074,7 @@ function prepNavRoute(r) {
   const scale = cum[cum.length - 1] / (steps.reduce((a, s) => a + s.distance, 0) || 1);
   let acc = 0; const starts = steps.map(s => { const v = acc; acc += s.distance * scale; return v; });
   Object.assign(NAV, { route: r, coords, cum, total: cum[cum.length - 1], steps, starts, signals: r._signals || [], sigKeys: r._sigKeys || [], lastAlong: 0 });
+  refreshSignalSource();
 }
 const projectOnRoute = p => projectOn(p, NAV.coords, NAV.cum);
 function projectOn(p, coords, cum) {
@@ -2876,6 +3110,9 @@ function startNav(simulate) {
   popup?.remove();
   Object.assign(NAV, { on: true, sim: simulate, simFactor: 1, mode: S.mode, pos: null, anchor: null, arrived: false, offCount: 0, rerouting: false });
   prepNavRoute(r);
+  NAV.orig = { route: r, coords: NAV.coords.slice(), cum: NAV.cum.slice(), steps: NAV.steps, starts: NAV.starts,
+    names: new Set(NAV.steps.map(st => (st.name || '').toLowerCase()).filter(Boolean)) };
+  resetDetour();
   hideTripHighlights();
   tripBegin(r);
   resetMotion();
@@ -2933,7 +3170,8 @@ function startNav(simulate) {
 function stopSim() { if (NAV.simTimer) clearInterval(NAV.simTimer); NAV.simTimer = null; }
 function exitNav() {
   stopSim();
-  hideStopPrompt(); stopRedTimer();
+  hideStopPrompt(); hideDetourPrompt(); stopRedTimer();
+  NAV.orig = null;
   if (TRIP.rec && TRIP.rec.startedAt && !TRIP.rec.done) { const card = tripFinish('ended'); if (card) setTimeout(() => showScore(card), 900); }
   else if (TRIP.rec && !TRIP.rec.startedAt && NAV.on) toast("Navigation ended before you set off — nothing to add to trip history");
   TRIP.rec = null;
@@ -2957,8 +3195,8 @@ $('#navExit').onclick = exitNav;
 function setEtaBar(remT, remD) {
   $('#etaArrive').textContent = new Date(Date.now() + Math.max(0, remT) * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const mins = Math.max(0, Math.round(remT / 60));
-  if (mins >= 60) { $('#etaMin').textContent = `${Math.floor(mins / 60)}<small>hr</small> ${mins % 60}`; $('#etaMinK').textContent = 'min'; }
-  else { $('#etaMin').textContent = String(mins); $('#etaMinK').textContent = 'min'; }
+  if (mins >= 60) { $('#etaMin').innerHTML = `${Math.floor(mins / 60)}<small>hr</small> ${mins % 60}`; $('#etaMinK').textContent = 'min'; }
+  else { $('#etaMin').innerHTML = String(mins); $('#etaMinK').textContent = 'min'; }
   const d = fmtDist(Math.max(0, remD)).split(' ');
   $('#etaKm').innerHTML = `${d[0]}<small>${d[1]}</small>`;
 }
@@ -2994,12 +3232,13 @@ function onPosition(p, heading, speed) {
 
   const pr = projectOnRoute(p);
   if (SW.started) tripSample(p, speed, pr.along);
-  const snapped = pr.d <= SNAP_METRES;
+  const snapped = pr.d <= Math.min(55, Math.max(SNAP_METRES, (GPS.acc || 0) * 0.9));
   let h = heading;
   if (snapped) h = routeHeading(pr.along);
   else if ((h == null || isNaN(h)) && prev && geoDist(prev, p) > 3) h = bearingOf(prev, p);
   feedFix(snapped ? pointAt(pr.along).p : p, h, snapped ? pr.along : null, speed);
   NAV.lastAlong = pr.along;
+  maybeAskDetour(p, speed);
   updateNavCard(pr.along);
 
   const dest = NAV.coords[NAV.coords.length - 1];
@@ -3028,10 +3267,12 @@ async function reroute(p) {
   NAV.rerouting = true;
   toast('Re-routing…');
   try {
-    const url = `${ROUTER[NAV.mode]}/route/v1/driving/${p[0]},${p[1]};${S.to.coord[0]},${S.to.coord[1]}?overview=full&geometries=geojson&steps=true`;
+    const url = `${ROUTER[NAV.mode]}/route/v1/driving/${p[0]},${p[1]};${S.to.coord[0]},${S.to.coord[1]}?overview=full&geometries=geojson&steps=true&alternatives=3`;
     const j = await (await fetch(url)).json();
     if (j.code === 'Ok' && j.routes.length) {
-      S.routes = [j.routes[0]]; S.sel = 0;
+      const pick = pickRoute(j.routes);                     // steer around anything you've reported
+      j.routes = [j.routes[pick.sel]];
+      S.routes = [j.routes[0]]; S.sel = 0; S.avoid = pick;
       if (TRIP.rec) TRIP.rec.reroutes++;
       PROG.frac = 0; drawRoutes(true); prepNavRoute(j.routes[0]); NAV.offCount = 0;
       MOTION.along = null; MOTION.v = 0; loadRouteSignals(j.routes[0]);
@@ -3245,8 +3486,16 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 const CHANGELOG = [
+  { v: '1.2.0', items: [
+    'Trips over an hour now read properly on the bottom banner (1 hr 19 min)',
+    'Map credits moved off the map — they live at the bottom of the menu',
+    'Turn off your route and the app asks why: Road closed, Traffic or Something else',
+    'Roads you report closed or jammed are kept off your routes for 60 days, with alternatives found automatically — manage the list in Settings',
+    'With a destination set, only the traffic lights on your way are shown, one per intersection instead of all four',
+    'Sharper speedometer: GPS speed, distance travelled and the phone\'s motion sensors are blended, and it reads a true zero when you\'re stopped',
+    'Wild GPS fixes are ignored, weak signal is flagged on the speedometer, and the driving arrow and camera move more smoothly'] },
   { v: '1.1.0', items: [
     'Apple Maps-style layout: a big ETA banner across the bottom with arrival time, minutes and distance left',
     'Your search bar turns into a directions banner as soon as a route is ready — tap Start straight from there',
@@ -3410,6 +3659,81 @@ function intersectionNear(p, R = 30) {
   return best;
 }
 function nearIntersection(p) { return !!intersectionNear(p, 30); }
+/* ===== "Why this way?" — you left the planned route, so ask once per new street ===== */
+const DETOUR = { asked: {}, n: 0, open: false, timer: 0, lastOn: null };
+let detourFor = null;
+function resetDetour() { DETOUR.asked = {}; DETOUR.n = 0; DETOUR.lastOn = null; hideDetourPrompt(); }
+function roadNameAt(p) {
+  let feats = [];
+  try { feats = map.querySourceFeatures('omt', { sourceLayer: 'transportation_name' }); } catch (e) {}
+  const kx = mLon(p[1]);
+  let best = null, bd = 28;
+  for (const f of feats) {
+    const nm = (f.properties && (f.properties.name || f.properties.ref)) || '';
+    if (!nm) continue;
+    for (const line of linesOf(f.geometry)) for (let i = 0; i < line.length - 1; i++) {
+      const d = segDist(p, line[i], line[i + 1], kx);
+      if (d < bd) { bd = d; best = nm; }
+    }
+  }
+  return best;
+}
+function pointOn(coords, cum, dist) {
+  let lo = 0, hi = cum.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (cum[mid] <= dist) lo = mid; else hi = mid; }
+  const i = Math.min(lo, coords.length - 2), seg = cum[i + 1] - cum[i] || 1;
+  const t = Math.max(0, Math.min(1, (dist - cum[i]) / seg));
+  return [coords[i][0] + (coords[i + 1][0] - coords[i][0]) * t, coords[i][1] + (coords[i + 1][1] - coords[i][1]) * t];
+}
+function skippedAhead() {                                   // the piece of the plan you didn't drive
+  const o = NAV.orig; if (!o) return null;
+  const end = o.cum[o.cum.length - 1];
+  const along = Math.max(0, Math.min(end - 5, (DETOUR.lastOn ? DETOUR.lastOn.along : 0) + 120));
+  let name = '';
+  for (let i = 0; i < o.steps.length; i++) if (o.starts[i] <= along && o.steps[i].name) name = o.steps[i].name;
+  return { c: pointOn(o.coords, o.cum, along), name: name || 'that stretch' };
+}
+function maybeAskDetour(p, speed) {
+  if (!NAV.on || NAV.sim || !NAV.orig || NAV.arrived) return;
+  const pr = projectNear(p, NAV.orig.route);
+  if (pr.d < 40) { DETOUR.lastOn = { along: pr.along, t: Date.now() }; return; }
+  if (DETOUR.open || DETOUR.n >= 8 || promptStop) return;
+  if ((speed || 0) * 3.6 < 8) return;                       // wait until you're actually driving down it
+  const nm = roadNameAt(p); if (!nm) return;
+  const key = nm.toLowerCase();
+  if (NAV.orig.names.has(key) || DETOUR.asked[key]) return;
+  DETOUR.asked[key] = 1; DETOUR.n++;
+  showDetourPrompt(nm, skippedAhead());
+}
+function showDetourPrompt(nm, skip) {
+  detourFor = { nm, skip };
+  hideStopPrompt();
+  $('#detourTxt').innerHTML = `You've turned onto <b>${esc(nm)}</b>, which isn't on your route. What happened?`;
+  $('#detourSkip').textContent = skip && skip.name ? `Road closed or Traffic keeps ${skip.name} off your routes for ${AVOID_DAYS} days.` : '';
+  $('#detourPrompt').classList.add('show');
+  DETOUR.open = true;
+  clearTimeout(DETOUR.timer);
+  DETOUR.timer = setTimeout(hideDetourPrompt, 25000);
+}
+function hideDetourPrompt() {
+  DETOUR.open = false; detourFor = null;
+  clearTimeout(DETOUR.timer);
+  document.getElementById('detourPrompt')?.classList.remove('show');
+}
+function answerDetour(kind) {
+  const d = detourFor;
+  hideDetourPrompt();
+  if (!d) return;
+  if (TRIP.rec) (TRIP.rec.detours = TRIP.rec.detours || []).push({ road: d.nm, kind, at: Date.now() });
+  if (kind === 'other' || !d.skip) { toast('Thanks — noted for this trip'); return; }
+  const a = addAvoid(d.skip.name, d.skip.c, kind);
+  toast(`${kind === 'closed' ? 'Closure' : 'Traffic'} noted — ${a.name} is off your routes for ${AVOID_DAYS} days`, 4500);
+  if (NAV.on && !NAV.sim && NAV.pos) reroute(NAV.pos);
+}
+$('#detourClosed').onclick = () => answerDetour('closed');
+$('#detourJam').onclick = () => answerDetour('traffic');
+$('#detourOther').onclick = () => answerDetour('other');
+
 function trackStop(R, p, kmh, along, now) {
   if (!R.curStop && kmh < 2) R.curStop = { c: p.slice(), along, t0: now, kind: 'stop', checked: false, ix: null };
   const cs = R.curStop; if (!cs) return;
@@ -3755,13 +4079,16 @@ applyDisplay();
 requestWake();
 if (SET.autoLocate) autoLocate();
 renderUserSignalSetting();
+renderAvoidSetting();
 addUserSignalsToMap();
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
 });
 if (isMobile()) setCollapsed(true);
-window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visibleSignals, projectNear, refreshSignalSource,
+  get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR,
+  MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
