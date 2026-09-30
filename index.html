@@ -21,7 +21,7 @@
 <script src="https://cdn.jsdelivr.net/npm/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
 <script>
   // apply saved theme before first paint
-  try { const s = JSON.parse(localStorage.getItem('aumaps.settings') || '{}'); if (s.theme === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem('aumaps.settings') || '{}'); if (['light', 'classic'].includes(s.theme)) document.documentElement.dataset.theme = s.theme; } catch (e) {}
 </script>
 <style>
 :root{
@@ -42,8 +42,53 @@
   --route-ink:#06210f;
   --route-soft:rgba(34,197,94,.14);
   --amber:#f5b942;
+  --ease:cubic-bezier(.22,.9,.28,1);
   --radius:14px;
   --shadow:0 10px 32px rgba(0,0,0,.5);
+  --banner-ink:#ffffff;
+  --banner-sub:#e6e6e6;
+  --banner-field:rgba(0,0,0,.22);
+  --banner-field-on:rgba(0,0,0,.35);
+  --banner-line:rgba(255,255,255,.22);
+  --banner-line-on:rgba(255,255,255,.5);
+  --banner-btn:rgba(255,255,255,.08);
+  --banner-btn-on:rgba(255,255,255,.18);
+  --card:rgba(92,96,102,.98);
+  --card-ink:#ffffff;
+  --card-sub:rgba(0,0,0,.22);
+  --card-chip:rgba(0,0,0,.25);
+  --card-line:rgba(255,255,255,.18);
+  --card-shadow:0 8px 26px rgba(0,0,0,.45);
+}
+/* Classic — a warm light map with white roads, soft blue water and light banners */
+:root[data-theme="classic"]{
+  --bg:#f2efe6;
+  --panel:#ffffff;
+  --panel-2:#f8f6f1;
+  --hover:#efece4;
+  --ico:#eeebe3;
+  --field:#f6f4ef;
+  --line:#ddd8cc;
+  --text:#1c1d1f;
+  --strong:#0b0c0d;
+  --muted:#6b6f76;
+  --shadow:0 10px 30px rgba(120,105,80,.22);
+  --banner:#ffffff;
+  --banner-2:#f5f2eb;
+  --banner-ink:#1c1d1f;
+  --banner-sub:#6b6f76;
+  --banner-field:rgba(0,0,0,.05);
+  --banner-field-on:rgba(0,0,0,.09);
+  --banner-line:rgba(0,0,0,.12);
+  --banner-line-on:rgba(0,0,0,.28);
+  --banner-btn:rgba(0,0,0,.05);
+  --banner-btn-on:rgba(0,0,0,.1);
+  --card:rgba(255,255,255,.97);
+  --card-ink:#1c1d1f;
+  --card-sub:rgba(0,0,0,.045);
+  --card-chip:rgba(0,0,0,.06);
+  --card-line:rgba(0,0,0,.09);
+  --card-shadow:0 8px 28px rgba(110,96,72,.26);
 }
 :root[data-theme="light"]{
   --bg:#f5f5f3;
@@ -59,6 +104,10 @@
   --shadow:0 8px 26px rgba(60,64,67,.28);
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+button,.opt,.tg-row,.route-card,.ro-opt,.dr-item,.tab,.mode,.trip-item,.step{transition:background .18s ease,color .18s ease,border-color .18s ease,box-shadow .2s ease,transform .18s var(--ease)}
+button:active,.opt:active,.tg-row:active,.route-card:active,.ro-opt:active,.mode:active{transform:scale(.985)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* iOS zooms the whole page when an input under 16px gets focus — keep inputs at 16px on touch screens */
 @media (pointer:coarse){input,select,textarea{font-size:16px!important}}
@@ -71,7 +120,7 @@ html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:10
 .modal.show{display:flex;animation:fadein .25s}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
 .score{width:min(470px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--panel);color:var(--text);border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--line)}
-.score-head{padding:18px 18px 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:#fff}
+.score-head{padding:18px 18px 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:var(--banner-ink)}
 .score-head h2{margin:0;font-size:19px}
 .score-head .sub{font-size:13px;opacity:.85;margin-top:3px}
 .score-big{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
@@ -102,28 +151,29 @@ button{cursor:pointer}
 
 /* ---------- Banner (always grey with white text) ---------- */
 .banner{position:fixed;top:0;left:0;right:0;height:64px;z-index:20;display:flex;align-items:center;gap:14px;
-  padding:0 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:#fff;box-shadow:0 2px 14px rgba(0,0,0,.35)}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:.2px;white-space:nowrap;color:#fff}
+  padding:0 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:var(--banner-ink);box-shadow:0 2px 14px rgba(0,0,0,.18)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:.2px;white-space:nowrap;color:inherit}
 .brand svg{flex:none}
-.brand small{display:block;font-weight:500;font-size:11px;color:#e6e6e6;letter-spacing:.6px;text-transform:uppercase}
+.brand small{display:block;font-weight:500;font-size:11px;color:var(--banner-sub);letter-spacing:.6px;text-transform:uppercase}
 .search{position:relative;flex:1;max-width:340px}
-.search input{width:100%;height:36px;border-radius:18px;font-size:14px;border:1px solid rgba(255,255,255,.22);
-  background:rgba(0,0,0,.22);color:#fff;padding:0 42px;outline:none;transition:.15s}
+.search input{width:100%;height:36px;border-radius:18px;font-size:14px;border:1px solid var(--banner-line);
+  background:var(--banner-field);color:inherit;padding:0 42px;outline:none;transition:background .2s ease,border-color .2s ease}
 .search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
-.search input::placeholder{color:#e2e2e2}
-.search input:focus{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.5)}
+.search input::placeholder{color:var(--banner-sub)}
+.search input:focus{background:var(--banner-field-on);border-color:var(--banner-line-on)}
 .search .ac{min-width:320px}
 .search .ico{position:absolute;left:13px;top:9px;opacity:.9;pointer-events:none}
-.search .clear{position:absolute;right:5px;top:4px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;display:none;color:#fff}
-.search .clear:hover{background:rgba(255,255,255,.15)}
-.banner-btn{height:40px;padding:0 14px;border-radius:20px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);
-  color:#fff;display:flex;align-items:center;gap:8px;white-space:nowrap}
-.banner-btn:hover{background:rgba(255,255,255,.18)}
+.search .clear{position:absolute;right:5px;top:4px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;display:none;color:inherit}
+.search .clear:hover{background:var(--banner-btn-on)}
+.banner-btn{height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--banner-line);background:var(--banner-btn);
+  color:inherit;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:background .2s ease}
+.banner-btn:hover{background:var(--banner-btn-on)}
 
 /* ---------- Autocomplete ---------- */
 .ac{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line);color:var(--text);
   border-radius:12px;box-shadow:var(--shadow);display:none;z-index:40;max-height:60vh;overflow-y:auto}
-.ac.open{display:block}
+.ac.open{display:block;animation:acin .18s var(--ease)}
+@keyframes acin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .ac-item{display:flex;gap:12px;align-items:center;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line)}
 .ac-item:last-child{border-bottom:0}
 .ac-item:hover,.ac-item.active{background:var(--hover)}
@@ -136,7 +186,7 @@ button{cursor:pointer}
 #map{position:fixed;top:64px;left:0;right:0;bottom:0;background:var(--bg)}
 .panel{position:fixed;top:78px;left:14px;bottom:192px;width:370px;z-index:15;background:var(--panel);
   border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
-  display:flex;flex-direction:column;overflow:hidden;transition:transform .28s ease}
+  display:flex;flex-direction:column;overflow:hidden;transition:transform .36s var(--ease)}
 .panel.collapsed{transform:translateX(calc(-100% - 20px))}
 .tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
 .tab{flex:1;padding:13px 6px;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:13px;border-bottom:2px solid transparent}
@@ -180,18 +230,23 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .wp-dot.a{border:3px solid var(--route);background:#fff}
 .wp-dot.b{background:var(--route);border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
 .wp-field{position:relative;flex:1}
-.wp-field input{width:100%;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--field);padding:0 34px 0 12px;outline:none;color:var(--text)}
-.wp-field input:focus{border-color:var(--route)}
-.wp-field .loc{position:absolute;right:6px;top:7px;width:26px;height:26px;border:0;background:transparent;color:var(--muted);border-radius:6px}
+.wp-field input{width:100%;height:46px;border-radius:13px;border:1px solid var(--line);background:var(--field);padding:0 38px 0 14px;outline:none;color:var(--text);
+  font-size:15px;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
+.wp-field input:focus{border-color:var(--route);box-shadow:0 0 0 3px var(--route-soft)}
+.wp-field .loc{position:absolute;right:8px;top:10px;width:28px;height:28px;border:0;background:transparent;color:var(--muted);border-radius:8px}
 .wp-field .loc:hover{color:var(--strong);background:var(--hover)}
-.wp-line{position:absolute;left:5px;top:24px;height:24px;border-left:2px dotted var(--muted)}
-.modes{display:flex;gap:6px;margin-bottom:14px}
-.mode{flex:1;border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--muted)}
-.mode.on{border-color:var(--route);color:var(--strong);background:var(--route-soft)}
-.go{width:100%;justify-content:center;padding:11px}
+.wp-line{position:absolute;left:5px;top:26px;height:28px;border-left:2px dotted var(--muted)}
+.modes{display:flex;gap:4px;margin-bottom:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:4px}
+.mode{flex:1;border:0;background:transparent;border-radius:11px;padding:11px 4px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.mode:hover{background:var(--hover)}
+.mode.on{color:var(--route-ink);background:var(--route);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.mode.on svg{stroke:currentColor}
+.go{width:100%;justify-content:center;padding:14px;border-radius:15px;font-size:15px;margin-top:2px}
+.routes{margin-top:16px}
 .routes{margin-top:14px;display:flex;flex-direction:column;gap:8px}
-.route-card{border:1px solid var(--line);background:var(--panel-2);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.route-card.on{border-color:var(--route);box-shadow:inset 3px 0 0 var(--route)}
+.route-card{border:1px solid var(--line);background:var(--panel-2);border-radius:14px;padding:13px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.route-card:hover{background:var(--hover)}
+.route-card.on{border-color:var(--route);box-shadow:inset 3px 0 0 var(--route),0 4px 14px rgba(0,0,0,.08)}
 .route-card .dur{font-size:18px;font-weight:700;color:var(--strong)}
 .route-card.on .dur{color:var(--route)}
 .route-card .dist{color:var(--muted);font-size:13px}
@@ -235,7 +290,7 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .mk-me svg{position:relative;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
 
 /* top-right: stopwatch + buttons */
-.tr-stack{position:fixed;right:10px;top:78px;z-index:18;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.tr-stack{position:fixed;right:10px;top:78px;z-index:18;display:flex;flex-direction:column;align-items:flex-end;gap:10px;transition:top .36s var(--ease)}
 .map-ctl{display:flex;flex-direction:column;gap:8px}
 .stopwatch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 14px;box-shadow:var(--shadow);min-width:196px;position:relative}
 /* red-light timer pops out of the trip stopwatch */
@@ -254,14 +309,15 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 @keyframes pulse{0%{box-shadow:0 0 0 0 var(--route)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .sw-time{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:30px;font-weight:700;color:var(--strong);font-variant-numeric:tabular-nums;margin:3px 0 1px;letter-spacing:.5px}
 .sw-time.run{color:var(--route)}
-:root[data-theme="light"] .sw-time.run,:root[data-theme="light"] .fab.on,:root[data-theme="light"] .route-card.on .dur{color:var(--route-dark);filter:none}
+:root[data-theme="light"] .sw-time.run,:root[data-theme="light"] .fab.on,:root[data-theme="light"] .route-card.on .dur,
+:root[data-theme="classic"] .sw-time.run,:root[data-theme="classic"] .fab.on,:root[data-theme="classic"] .route-card.on .dur{color:var(--route-dark);filter:none}
 .sw-status{font-size:12px;color:var(--muted);max-width:200px}
 .sw-btns{display:flex;gap:6px;margin-top:8px}
 .sw-btn{flex:1;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--strong);display:grid;place-items:center}
 .sw-btn:hover{background:var(--hover)}
 
 /* bottom-left: speedometer + menu */
-.bl-stack{position:fixed;left:14px;bottom:18px;z-index:19;display:flex;flex-direction:column;align-items:flex-start;gap:10px;transition:bottom .28s ease}
+.bl-stack{position:fixed;left:14px;bottom:18px;z-index:19;display:flex;flex-direction:column;align-items:flex-start;gap:10px;transition:bottom .36s var(--ease)}
 .speedo{width:112px;height:112px;border-radius:50%;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;cursor:pointer;padding:0}
 .speedo svg{position:absolute;inset:0}
 .speedo .arc-bg{stroke:var(--line)}
@@ -288,9 +344,9 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:49;opacity:0;pointer-events:none;transition:opacity .25s}
 .scrim.show{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;bottom:0;left:0;width:320px;max-width:86vw;z-index:50;background:var(--panel);color:var(--text);
-  box-shadow:var(--shadow);transform:translateX(-105%);transition:transform .3s cubic-bezier(.3,.7,.2,1);display:flex;flex-direction:column}
+  box-shadow:var(--shadow);transform:translateX(-105%);transition:transform .34s var(--ease);display:flex;flex-direction:column}
 .drawer.open{transform:none}
-.dr-head{height:64px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px 0 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:#fff;font-weight:700;font-size:17px}
+.dr-head{height:64px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px 0 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:var(--banner-ink);font-weight:700;font-size:17px;border-bottom:1px solid var(--line)}
 .dr-head .sp{flex:1}
 .icon-btn{width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:inherit;display:grid;place-items:center}
 .icon-btn:hover{background:rgba(255,255,255,.15)}
@@ -386,26 +442,101 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 
 /* stop prompt, red-light chip, trip highlights */
 .stop-prompt{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);z-index:66;width:min(380px,calc(100vw - 24px));opacity:0;pointer-events:none;
-  background:#5c6066;color:#fff;border-radius:16px;box-shadow:0 12px 34px rgba(0,0,0,.55);padding:14px 16px;transition:opacity .25s,transform .25s}
+  background:var(--card);color:var(--card-ink);border-radius:16px;box-shadow:var(--card-shadow);padding:14px 16px;
+  transition:opacity .28s ease,transform .32s cubic-bezier(.22,.9,.28,1)}
 .stop-prompt.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .stop-prompt h4{margin:0 0 4px;font-size:17px}
 .stop-prompt p{margin:0 0 12px;font-size:13px;opacity:.85}
 .stop-prompt .row2{display:flex;gap:8px;flex-wrap:wrap}
 .stop-prompt button{flex:1;border:0;border-radius:12px;padding:13px 8px;font-weight:700;font-size:15px}
 .stop-prompt .yes{background:#ef4444;color:#fff}
-.stop-prompt .no{background:rgba(255,255,255,.16);color:#fff}
-.stop-prompt .traffic{flex-basis:100%;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22)}
+.stop-prompt .no{background:var(--card-chip);color:inherit}
+.stop-prompt .traffic{flex-basis:100%;background:var(--card-chip);color:inherit;border:1px solid var(--card-line)}
 .stop-prompt .closed{background:#ef4444;color:#fff}
 .stop-prompt .jam{background:#f59e0b;color:#231a05}
 .stop-prompt .small{font-size:12px;opacity:.8;margin:10px 0 0}
 .av-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);margin-bottom:8px;font-size:13px}
 .av-item b{color:var(--strong)}
-.avoid-opts{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 2px}
+/* Directions header: title, and a pill showing whatever's switched on */
+.dir-head{text-align:center;position:relative;padding:2px 0 14px}
+.dir-head h2{margin:0;font-size:20px;font-weight:700;color:var(--strong);letter-spacing:.2px}
+.dir-x{position:absolute;right:0;top:-2px;width:32px;height:32px;border-radius:50%;border:0;background:var(--ico);color:var(--muted);display:grid;place-items:center}
+.dir-x:hover{background:var(--hover);color:var(--strong)}
+.opts-pill{margin-top:7px;border:0;border-radius:18px;padding:7px 16px;font-size:14px;font-weight:700;
+  background:var(--ico);color:var(--muted);transition:background .2s ease,color .2s ease}
+.opts-pill.on{background:var(--route);color:var(--route-ink)}
+.opts-pill:hover{filter:brightness(1.06)}
+/* Options sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:72;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}
+.sheet-wrap.show{display:flex;animation:fadein .2s}
+.sheet{width:min(520px,100%);max-height:88vh;background:var(--panel);color:var(--text);border-radius:20px 20px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -10px 40px rgba(0,0,0,.4);
+  transform:translateY(16px);opacity:0;transition:transform .34s var(--ease),opacity .26s ease}
+.sheet-wrap.show .sheet{transform:none;opacity:1}
+.sheet-bar{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid var(--line)}
+.sheet-bar h3{flex:1;text-align:center;margin:0;font-size:17px;font-weight:700;color:var(--strong);text-transform:none;letter-spacing:0}
+.sheet-bar button{width:34px;height:34px;border-radius:50%;border:0;background:var(--ico);color:var(--muted);display:grid;place-items:center;flex:none}
+.sheet-bar button:hover{background:var(--hover);color:var(--strong)}
+.sheet-body{padding:18px 16px calc(18px + env(safe-area-inset-bottom));overflow-y:auto}
+.sh-label{font-size:13px;color:var(--muted);margin:2px 4px 8px;font-weight:600}
+.seg{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:22px}
+.seg button{flex:1;border:0;background:transparent;border-radius:11px;padding:10px 6px;font-size:14px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--route);color:var(--route-ink);box-shadow:0 2px 8px rgba(0,0,0,.16)}
+.sh-group{border:1px solid var(--line);background:var(--panel-2);border-radius:14px;overflow:hidden;margin-bottom:22px}
+.sh-row{display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid var(--line);font-size:16px;color:var(--text)}
+.sh-row:first-child{border-top:0}
+.sh-row .t{flex:1;min-width:0}
+.sh-row .t small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.sh-row[aria-checked="true"] .switch{background:var(--route)}
+.sh-row[aria-checked="true"] .switch::after{transform:translateX(18px)}
+.sh-when{display:flex;align-items:center;gap:10px;margin:-14px 0 22px;font-size:13px;color:var(--muted)}
+.sh-when input{flex:1;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--text);padding:0 12px}
+.sh-reset{width:100%;justify-content:center;padding:14px;border-radius:15px;background:var(--panel-2);border:1px solid var(--line);color:var(--route);font-weight:700;font-size:15px}
+/* route cards, Apple-style */
+.rc-go{border:0;border-radius:14px;padding:14px 20px;background:var(--route);color:var(--route-ink);font-weight:800;font-size:17px;letter-spacing:.5px;flex:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.rc-go:hover{filter:brightness(1.07)}
+.rc-sub{color:var(--muted);font-size:13px;margin-top:3px}
+.rc-avoid{color:var(--muted);font-size:13px;margin-top:5px}
+.rc-warn{display:flex;align-items:flex-start;gap:9px;margin-top:10px;font-size:13px;color:var(--muted);line-height:1.4}
+.rc-warn .w{width:20px;height:20px;border-radius:50%;background:var(--amber);color:#3a2a05;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.avoid-opts{margin:12px 0 2px}
 .avoid-opts.hide{display:none}
-.ao{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);
-  border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600}
-.ao:hover{background:var(--hover)}
-.ao.on{background:var(--route);color:var(--route-ink);border-color:transparent}
+.ro{border:1px solid var(--line);background:var(--panel-2);border-radius:14px;overflow:hidden;transition:border-color .2s ease}
+.ro.open{border-color:var(--route)}
+.ro-head{width:100%;display:flex;align-items:center;gap:10px;padding:11px 14px;background:transparent;color:var(--text);font-size:14px;font-weight:600;text-align:left}
+.ro-head:hover{background:var(--hover)}
+.ro-ico{width:22px;height:22px;flex:none;display:grid;place-items:center;color:var(--muted)}
+.ro.active .ro-ico{color:var(--route)}
+.ro-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro-label small{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-top:1px}
+.ro-chev{width:16px;height:16px;flex:none;color:var(--muted);transition:transform .28s cubic-bezier(.22,.9,.28,1)}
+.ro.open .ro-chev{transform:rotate(90deg)}
+.ro-list{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s cubic-bezier(.22,.9,.28,1)}
+.ro.open .ro-list{grid-template-rows:1fr}
+.ro-list > div{overflow:hidden}
+.ro-opt{width:100%;display:flex;align-items:center;gap:11px;padding:11px 14px;background:transparent;color:var(--text);font-size:14px;border-top:1px solid var(--line);text-align:left}
+.ro-opt:hover{background:var(--hover)}
+.ro-opt .t{flex:1;min-width:0}
+.ro-opt .t small{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+.ro-tick{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);flex:none;display:grid;place-items:center;color:transparent;transition:.2s}
+.ro-opt.on .ro-tick{background:var(--route);border-color:var(--route);color:var(--route-ink)}
+/* the banner that confirms what changed */
+.dir-banner{display:flex;align-items:flex-start;gap:11px;border-radius:14px;padding:12px 13px;margin:12px 0 2px;
+  background:var(--route-soft);border:1px solid var(--route);color:var(--text);font-size:13px;
+  opacity:0;transform:translateY(-6px);transition:opacity .3s ease,transform .3s cubic-bezier(.22,.9,.28,1)}
+.dir-banner.show{opacity:1;transform:none}
+.dir-banner.off{background:var(--panel-2);border-color:var(--line)}
+.dir-banner .bi{width:26px;height:26px;border-radius:50%;background:var(--route);color:var(--route-ink);display:grid;place-items:center;flex:none;font-size:14px}
+.dir-banner.off .bi{background:var(--ico);color:var(--muted)}
+.dir-banner b{display:block;color:var(--strong);font-size:14px;margin-bottom:2px}
+.dir-banner .bx{border:0;background:transparent;color:var(--muted);font-size:15px;width:24px;height:24px;border-radius:50%;flex:none}
+.dir-banner .bx:hover{background:var(--hover);color:var(--strong)}
+.rc-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.rc-tag{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-radius:5px;padding:2px 6px;background:var(--ico);color:var(--muted)}
+.rc-tag.toll{background:rgba(245,185,66,.18);color:#d79a1e}
+.rc-tag.mway{background:rgba(96,165,250,.18);color:#60a5fa}
+.rc-tag.clear{background:rgba(34,197,94,.16);color:#22c55e}
 details.rt{border:1px solid var(--line);border-radius:12px;background:var(--panel-2);padding:8px 10px;margin-top:8px}
 details.rt summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--strong)}
 .rt-row{display:flex;gap:8px;padding:0 4px}
@@ -414,8 +545,8 @@ details.rt summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--str
 .av-item small{display:block;color:var(--muted);font-size:11px}
 .av-x{border:0;background:transparent;color:var(--muted);width:28px;height:28px;border-radius:50%;flex:none}
 .av-x:hover{background:var(--hover);color:var(--strong)}
-.stop-prompt .bar{height:3px;border-radius:2px;background:rgba(255,255,255,.25);margin-top:10px;overflow:hidden}
-.stop-prompt .bar i{display:block;height:100%;width:100%;background:#fff;opacity:.6}
+.stop-prompt .bar{height:3px;border-radius:2px;background:var(--card-line);margin-top:10px;overflow:hidden}
+.stop-prompt .bar i{display:block;height:100%;width:100%;background:currentColor;opacity:.5}
 .hl-card{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:21;width:min(420px,calc(100vw - 24px));display:none;
   background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
 .hl-card.show{display:block}
@@ -429,38 +560,38 @@ body.navigating .hl-card{display:none}
 /* navigation */
 /* search bar turns into a directions banner once a route is ready */
 .route-banner{display:none;flex:1;min-width:0;align-items:center;gap:10px;height:44px;padding:0 6px 0 12px;
-  border-radius:22px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25)}
+  border-radius:22px;background:var(--banner-field);border:1px solid var(--banner-line)}
 body.route-ready .route-banner{display:flex}
 body.route-ready .search{display:none}
 .rb-ico{width:26px;height:26px;border-radius:50%;background:var(--route);color:var(--route-ink);display:grid;place-items:center;flex:none}
 .rb-txt{flex:1;min-width:0;line-height:1.2}
 .rb-t{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rb-s{display:block;font-size:12px;color:#e6e6e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-s{display:block;font-size:12px;color:var(--banner-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rb-go{height:34px;padding:0 16px;border:0;border-radius:17px;background:var(--route);color:var(--route-ink);font-weight:700;font-size:14px;
   display:flex;align-items:center;gap:7px;flex:none}
-.rb-x{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#fff;flex:none}
-.rb-x:hover{background:rgba(255,255,255,.16)}
+.rb-x{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:inherit;flex:none}
+.rb-x:hover{background:var(--banner-btn-on)}
 
 /* navigation: Apple-style instruction banner on top, ETA banner across the bottom */
 body.navigating .banner{display:none}
 body.navigating #map{top:0}
 .navcard{position:fixed;top:0;left:0;right:0;z-index:21;
-  background:rgba(92,96,102,.98);color:#fff;border-radius:0 0 18px 18px;box-shadow:0 8px 26px rgba(0,0,0,.45);display:none;overflow:hidden;
+  background:var(--card);color:var(--card-ink);border-radius:0 0 18px 18px;box-shadow:var(--card-shadow);display:none;overflow:hidden;
   padding-top:env(safe-area-inset-top)}
 body.navigating .navcard{display:block;animation:drop .35s ease}
 @keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
 .nav-main{display:flex;gap:14px;align-items:center;padding:14px 18px}
-.nav-arr{width:46px;height:46px;border-radius:12px;background:rgba(0,0,0,.25);display:grid;place-items:center;flex:none;color:#fff}
+.nav-arr{width:46px;height:46px;border-radius:12px;background:var(--card-chip);display:grid;place-items:center;flex:none;color:inherit}
 .nav-arr svg{width:28px;height:28px}
 .nav-dist{font-size:24px;font-weight:700;line-height:1.15}
 .nav-txt{font-size:15px;line-height:1.3;opacity:.95}
-.nav-sig{font-size:13px;font-weight:600;background:rgba(0,0,0,.28);border-radius:12px;padding:4px 9px;white-space:nowrap;flex:none}
+.nav-sig{font-size:13px;font-weight:600;background:var(--card-chip);border-radius:12px;padding:4px 9px;white-space:nowrap;flex:none}
 .nav-sig:empty{display:none}
-.nav-then{display:flex;gap:8px;align-items:center;padding:8px 18px;background:rgba(0,0,0,.22);font-size:13px;
+.nav-then{display:flex;gap:8px;align-items:center;padding:8px 18px;background:var(--card-sub);font-size:13px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-then span{opacity:.7;text-transform:uppercase;letter-spacing:.6px;font-size:11px;font-weight:700}
 .eta-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:21;width:min(720px,100%);display:none;align-items:center;gap:12px;
-  background:rgba(92,96,102,.98);color:#fff;border-radius:20px 20px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.45);
+  background:var(--card);color:var(--card-ink);border-radius:20px 20px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.28);
   padding:14px 18px calc(14px + env(safe-area-inset-bottom))}
 body.navigating .eta-bar{display:flex;animation:rise .35s ease}
 @keyframes rise{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
@@ -469,6 +600,7 @@ body.navigating .eta-bar{display:flex;animation:rise .35s ease}
 .eta-v{font-size:23px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
 .eta-v.big{font-size:31px;color:var(--route)}
 :root[data-theme="light"] .eta-v.big{color:#fff}
+:root[data-theme="classic"] .eta-v.big{color:var(--route-dark)}
 .eta-v small{font-size:14px;font-weight:600;opacity:.8;margin-left:2px}
 .eta-k{font-size:11px;letter-spacing:.8px;text-transform:uppercase;opacity:.75;margin-top:3px}
 .nav-exit{border:0;border-radius:20px;padding:11px 18px;background:#ef4444;color:#fff;font-weight:700;font-size:14px;flex:none}
@@ -478,8 +610,9 @@ body.navigating .stop-prompt{bottom:calc(132px + env(safe-area-inset-bottom))}
 body.navigating .toast{bottom:calc(122px + env(safe-area-inset-bottom))}
 body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(100px + env(safe-area-inset-bottom))}
 .recentre{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:19;display:none;align-items:center;gap:8px;
-  border:0;border-radius:24px;padding:11px 18px;background:#5c6066;color:#fff;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.45)}
-.recentre.show{display:flex}
+  border:0;border-radius:24px;padding:11px 18px;background:var(--card);color:var(--card-ink);font-weight:600;box-shadow:var(--card-shadow)}
+.recentre.show{display:flex;animation:risein .3s var(--ease)}
+@keyframes risein{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translateX(-50%)}}
 body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
 
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#111214;color:#fff;border:1px solid #3c3f45;
@@ -488,6 +621,20 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
 
 .grab{display:none;width:100%;height:18px;border:0;background:transparent;flex:none;position:relative}
 .grab::after{content:"";position:absolute;left:50%;top:7px;width:44px;height:5px;border-radius:3px;background:var(--line);transform:translateX(-50%)}
+
+/* ---------- Splash ---------- */
+.splash{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:var(--bg);
+  transition:opacity .45s ease,visibility .45s}
+.splash.gone{opacity:0;visibility:hidden;pointer-events:none}
+body.splashing{overflow:hidden}
+.sp-in{display:flex;flex-direction:column;align-items:center;gap:14px;animation:spup .6s var(--ease)}
+@keyframes spup{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+.sp-logo{width:96px;height:96px;border-radius:24px;box-shadow:0 18px 44px rgba(0,0,0,.45);display:block}
+.sp-name{font-size:23px;font-weight:700;color:var(--strong);letter-spacing:.3px}
+.sp-tag{font-size:12px;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;margin-top:-8px}
+.sp-bar{width:132px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:6px}
+.sp-bar i{display:block;height:100%;width:40%;border-radius:2px;background:var(--route);animation:spbar 1.15s var(--ease) infinite}
+@keyframes spbar{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
 
 /* ---------- Weather ---------- */
 .wx-now{display:flex;align-items:center;gap:14px;padding:4px 4px 12px}
@@ -526,6 +673,47 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
 .wx-head{display:flex;align-items:center;gap:8px;padding:0 4px 10px}
 .wx-head .sp{flex:1}
 
+/* weather app: search, page dots, send to maps */
+.wx-dots{position:fixed;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));z-index:84;display:flex;gap:7px;justify-content:center;pointer-events:none}
+.wx-dots .wx-dot{pointer-events:auto}
+.wx-dot{width:8px;height:8px;border-radius:50%;border:0;background:rgba(255,255,255,.3);padding:0}
+.wx-dot.on{background:#fff;transform:scale(1.15)}
+.wx-send{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:84;display:none;align-items:center;gap:8px;
+  border:0;border-radius:22px;padding:11px 16px;background:rgba(255,255,255,.16);color:#fff;font-weight:600;font-size:13px;backdrop-filter:blur(8px);
+  max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.wx-open .wx-send{display:flex}
+.wx-send:hover{background:rgba(255,255,255,.28)}
+.wx-search{position:fixed;inset:0;z-index:86;display:none;flex-direction:column;background:rgba(12,16,22,.96);backdrop-filter:blur(10px);
+  padding:calc(14px + env(safe-area-inset-top)) 14px 14px;color:#fff}
+.wx-search.show{display:flex;animation:fadein .2s}
+.wx-s-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border-radius:14px;padding:0 12px;height:48px;flex:none}
+.wx-s-bar input{flex:1;min-width:0;height:46px;border:0;background:transparent;color:#fff;font-size:16px;outline:none}
+.wx-s-bar input::placeholder{color:rgba(255,255,255,.55)}
+.wx-s-bar button{border:0;background:transparent;color:rgba(255,255,255,.7);font-size:16px;width:30px;height:30px;border-radius:50%}
+.wx-results{flex:1;overflow-y:auto;margin-top:10px}
+.wx-r{display:block;width:100%;text-align:left;border:0;background:transparent;color:#fff;padding:13px 12px;border-radius:12px}
+.wx-r:hover{background:rgba(255,255,255,.1)}
+.wx-r b{display:block;font-size:15px;font-weight:600}
+.wx-r small{display:block;font-size:12px;opacity:.65;margin-top:2px}
+.wx-r-empty{padding:16px 12px;opacity:.6;font-size:14px}
+.wx-s-note{font-size:11px;opacity:.55;text-align:center;margin:8px 4px 0;line-height:1.5}
+.wx-found{position:fixed;left:50%;transform:translate(-50%,14px);bottom:calc(74px + env(safe-area-inset-bottom));z-index:85;
+  width:min(520px,calc(100vw - 24px));display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:18px;
+  background:rgba(255,255,255,.14);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.18);color:#fff;
+  opacity:0;pointer-events:none;transition:opacity .3s ease,transform .34s var(--ease)}
+.wx-found.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+.wx-found .f-ico{flex:none;opacity:.95}
+.wx-found .f-t{flex:1;min-width:0}
+.wx-found .f-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wx-found .f-t small{display:block;font-size:11px;opacity:.75;margin-top:1px}
+.wx-found .f-temp{font-size:22px;font-weight:700;flex:none}
+.wx-found .f-send{flex:none;border:0;border-radius:14px;padding:9px 12px;background:#fff;color:#14181f;font-weight:700;font-size:12px}
+.wx-found .f-x{flex:none;border:0;background:transparent;color:rgba(255,255,255,.7);width:26px;height:26px;border-radius:50%}
+.wx-app .wrap.slide-l{animation:wxsl .32s var(--ease)}
+.wx-app .wrap.slide-r{animation:wxsr .32s var(--ease)}
+@keyframes wxsl{from{opacity:.3;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes wxsr{from{opacity:.3;transform:translateX(-28px)}to{opacity:1;transform:none}}
+
 /* the weather as its own screen */
 .wx-app{position:fixed;inset:0;z-index:80;display:none;flex-direction:column;color:#fff;overflow-y:auto;
   background:linear-gradient(170deg,#1b2740 0%,#141a26 55%,#0f1319 100%)}
@@ -543,7 +731,7 @@ body.wx-open{overflow:hidden}
 .wx-hero .c{font-size:19px;margin-top:6px;opacity:.95}
 .wx-hero .r{font-size:14px;opacity:.7;margin-top:4px}
 .wx-hero .ico{opacity:.95;margin-bottom:2px}
-.wx-app .wrap{width:min(560px,100%);margin:0 auto;padding:0 16px calc(28px + env(safe-area-inset-bottom))}
+.wx-app .wrap{width:min(560px,100%);margin:0 auto;padding:0 16px calc(86px + env(safe-area-inset-bottom))}
 .wx-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px 16px;margin-top:12px;backdrop-filter:blur(6px)}
 .wx-card h4{margin:0 0 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.65;font-weight:700}
 .wx-app .wx-day{border-top-color:rgba(255,255,255,.12);color:#fff}
@@ -625,7 +813,16 @@ body.wx-open{overflow:hidden}
 }
 </style>
 </head>
-<body>
+<body class="splashing">
+
+<div class="splash" id="splash" role="status" aria-label="One Maps is starting">
+  <div class="sp-in">
+    <img class="sp-logo" id="splashLogo" alt="">
+    <div class="sp-name">One Maps</div>
+    <div class="sp-tag">Australia-wide</div>
+    <div class="sp-bar"><i></i></div>
+  </div>
+</div>
 
 <header class="banner">
   <div class="brand">
@@ -633,7 +830,7 @@ body.wx-open{overflow:hidden}
     <div class="word">One Maps<small>Streets &amp; places Australia-wide</small></div>
   </div>
   <div class="search">
-    <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
     <input id="q" type="search" placeholder="Search" autocomplete="off" aria-label="Search">
     <button class="clear" id="qClear" aria-label="Clear search">✕</button>
     <div class="ac" id="qAc" role="listbox"></div>
@@ -645,7 +842,7 @@ body.wx-open{overflow:hidden}
     <button class="rb-x" id="rbClear" title="Clear route" aria-label="Clear route">✕</button>
   </div>
   <button class="banner-btn" id="dirBtn" title="Directions">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M9 13v-2a1 1 0 0 1 1-1h5"/><path d="m13 8 2 2-2 2"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M9 13v-2a1 1 0 0 1 1-1h5"/><path d="m13 8 2 2-2 2"/></svg>
     <span>Directions</span>
   </button>
 </header>
@@ -670,6 +867,23 @@ body.wx-open{overflow:hidden}
   </section>
 
   <section class="pane" id="pane-dir">
+    <div class="dir-head">
+      <h2>Directions</h2>
+      <button class="opts-pill" id="optsPill" aria-haspopup="dialog">Options</button>
+      <button class="dir-x" id="dirClear" aria-label="Clear route" title="Clear route">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="modes" id="modes">
+      <button class="mode on" data-mode="car" aria-label="Drive" title="Drive">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/><path d="M5 12h14"/></svg></button>
+      <button class="mode" data-mode="foot" aria-label="Walk" title="Walk">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="4" r="2"/><path d="m9 21 2-6 3 3v3M8 11l3-4 3 1 2 3 2 1M11 7l-1 6"/></svg></button>
+      <button class="mode" data-mode="transit" aria-label="Public transport" title="Public transport">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l1.5-4M15 21l-1.5-4"/><circle cx="8.5" cy="14" r=".6" fill="currentColor"/><circle cx="15.5" cy="14" r=".6" fill="currentColor"/></svg></button>
+      <button class="mode" data-mode="bike" aria-label="Cycle" title="Cycle">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 8h5l3.5 9M10 8 12 17h1.5M14 5h2"/></svg></button>
+    </div>
     <div class="quick" id="quickDir"></div>
     <div class="wp">
       <div class="wp-line"></div>
@@ -694,21 +908,6 @@ body.wx-open{overflow:hidden}
         </div>
       </div>
     </div>
-    <div class="modes" id="modes">
-      <button class="mode on" data-mode="car">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/><path d="M5 12h14"/></svg>Drive</button>
-      <button class="mode" data-mode="bike">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 8h5l3.5 9M10 8 12 17h1.5M14 5h2"/></svg>Cycle</button>
-      <button class="mode" data-mode="foot">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="4" r="2"/><path d="m9 21 2-6 3 3v3M8 11l3-4 3 1 2 3 2 1M11 7l-1 6"/></svg>Walk</button>
-      <button class="mode" data-mode="transit">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l1.5-4M15 21l-1.5-4"/><circle cx="8.5" cy="14" r=".6" fill="currentColor"/><circle cx="15.5" cy="14" r=".6" fill="currentColor"/></svg>Transit</button>
-    </div>
-    <div class="avoid-opts" id="avoidOpts" role="group" aria-label="Route options">
-      <button class="ao" data-ao="avoidToll" aria-pressed="false">🪙 Avoid tolls</button>
-      <button class="ao" data-ao="avoidMotorway" aria-pressed="false">🛣️ Avoid motorways</button>
-    </div>
-    <div class="t-when">Depart <input type="datetime-local" id="departAt" aria-label="Departure time"> <span>(blank = now)</span></div>
     <button class="btn primary go" id="goBtn">Get directions</button>
     <div id="transitNear"></div>
     <div id="dirOut"><p class="hint" style="margin-top:14px">Tip: click anywhere on the map to set a start or destination.</p></div>
@@ -904,9 +1103,44 @@ body.wx-open{overflow:hidden}
   </div>
   <div class="hl-legend" id="hlLegend"></div>
 </div>
+<div class="sheet-wrap" id="optsSheet" role="dialog" aria-modal="true" aria-label="Route options">
+  <div class="sheet">
+    <div class="sheet-bar">
+      <button id="optsCancel" aria-label="Cancel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+      <h3>Options</h3>
+      <button id="optsDone" aria-label="Done">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="sh-label">Time</div>
+      <div class="seg" id="timeSeg" role="tablist">
+        <button data-t="now" class="on" role="tab">Leave now</button>
+        <button data-t="at" role="tab">Leave at</button>
+        <button data-t="by" role="tab">Arrive by</button>
+      </div>
+      <div class="sh-when" id="whenRow" hidden><input type="datetime-local" id="departAt" aria-label="Time"></div>
+      <div class="sh-label">Avoid</div>
+      <div class="sh-group" id="avoidOpts">
+        <div class="sh-row" data-ao="avoidToll" role="switch" tabindex="0" aria-checked="false">
+          <span class="t">Tolls<small>Toll roads, bridges and tunnels</small></span><span class="switch"></span>
+        </div>
+        <div class="sh-row" data-ao="avoidMotorway" role="switch" tabindex="0" aria-checked="false">
+          <span class="t">Motorways<small>Stay on ordinary roads</small></span><span class="switch"></span>
+        </div>
+      </div>
+      <button class="sh-reset" id="optsReset">Reset</button>
+    </div>
+  </div>
+</div>
 <div class="wx-app" id="wxApp" role="dialog" aria-modal="true" aria-label="Weather">
   <div class="wx-app-bar">
     <div class="loc" id="wxAppLoc">Weather</div>
+    <button id="wxAppSearch" aria-label="Search for a city or suburb" title="Add a place">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+    </button>
     <button id="wxAppRefresh" aria-label="Refresh">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
     </button>
@@ -915,6 +1149,18 @@ body.wx-open{overflow:hidden}
     </button>
   </div>
   <div class="wrap" id="wxAppBody"></div>
+  <div class="wx-dots" id="wxDots"></div>
+  <button class="wx-send" id="wxSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 21 3l-8 18-2-7z"/></svg><span id="wxSendLabel">Send to Maps</span></button>
+  <div class="wx-found" id="wxFound"></div>
+  <div class="wx-search" id="wxSearch">
+    <div class="wx-s-bar">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="opacity:.7"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+      <input id="wxSearchIn" type="search" placeholder="City, suburb or country" autocomplete="off" aria-label="Search for a place">
+      <button id="wxSearchX" aria-label="Close search">✕</button>
+    </div>
+    <div class="wx-results" id="wxResults"></div>
+    <p class="wx-s-note">Adding a place replaces the one you added before — swipe left or right to switch between it and where you are.</p>
+  </div>
 </div>
 <div class="modal" id="scoreModal" role="dialog" aria-modal="true" aria-label="Trip scorecard"><div class="score" id="scoreCard"></div></div>
 
@@ -958,6 +1204,21 @@ const PAL = {
     poiLabel: '#c9ccd2', poiStroke: '#1f2023', poiOther: '#b8bcc3', halo: '#26282b', minorPlace: '#a3a8b0', village: '#d4d7dc',
     town: '#eceef1', city: '#ffffff', peak: '#a6b59b', state: '#8d939b',
     sky: { 'sky-color': '#23262b', 'horizon-color': '#4a4f57', 'fog-color': '#2f3136' }, lightI: 0.38
+  },
+  classic: {
+    bg: '#f2efe6', wood: '#cfe3c0', grass: '#dcecc8', sand: '#f0e7cf', res: '#efece3', other: '#ece8df', civic: '#eeeae4',
+    park: '#cfe8bd', parkLine: '#b5d7a3', water: '#a9d7f0', waterway: '#9ccfea', aeroArea: '#e8e4dc', runway: '#d2cec6',
+    boundary: '#a7a196', hsShadow: '#9a9488', hsHigh: '#ffffff', hsAccent: '#ddd8cd', hsEx: 0.28, tunnel: '#e0dcd3',
+    roads: { path: [null, '#c2bcb0'], service: ['#e6e1d6', '#ffffff'], minor: ['#e2ddd2', '#ffffff'], tertiary: ['#ded9cd', '#ffffff'],
+      secondary: ['#e8d9a8', '#fffdf6'], primary: ['#efd08a', '#fff4dd'], trunk: ['#f0b968', '#ffe3b4'], motorway: ['#e79a3c', '#ffcf8a'] },
+    rail: '#bdb7ab', ferry: '#6fb2d8', bld: ['#e6e1d7', '#ded8cd', '#d3ccc0'],
+    brCol: { motorway: '#ffcf8a', trunk: '#ffe3b4', primary: '#fff4dd', secondary: '#fffdf6', tertiary: '#f1eee7', rail: '#c9c0b0', transit: '#c9c0b0', other: '#ece8e0' },
+    railing: '#9a958b', pillar: '#c3bdb2',
+    canopy: ['#64a35a', '#7cbb6c', '#9ed087'], trunk: '#8b6b4a', alt: '#a6a99f', travelled: '#bdb8ae',
+    waterLabel: '#3a7fa8', waterHalo: '#dff0fa', roadLabel: '#37383c', roadHalo: '#ffffff', shieldHalo: '#2e7d4f', house: '#8b8579',
+    poiLabel: '#5a5f66', poiStroke: '#ffffff', poiOther: '#848990', halo: '#ffffff', minorPlace: '#6f7378', village: '#3a3c40',
+    town: '#1f2124', city: '#111111', peak: '#5d6b4d', state: '#6c7076',
+    sky: { 'sky-color': '#bcdcf5', 'horizon-color': '#eef3f7', 'fog-color': '#f2efe6' }, lightI: 0.26
   },
   light: {
     bg: '#f5f5f3', wood: '#cfe3c8', grass: '#e0ecd3', sand: '#f1ead6', res: '#eeeeeb', other: '#ebe9e7', civic: '#eceaf1',
@@ -1368,7 +1629,7 @@ function set3d(on, { animate = true } = {}) {
   $('#dr3dState').textContent = on ? 'On' : 'Off';
   const wantTerrain = on && SET.terrain, hasTerrain = !!map.getTerrain();
   if (wantTerrain !== hasTerrain) { try { map.stop(); map.setTerrain(wantTerrain ? { source: 'dem', exaggeration: 1.4 } : null); } catch (e) { console.warn(e); } }
-  if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
+  if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 950, easing: EASE_CAM });
 }
 $('#btn3d').onclick = () => set3d(!is3d);
 map.on('load', () => { applyRouteColor(); addSignalIcon(); refreshSignalSource(); applyDisplay(); loadSignalsInView(); });
@@ -1614,10 +1875,11 @@ function clearPadding() {
   map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   map.jumpTo({ center: mid });
 }
+const EASE_CAM = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 function fitView(bounds, opts) {
   map.stop();
   if (!NAV.on) clearPadding();
-  map.fitBounds(bounds, opts);
+  map.fitBounds(bounds, { easing: EASE_CAM, ...opts });
 }
 function fitPadding(pad) {
   // never ask the map for more padding than the screen has room for (otherwise it silently refuses to move)
@@ -1701,7 +1963,9 @@ function renderSettings() {
     <div class="opt" role="radio" tabindex="0" data-set="route" data-val="${k}" aria-checked="${SET.route === k}">
       <span class="swatch line" style="background:${ROUTE_COLORS[k].c};box-shadow:0 0 0 2px ${ROUTE_COLORS[k].dark}"></span>
       <span class="ol">${ROUTE_COLORS[k].label}</span><span class="tickbox">${TICK}</span></div>`).join('');
-  $('#optTheme').innerHTML = [['dark', 'Charcoal', 'Default · dark map with light text', '#2f3136'], ['light', 'White', 'Light map with dark text', '#f5f5f3']].map(([k, l, d, sw]) => `
+  $('#optTheme').innerHTML = [['dark', 'Charcoal', 'Default · dark map with light text', '#2f3136'],
+    ['light', 'White', 'Light map with dark text', '#f5f5f3'],
+    ['classic', 'Classic', 'Warm light map, white roads, blue water — light banners to match', '#f2efe6']].map(([k, l, d, sw]) => `
     <div class="opt" role="radio" tabindex="0" data-set="theme" data-val="${k}" aria-checked="${SET.theme === k}">
       <span class="swatch" style="background:${sw}"></span>
       <span class="ol">${l}<small>${d}</small></span><span class="tickbox">${TICK}</span></div>`).join('');
@@ -2105,24 +2369,57 @@ document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
   renderAvoidOpts();
   if (S.from && S.to && (was !== S.mode)) route();
 });
-/* Avoid tolls / motorways — lives here in Directions only, and stays as you set it */
+/* Route options — the pill shows what's on, and opens the Options sheet */
+const AO_LABEL = { avoidToll: 'Avoid Tolls', avoidMotorway: 'Avoid Motorways' };
+const TIME_LABEL = { now: '', at: 'Leave At', by: 'Arrive By' };
 function renderAvoidOpts() {
-  const box = $('#avoidOpts');
-  box.classList.toggle('hide', S.mode !== 'car');
-  box.querySelectorAll('.ao').forEach(b => {
-    const on = !!SET[b.dataset.ao];
-    b.classList.toggle('on', on);
-    b.setAttribute('aria-pressed', String(on));
-  });
+  const on = Object.keys(AO_LABEL).filter(k => SET[k] && S.mode === 'car');
+  const bits = on.map(k => AO_LABEL[k]);
+  if (S.timeMode && S.timeMode !== 'now') bits.push(TIME_LABEL[S.timeMode]);
+  const pill = $('#optsPill');
+  pill.textContent = bits.length ? bits.join(' · ') : 'Options';
+  pill.classList.toggle('on', bits.length > 0);
+  document.querySelectorAll('#avoidOpts .sh-row').forEach(r => r.setAttribute('aria-checked', String(!!SET[r.dataset.ao])));
+  document.querySelectorAll('#timeSeg button').forEach(b => b.classList.toggle('on', b.dataset.t === (S.timeMode || 'now')));
+  $('#whenRow').hidden = !S.timeMode || S.timeMode === 'now';
+  document.querySelectorAll('#avoidOpts .sh-row').forEach(r => { r.style.display = S.mode === 'car' ? '' : 'none'; });
 }
+function openOptsSheet() { $('#optsSheet').classList.add('show'); renderAvoidOpts(); }
+function closeOptsSheet() { $('#optsSheet').classList.remove('show'); }
+$('#optsPill').onclick = openOptsSheet;
+$('#optsCancel').onclick = closeOptsSheet;
+$('#optsDone').onclick = () => { closeOptsSheet(); if (S.from && S.to) route(); };
+$('#optsSheet').addEventListener('click', e => { if (e.target.id === 'optsSheet') closeOptsSheet(); });
+$('#optsReset').onclick = () => {
+  SET.avoidToll = SET.avoidMotorway = false; saveSettings();
+  S.timeMode = 'now'; $('#departAt').value = '';
+  renderAvoidOpts();
+  toast('Back to the fastest route, leaving now');
+  if (S.from && S.to) route();
+};
 $('#avoidOpts').addEventListener('click', e => {
-  const b = e.target.closest('.ao'); if (!b) return;
-  SET[b.dataset.ao] = !SET[b.dataset.ao];
+  const row = e.target.closest('.sh-row'); if (!row) return;
+  const key = row.dataset.ao;
+  SET[key] = !SET[key];
   saveSettings();
   renderAvoidOpts();
   if (S.from && S.to) route();
   else if (S.routes.length) { S.stale = true; updateGoBtn(); }
 });
+$('#timeSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  S.timeMode = b.dataset.t;
+  if (S.timeMode !== 'now' && !$('#departAt').value) {
+    const d = new Date(Date.now() + (S.timeMode === 'by' ? 3600000 : 900000) - new Date().getTimezoneOffset() * 60000);
+    $('#departAt').value = d.toISOString().slice(0, 16);
+  }
+  renderAvoidOpts();
+  if (S.from && S.to) route();
+});
+$('#departAt').addEventListener('change', () => { if (S.from && S.to) route(); });
+$('#dirClear').onclick = clearRoute;
+function dirBannerEta() {}
+S.timeMode = 'now';
 renderAvoidOpts();
 /* OSRM can refuse some combinations, so drop them one at a time rather than failing */
 function avoidList() {
@@ -2143,15 +2440,40 @@ async function osrmFetch(base, signal) {
   }
   return last || { code: 'Error', message: 'No route found' };
 }
+/* OSRM won't tell us, so read the road names: enough to know what a route is made of */
+const TOLL_RE = /\b(citylink|city link|eastlink|east link|peninsula link|clem\s?7|airportlink|airport link|legacy way|go between|gateway (motorway|bridge)|logan motorway|cross city tunnel|lane cove tunnel|eastern distributor|westconnex|northconnex|m[2457]\b|toll)\b/i;
+const MWAY_RE = /\b(motorway|freeway|fwy|mwy|expressway|tollway|autoroute)\b/i;
+function routeUses(r) {
+  if (r._uses) return r._uses;
+  const steps = r.legs ? r.legs.flatMap(l => l.steps) : [];
+  let toll = 0, mway = 0;
+  const tollN = new Set(), mwayN = new Set();
+  for (const st of steps) {
+    const nm = [st.name, st.ref, st.destinations].filter(Boolean).join(' ');
+    if (!nm.trim()) continue;
+    if (TOLL_RE.test(nm)) { toll += st.distance || 0; if (st.name || st.ref) tollN.add(st.name || st.ref); }
+    if (MWAY_RE.test(nm) || /^m\d/i.test(st.ref || '')) { mway += st.distance || 0; if (st.name || st.ref) mwayN.add(st.name || st.ref); }
+  }
+  return (r._uses = { toll, mway, tollNames: [...tollN], mwayNames: [...mwayN] });
+}
+function routeBreaks(r, want) {                              // metres of road you asked not to use
+  const u = routeUses(r);
+  return (want.includes('toll') ? u.toll : 0) + (want.includes('motorway') ? u.mway : 0);
+}
 const AVOID_NAME = { toll: 'tolls', motorway: 'motorways' };
-function routeOptsNote(j) {
-  const want = (j && j._wanted) || [], got = (j && j._excluded) || [];
+function routeOptsNote(j, pick) {
+  const want = avoidList();
   if (!want.length) return '';
-  const missed = want.filter(x => !got.includes(x));
-  if (!missed.length) return `🚫 Avoiding ${want.map(x => AVOID_NAME[x]).join(' and ')}.`;
-  return got.length
-    ? `🚫 Avoiding ${got.map(x => AVOID_NAME[x]).join(' and ')} — no route could also avoid ${missed.map(x => AVOID_NAME[x]).join(' and ')}.`
-    : `⚠️ No route could avoid ${missed.map(x => AVOID_NAME[x]).join(' and ')}, so this one uses ${missed.length > 1 ? 'them' : 'it'}.`;
+  const r = (j.routes || [])[pick ? pick.sel : 0];
+  if (!r) return '';
+  const u = routeUses(r);
+  const still = [];
+  if (want.includes('toll') && u.toll > 200) still.push(u.tollNames[0] || 'a toll road');
+  if (want.includes('motorway') && u.mway > 200) still.push(u.mwayNames[0] || 'a motorway');
+  const cost = pick ? pick.cost : 0;
+  const extra = cost >= 45 ? ` · ${fmtSecs(cost)} longer than the quickest way` : cost <= -45 ? ` · ${fmtSecs(-cost)} quicker` : ' · same time as the quickest way';
+  if (!still.length) return `🚫 Avoiding ${want.map(x => AVOID_NAME[x]).join(' and ')}${extra}.`;
+  return `⚠️ Couldn't get around ${still.map(esc).join(' and ')} — this route still uses ${still.length > 1 ? 'them' : 'it'}.`;
 }
 function updateRouteOptsInfo() {
   const el = document.getElementById('routeOpts');
@@ -2164,6 +2486,7 @@ function updateGoBtn() {
   b.dataset.ready = ready ? '1' : '';
   b.disabled = !!S.loading;
   b.innerHTML = S.loading ? 'Finding route…' : ready ? `${START_SVG} Start` : 'Get directions';
+  b.style.display = ready ? 'none' : '';                    // once there's a route, GO on the card takes over
   updateRouteBanner(ready);
 }
 // the search bar becomes a directions banner as soon as there's a route to start
@@ -2266,10 +2589,12 @@ async function routeInner() {
   try {
     const j = await osrmFetch(url, routeCtrl.signal);
     if (j.code !== 'Ok' || !j.routes?.length) throw new Error(j.message || 'No route found between these points');
-    S.optsNote = routeOptsNote(j);
     S.routes = j.routes.slice(0, 3);
     const pick = pickRoute(S.routes);
     S.sel = pick.sel; S.avoid = pick;
+    S.optsNote = routeOptsNote(j, pick);
+    dirBannerEta(pick.cost >= 45 ? `That's ${fmtSecs(pick.cost)} longer on this trip.`
+      : avoidList().length ? 'No time lost on this trip.' : '');
     PROG.frac = 0;
     drawRoutes(true);
     renderRoutes();
@@ -2299,17 +2624,69 @@ function viaName(r) {
   const top = Object.entries(names).sort((a, b) => b[1] - a[1])[0];
   return top ? top[0] : '';
 }
+/* when you leave and when you get there, for all three time modes */
+function timeLine(r) {
+  const dur = routeDur(r) * 1000;
+  const clock = d => new Date(d).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const picked = $('#departAt') && $('#departAt').value ? new Date($('#departAt').value).getTime() : null;
+  if (S.timeMode === 'at' && picked) return `Leave ${clock(picked)} · arrive around <b>${clock(picked + dur)}</b>`;
+  if (S.timeMode === 'by' && picked) {
+    const leave = picked - dur;
+    return leave < Date.now() - 60000
+      ? `To arrive by ${clock(picked)} you'd have needed to leave at <b>${clock(leave)}</b>`
+      : `Leave at <b>${clock(leave)}</b> to arrive by ${clock(picked)}`;
+  }
+  return `Arrive around <b>${clock(Date.now() + dur)}</b>`;
+}
+function avoidLine(r) {
+  const want = avoidList();
+  if (!want.length) return '';
+  const u = routeUses(r);
+  const kept = [], broke = [];
+  if (want.includes('toll')) (u.toll > 200 ? broke : kept).push('tolls');
+  if (want.includes('motorway')) (u.mway > 400 ? broke : kept).push('motorways');
+  const bits = [];
+  if (kept.length) bits.push('Avoids ' + kept.join(' and '));
+  if (broke.length) bits.push('still uses ' + broke.join(' and '));
+  return bits.join(' · ');
+}
+function carCard(x, i) {
+  const on = i === S.sel;
+  const clock = d => new Date(d).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const av = avoidLine(x);
+  return `<div class="route-card ${on ? 'on' : ''}" data-i="${i}">
+      <div style="flex:1;min-width:0">
+        <div class="dur">${fmtDur(routeDur(x))}</div>
+        <div class="rc-sub">${clock(Date.now() + routeDur(x) * 1000)} ETA · ${fmtDist(x.distance)} · via ${esc(viaName(x) || 'local roads')}</div>
+        ${av ? `<div class="rc-avoid">${esc(av)}</div>` : routeTags(x)}
+      </div>
+      ${on ? `<button class="rc-go" data-go-i="${i}">GO</button>` : ''}
+    </div>`;
+}
+/* Apple's nudge: you asked to skip something, and it's costing you time */
+function fasterWarning() {
+  const want = avoidList();
+  if (!want.length || !S.avoid || S.routes.length < 2) return '';
+  const cost = S.avoid.cost || 0;
+  if (cost < 60) return '';
+  const what = want.map(x => AVOID_NAME[x]).join(' and ');
+  return `<div class="rc-warn"><span class="w">!</span><span>A faster route is available with ${esc(what)} — ${fmtSecs(cost)} quicker.</span></div>`;
+}
+function routeTags(r) {
+  const u = routeUses(r), t = [];
+  if (u.toll > 200) t.push('<span class="rc-tag toll">Toll</span>');
+  if (u.mway > 400) t.push('<span class="rc-tag mway">Motorway</span>');
+  if (!t.length && avoidList().length) t.push('<span class="rc-tag clear">No ' + avoidList().map(x => AVOID_NAME[x]).join(' or ') + '</span>');
+  return t.length ? `<div class="rc-tags">${t.join('')}</div>` : '';
+}
 function renderRoutes() {
   const out = $('#dirOut');
   const r = S.routes[S.sel];
   const eta = r.transit ? fmtClock(r.it.endTime) : new Date(Date.now() + routeDur(r) * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const steps = r.legs.flatMap(l => l.steps);
-  out.innerHTML = `<div class="routes">${S.routes.map((x, i) => x.transit ? transitCard(x, i) : `
-      <div class="route-card ${i === S.sel ? 'on' : ''}" data-i="${i}">
-        <div><div class="dur">${fmtDur(routeDur(x))}</div><div class="via">via ${esc(viaName(x) || 'local roads')}</div></div>
-        <div style="text-align:right"><div class="dist">${fmtDist(x.distance)}</div>${i === 0 ? '<div class="via">Fastest</div>' : ''}</div>
-      </div>`).join('')}</div>
-    <div class="hint" style="margin-top:10px">${r.transit ? `Leave ${leaveIn(r.it.startTime)} · arrive <b>${eta}</b>` : `Arrive around <b>${eta}</b>`}</div>
+  out.innerHTML = `<div class="routes">${S.routes.map((x, i) => x.transit ? transitCard(x, i) : carCard(x, i)).join('')}</div>
+    ${fasterWarning()}
+    <div class="hint" style="margin-top:10px">${r.transit ? `Leave ${leaveIn(r.it.startTime)} · arrive <b>${eta}</b>` : timeLine(r)}</div>
     <div class="hint" id="routeSig" style="margin-top:2px"></div>
     <div class="hint" id="routeAvoid" style="margin-top:2px"></div>
     <div class="hint" id="routeTraffic" style="margin-top:2px"></div>
@@ -2327,7 +2704,10 @@ function renderRoutes() {
       <div><div class="txt">${esc(instruction(s, i === steps.length - 1))}</div>${s.distance > 0 ? `<div class="d">${fmtDist(s.distance)}</div>` : ''}</div></div>`).join('')}
     </div>
     <div class="btns" style="margin-top:14px"><button class="btn ghost" id="clearRoute">Clear route</button></div>`;
-  out.querySelectorAll('.route-card').forEach(el => el.onclick = () => selectRoute(el.dataset.i));
+  out.querySelectorAll('.route-card').forEach(el => el.onclick = e => {
+    if (e.target.closest('[data-go-i]')) { startNav(false); return; }
+    selectRoute(el.dataset.i);
+  });
   out.querySelectorAll('.step').forEach(el => el.onclick = () => {
     const s = steps[+el.dataset.i];
     map.flyTo({ center: s.maneuver.location, zoom: 17, bearing: is3d ? s.maneuver.bearing_after || 0 : 0, pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1100 });
@@ -2490,13 +2870,18 @@ function routeAvoidHits(r) { return activeAvoid().filter(a => projectNear([a.lon
 function pickRoute(routes) {
   if (!routes || !routes.length) return { sel: 0, avoided: [], stuck: [] };
   const hits = routes.map(routeAvoidHits);
+  const want = avoidList();
+  const breaks = routes.map(r => routeBreaks(r, want));
   let sel = 0;
-  for (let i = 0; i < routes.length; i++) {
-    if (hits[i].length < hits[sel].length) sel = i;
-    else if (hits[i].length === hits[sel].length && routeDur(routes[i]) < routeDur(routes[sel]) - 30) sel = i;
+  for (let i = 1; i < routes.length; i++) {
+    const a = { h: hits[i].length, b: breaks[i], d: routeDur(routes[i]) };
+    const c = { h: hits[sel].length, b: breaks[sel], d: routeDur(routes[sel]) };
+    // roads you reported first, then the tolls/motorways you asked to skip, then the quickest
+    if (a.h < c.h || (a.h === c.h && a.b < c.b - 200) || (a.h === c.h && Math.abs(a.b - c.b) <= 200 && a.d < c.d - 30)) sel = i;
   }
   const chosen = new Set(hits[sel].map(a => a.id));
-  return { sel, avoided: hits[0].filter(a => !chosen.has(a.id)), stuck: hits[sel] };
+  return { sel, avoided: hits[0].filter(a => !chosen.has(a.id)), stuck: hits[sel],
+    breaks: breaks[sel], fastest: routes[0], cost: Math.round(routeDur(routes[sel]) - Math.min(...routes.map(routeDur))) };
 }
 function avoidLabel(a) { return `${a.name} (${a.kind === 'closed' ? 'closed' : 'traffic'})`; }
 function updateAvoidInfo() {
@@ -2875,11 +3260,11 @@ function drawTransitLegs() {
 async function routeTransit(signal) {
   const out = $('#dirOut');
   out.innerHTML = `<div class="hint" style="display:flex;gap:10px;align-items:center;margin-top:14px"><div class="spinner"></div>Finding public transport options…</div>`;
-  const when = $('#departAt').value ? new Date($('#departAt').value) : new Date();
+  const when = $('#departAt').value && S.timeMode !== 'now' ? new Date($('#departAt').value) : new Date();
   try {
     const j = await motis('plan', {
       fromPlace: `${S.from.coord[1]},${S.from.coord[0]}`, toPlace: `${S.to.coord[1]},${S.to.coord[0]}`,
-      time: when.toISOString(), arriveBy: 'false'
+      time: when.toISOString(), arriveBy: S.timeMode === 'by' ? 'true' : 'false'
     }, signal);
     const its = (j.itineraries || []).filter(it => it.legs && it.legs.some(l => TMODE(l.mode) !== 'walk'));
     if (!its.length) throw new Error('No public transport found for this trip at that time. Try another time — some regional areas aren\'t covered');
@@ -3279,7 +3664,7 @@ function motionFrame(now) {
     settled = f.speed <= 0.7 && geoDist(MOTION.pos, target) < 0.15;
   }
   const dh = angDiff(desiredH, MOTION.head);
-  MOTION.head = norm360(MOTION.head + dh * (1 - Math.exp(-dt * 5)));
+  MOTION.head = norm360(MOTION.head + dh * (1 - Math.exp(-dt * 5.5)));
   setMe(MOTION.pos, MOTION.head);
   let camBusy = false;
   if (NAV.on) {
@@ -3288,8 +3673,8 @@ function motionFrame(now) {
       if (MOTION.camH == null) MOTION.camH = map.getBearing();
       if (MOTION.camZ == null) MOTION.camZ = map.getZoom();
       const ch = angDiff(MOTION.head, MOTION.camH), zt = followZoom(f.speed);
-      MOTION.camH = norm360(MOTION.camH + ch * (1 - Math.exp(-dt * 2.4)));
-      MOTION.camZ += (zt - MOTION.camZ) * (1 - Math.exp(-dt * 0.9));
+      MOTION.camH = norm360(MOTION.camH + ch * (1 - Math.exp(-dt * 2.8)));
+      MOTION.camZ += (zt - MOTION.camZ) * (1 - Math.exp(-dt * 1.1));
       map.jumpTo({ center: MOTION.pos, bearing: MOTION.camH, zoom: MOTION.camZ });
       camBusy = Math.abs(ch) > 0.2 || Math.abs(zt - MOTION.camZ) > 0.01;
     } else { MOTION.camH = null; MOTION.camZ = null; }
@@ -3413,7 +3798,7 @@ function startNav(simulate) {
   feedFix(NAV.coords[0], h0, 0, 0);
   MOTION.head = h0;
   setFollowing('pending');
-  map.flyTo({ center: NAV.coords[0], zoom: followZoom(0), pitch: 64, bearing: h0, padding: navPadding(), duration: 1600, essential: true });
+  map.flyTo({ center: NAV.coords[0], zoom: followZoom(0), pitch: 64, bearing: h0, padding: navPadding(), duration: 1600, essential: true, easing: EASE_CAM });
   map.once('moveend', () => { if (NAV.on && NAV.follow === 'pending') setFollowing(true); });
 
   if (simulate) {
@@ -3472,7 +3857,7 @@ function exitNav() {
   if (meMarker && GPS.watch == null) { meMarker.remove(); meMarker = null; resetMotion(); }
   map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   setCollapsed(false);
-  map.easeTo({ pitch: is3d ? 55 : 0, zoom: Math.min(map.getZoom(), 16), duration: 800 });
+  map.easeTo({ pitch: is3d ? 55 : 0, zoom: Math.min(map.getZoom(), 16), duration: 900, easing: EASE_CAM });
   setTimeout(fallbackRecentre, 50);
   setTimeout(updateGoBtn, 0);
 }
@@ -3775,8 +4160,21 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.0.1';
 const CHANGELOG = [
+  { v: '2.0.1', items: [
+    'Avoid tolls and Avoid motorways now really change the route and the ETA — the app reads what each alternative is made of and picks one that honours your choice, then tells you what it costs in time',
+    'Route cards show a Toll or Motorway tag so you can see the difference at a glance',
+    'The route options collapse to just what\'s switched on; tap to open the list',
+    'A banner confirms what changed when you switch an option on or off',
+    'New Classic colour scheme in Settings: a warm light map with white roads and blue water, and light banners to match',
+    'Cleaner Directions panel — bigger fields, a proper segmented mode switch and roomier route cards',
+    'Smoother animations throughout, and they respect your reduce-motion setting',
+    'A two-second splash screen while the map, your settings and the forecast load behind it',
+    'Weather now uses your exact position, not the middle of the map',
+    'Add one other city or suburb from the magnifying glass in the full-screen weather app, then swipe left and right between it and where you are',
+    'Searching a place shows its name, local time and weather, with Send to Maps right there',
+    'Send to Maps in the bottom corner fills in Directions for whichever place you\'re looking at — just tap Start'] },
   { v: '2.0.0', items: [
     'New: Weather. Open it from the menu for current conditions, wind speed and direction, an hour-by-hour strip and the next 7 days',
     'Tap the full-screen icon and the weather becomes its own clean, full-screen app — add it to your home screen from the One Maps shortcut menu',
@@ -3958,8 +4356,8 @@ function updateTrafficInfo() {
 }
 
 /* ================= Weather (Open-Meteo — free, no key, CC BY 4.0) ================= */
-const WX = { data: null, at: 0, loc: null, place: '', busy: false, err: '', seq: 0 };
-const WX_MAX_AGE = 15 * 60 * 1000;
+const WX = { spots: [], idx: 0, busy: false, err: '', seq: 0, searching: false, found: null };
+const WX_MAX_AGE = 15 * 60 * 1000, WX_SAVED_KEY = 'onemaps.wxplace';
 const WX_CODES = {
   0: ['Clear', 'sun'], 1: ['Mainly clear', 'sun'], 2: ['Partly cloudy', 'partly'], 3: ['Overcast', 'cloud'],
   45: ['Fog', 'fog'], 48: ['Freezing fog', 'fog'],
@@ -3998,43 +4396,110 @@ const WX_DIRS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', '
 const windDir = deg => WX_DIRS[Math.round(((deg || 0) % 360) / 22.5) % 16];
 const wxTemp = t => `${Math.round(t)}<sup>°</sup>`;
 
+/* ---- the places you're seeing: [0] exactly where you are, [1] one you've added ---- */
+function wxSavedPlace() { try { const j = JSON.parse(localStorage.getItem(WX_SAVED_KEY) || 'null'); return j && j.lat != null ? j : null; } catch (e) { return null; } }
+function wxSaveExtra(p) {
+  try { p ? localStorage.setItem(WX_SAVED_KEY, JSON.stringify(p)) : localStorage.removeItem(WX_SAVED_KEY); } catch (e) {}
+}
+function wxSpots() {
+  if (!WX.spots.length) {
+    WX.spots.push({ kind: 'here', name: '', c: null, data: null, at: 0 });
+    const sv = wxSavedPlace();
+    if (sv) WX.spots.push({ kind: 'saved', name: sv.name, c: [sv.lon, sv.lat], data: null, at: 0 });
+  }
+  return WX.spots;
+}
+function wxCur() { const sp = wxSpots(); return sp[Math.min(WX.idx, sp.length - 1)]; }
+/* one place at a time: adding a new one takes the old one's slot */
+function wxSetExtra(name, c) {
+  const sp = wxSpots();
+  const spot = { kind: 'saved', name, c: c.slice(), data: null, at: 0 };
+  if (sp.length > 1) sp[1] = spot; else sp.push(spot);
+  wxSaveExtra({ name, lat: +c[1].toFixed(4), lon: +c[0].toFixed(4) });
+  WX.idx = 1;
+  return spot;
+}
+function wxRemoveExtra() {
+  const sp = wxSpots();
+  if (sp.length > 1) sp.length = 1;
+  wxSaveExtra(null); WX.idx = 0;
+}
+/* your exact position, not the middle of the map */
+function wxExactHere() {
+  return new Promise(resolve => {
+    if (myLoc && GPS.acc != null && GPS.acc <= 120) return resolve(myLoc.slice());
+    if (!navigator.geolocation) return resolve(myLoc ? myLoc.slice() : [map.getCenter().lng, map.getCenter().lat]);
+    let done = false;
+    const fin = c => { if (!done) { done = true; resolve(c); } };
+    navigator.geolocation.getCurrentPosition(
+      pos => fin([pos.coords.longitude, pos.coords.latitude]),
+      () => fin(myLoc ? myLoc.slice() : [map.getCenter().lng, map.getCenter().lat]),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 });
+    setTimeout(() => fin(myLoc ? myLoc.slice() : [map.getCenter().lng, map.getCenter().lat]), 8500);
+  });
+}
+const wxUrl = c => 'https://api.open-meteo.com/v1/forecast?latitude=' + c[1].toFixed(4) + '&longitude=' + c[0].toFixed(4) +
+  '&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day' +
+  '&hourly=temperature_2m,precipitation_probability,weather_code' +
+  '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,sunrise,sunset,uv_index_max' +
+  '&timezone=auto&forecast_days=7&wind_speed_unit=kmh';
+async function wxFetchSpot(spot, force) {
+  if (!spot || !spot.c) return null;
+  if (!force && spot.data && Date.now() - spot.at < WX_MAX_AGE) return spot.data;
+  const j = await (await fetch(wxUrl(spot.c))).json();
+  if (!j || !j.current) throw new Error('No weather for this spot');
+  spot.data = j; spot.at = Date.now();
+  return j;
+}
 async function loadWeather(force) {
-  const c = myLoc || (map ? [map.getCenter().lng, map.getCenter().lat] : null);
-  if (!c) return null;
-  const fresh = WX.data && Date.now() - WX.at < WX_MAX_AGE && WX.loc && geoDist(WX.loc, c) < 5000;
-  if (fresh && !force) return WX.data;
-  if (WX.busy) return WX.data;
-  WX.busy = true; WX.err = ''; renderWeatherPanel();
-  const my = ++WX.seq;
+  const sp = wxSpots(), here = sp[0], my = ++WX.seq;
+  WX.busy = true; WX.err = '';
+  renderWeatherPanel(); renderWeatherApp();
   try {
-    const u = 'https://api.open-meteo.com/v1/forecast?latitude=' + c[1].toFixed(4) + '&longitude=' + c[0].toFixed(4) +
-      '&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day' +
-      '&hourly=temperature_2m,precipitation_probability,weather_code' +
-      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,sunrise,sunset,uv_index_max' +
-      '&timezone=auto&forecast_days=7&wind_speed_unit=kmh';
-    const j = await (await fetch(u)).json();
-    if (my !== WX.seq) return WX.data;
-    if (!j || !j.current) throw new Error('No weather for this spot');
-    WX.data = j; WX.at = Date.now(); WX.loc = c.slice();
+    const c = await wxExactHere();
+    if (my !== WX.seq) return;
+    const moved = !here.c || geoDist(here.c, c) > 1500;
+    here.c = c;
+    await Promise.all(sp.map(s => wxFetchSpot(s, force || (s === here && moved)).catch(() => {})));
+    if (!here.data && !sp.some(s => s.data)) throw new Error('Weather unavailable right now');
+    if (!here.name || moved) wxPlaceName(here);
   } catch (e) {
     if (my === WX.seq) WX.err = 'Weather unavailable right now';
   }
+  if (my !== WX.seq) return;
   WX.busy = false;
-  if (!WX.place || !fresh) wxPlaceName(c);
   renderWeatherPanel(); renderWeatherApp(); updateWxBadge(); updateWeatherInfo();
-  if (S.routes.length) { updateRouteBanner(S.routes.length > 0 && !S.stale && !S.loading && !NAV.on); }
-  return WX.data;
+  return here.data;
 }
-async function wxPlaceName(c) {
+async function wxPlaceName(spot) {
   try {
-    const j = await (await fetch(`https://photon.komoot.io/reverse?lat=${c[1].toFixed(4)}&lon=${c[0].toFixed(4)}&limit=1`)).json();
+    const j = await (await fetch(`${PHOTON}/reverse?lat=${spot.c[1].toFixed(4)}&lon=${spot.c[0].toFixed(4)}&limit=1`)).json();
     const pr = j && j.features && j.features[0] && j.features[0].properties;
-    if (pr) { WX.place = pr.city || pr.district || pr.name || pr.county || pr.state || ''; renderWeatherPanel(); renderWeatherApp(); }
+    if (pr) { spot.name = pr.city || pr.district || pr.name || pr.county || pr.state || 'Your location'; renderWeatherPanel(); renderWeatherApp(); }
   } catch (e) {}
 }
-/* rain, ice and storms make the road slower — this is what the ETA rule looks at */
+/* worldwide search — the extra place can be any city, suburb or country */
+async function wxGeocode(q, signal) {
+  const r = await fetch(`${PHOTON}/api/?q=${encodeURIComponent(q)}&limit=8&lang=en`, { signal });
+  const j = await r.json();
+  const seen = new Set();
+  return (j.features || []).map(f => {
+    const p = f.properties || {};
+    const name = p.name || p.city || p.county || '';
+    const sub = [p.city && p.city !== name ? p.city : '', p.state, p.country].filter(Boolean).join(', ');
+    return { name, sub, c: f.geometry.coordinates };
+  }).filter(p => p.name && !seen.has(p.name + p.sub) && seen.add(p.name + p.sub));
+}
+function wxLocalTime(spot) {
+  const d = spot && spot.data;
+  if (!d || d.utc_offset_seconds == null) return '';
+  const t = new Date(Date.now() + d.utc_offset_seconds * 1000 + new Date().getTimezoneOffset() * 60000);
+  return t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+/* ---- rain, ice and storms make the road slower — this is what the ETA rule looks at ---- */
 function wxRisk() {
-  const d = WX.data; if (!d || !d.current) return null;
+  const d = wxSpots()[0].data; if (!d || !d.current) return null;
   const cur = d.current;
   const [label, group] = wxInfo(cur.weather_code);
   const wet = WX_WET.has(group) || cur.precipitation > 0.05;
@@ -4062,10 +4527,11 @@ function updateWeatherInfo() {
 }
 function updateWxBadge() {
   const el = document.getElementById('drWxState');
-  if (el) el.textContent = WX.data && WX.data.current ? Math.round(WX.data.current.temperature_2m) + '°' : '';
+  const d = wxSpots()[0].data;
+  if (el) el.textContent = d && d.current ? Math.round(d.current.temperature_2m) + '°' : '';
 }
 
-/* ---- the compact view inside the menu ---- */
+/* ---- shared pieces ---- */
 function wxDaysHtml(d, rows = 7) {
   const dy = d.daily;
   const lo = Math.min(...dy.temperature_2m_min), hi = Math.max(...dy.temperature_2m_max), span = Math.max(1, hi - lo);
@@ -4083,7 +4549,7 @@ function wxDaysHtml(d, rows = 7) {
   }).join('') + `</div>`;
 }
 function wxHoursHtml(d, hours = 12) {
-  const h = d.hourly; if (!h || !h.time) return '';
+  const h = d.hourly; if (!h || !h.time || !h.time.length) return '';
   const now = Date.now();
   let start = h.time.findIndex(t => new Date(t).getTime() >= now - 1800000);
   if (start < 0) start = 0;
@@ -4098,9 +4564,12 @@ function wxHoursHtml(d, hours = 12) {
   }).join('') + `</div>`;
 }
 const FULLSCREEN_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+
+/* ---- the compact view inside the menu ---- */
 function renderWeatherPanel() {
   const box = document.getElementById('weatherBody'); if (!box) return;
-  const head = `<div class="wx-head"><span class="wx-sub" id="wxWhere">${esc(WX.place || 'Your location')}</span><span class="sp"></span>
+  const spot = wxSpots()[0];
+  const head = `<div class="wx-head"><span class="wx-sub" id="wxWhere">${esc(spot.name || 'Your location')}</span><span class="sp"></span>
       <button class="icon-only" id="wxFull" aria-label="Open the weather app full screen" title="Full screen">${FULLSCREEN_SVG}</button>
       <button class="icon-only" id="wxRefresh" aria-label="Refresh weather" title="Refresh">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button></div>`;
@@ -4108,7 +4577,7 @@ function renderWeatherPanel() {
     const f = document.getElementById('wxFull'); if (f) f.onclick = openWeatherApp;
     const r = document.getElementById('wxRefresh'); if (r) r.onclick = () => loadWeather(true);
   };
-  const d = WX.data;
+  const d = spot.data;
   if (!d || !d.current) {
     box.innerHTML = head + `<p class="hint" style="padding:0 4px">${WX.busy ? 'Getting the forecast…' : esc(WX.err || 'No forecast yet.')}</p>`;
     wire(); return;
@@ -4141,9 +4610,17 @@ function renderWeatherPanel() {
 /* ---- the weather as its own full-screen app ---- */
 function renderWeatherApp() {
   const box = document.getElementById('wxAppBody'); if (!box) return;
-  const d = WX.data;
-  document.getElementById('wxAppLoc').textContent = WX.place || 'Weather';
-  if (!d || !d.current) { box.innerHTML = `<p style="opacity:.7;text-align:center;padding:40px 0">${WX.busy ? 'Getting the forecast…' : esc(WX.err || 'No forecast yet.')}</p>`; return; }
+  const sp = wxSpots(), spot = wxCur(), d = spot.data;
+  const bar = document.getElementById('wxAppLoc');
+  bar.innerHTML = `${esc(spot.name || (spot.kind === 'here' ? 'Your location' : 'Weather'))}` +
+    `<small style="display:block;font-size:11px;font-weight:500;opacity:.7">${spot.kind === 'here' ? 'Your exact location' : 'Added place · ' + (wxLocalTime(spot) || '')}</small>`;
+  document.getElementById('wxDots').innerHTML = sp.length > 1
+    ? sp.map((s, i) => `<button class="wx-dot ${i === WX.idx ? 'on' : ''}" data-wx-i="${i}" aria-label="${esc(s.name || 'Location ' + (i + 1))}"></button>`).join('')
+    : '';
+  if (!d || !d.current) {
+    box.innerHTML = `<p style="opacity:.7;text-align:center;padding:40px 0">${WX.busy ? 'Getting the forecast…' : esc(WX.err || 'No forecast yet.')}</p>`;
+    return;
+  }
   const c = d.current, dy = d.daily, [label, group] = wxInfo(c.weather_code);
   const app = document.getElementById('wxApp');
   app.classList.toggle('day', c.is_day !== 0 && !WX_WET.has(group));
@@ -4154,7 +4631,7 @@ function renderWeatherApp() {
       <div class="ico">${wxIcon(group, 76, c.is_day !== 0)}</div>
       <div class="big">${wxTemp(c.temperature_2m)}</div>
       <div class="c">${label}</div>
-      <div class="r">${Math.round(dy.temperature_2m_max[0])}° / ${Math.round(dy.temperature_2m_min[0])}° · feels like ${Math.round(c.apparent_temperature)}°</div>
+      <div class="r">${Math.round(dy.temperature_2m_max[0])}° / ${Math.round(dy.temperature_2m_min[0])}° · feels like ${Math.round(c.apparent_temperature)}°${wxLocalTime(spot) ? ' · ' + wxLocalTime(spot) + ' local' : ''}</div>
     </div>
     <div class="wx-card"><h4>Next hours</h4>${wxHoursHtml(d, 14)}</div>
     <div class="wx-card"><h4>Wind</h4>
@@ -4181,8 +4658,81 @@ function renderWeatherApp() {
       <div><div class="k">Wind max</div><div class="v">${Math.round(dy.wind_speed_10m_max ? dy.wind_speed_10m_max[0] : c.wind_speed_10m)}<span style="font-size:11px;font-weight:600;opacity:.65"> km/h</span></div></div>
     </div></div>
     <div class="wx-card"><h4>Next 7 days</h4>${wxDaysHtml(d)}</div>
-    ${wxEtaNote() ? `<div class="wx-card" style="border-color:#f59e0b66">${wxEtaNote()}</div>` : ''}
-    <div class="wx-foot">Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · CC BY 4.0<br>Updated ${new Date(WX.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>`;
+    ${wxEtaNote() && spot.kind === 'here' ? `<div class="wx-card" style="border-color:#f59e0b66">${wxEtaNote()}</div>` : ''}
+    <div class="wx-foot">Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · CC BY 4.0<br>
+      ${spot.at ? 'Updated ' + new Date(spot.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''}
+      ${spot.c ? ' · ' + spot.c[1].toFixed(4) + ', ' + spot.c[0].toFixed(4) : ''}</div>`;
+  const send = document.getElementById('wxSendLabel');
+  if (send) send.textContent = spot.kind === 'here' ? 'Send my location to Maps' : 'Send ' + (spot.name || 'this place') + ' to Maps';
+}
+function wxGo(i, dir) {
+  const sp = wxSpots();
+  const next = Math.max(0, Math.min(sp.length - 1, i));
+  if (next === WX.idx) return;
+  WX.idx = next;
+  const body = document.getElementById('wxAppBody');
+  body.classList.remove('slide-l', 'slide-r');
+  void body.offsetWidth;
+  body.classList.add(dir === 'left' ? 'slide-l' : 'slide-r');
+  renderWeatherApp();
+  wxFetchSpot(sp[WX.idx]).then(() => renderWeatherApp()).catch(() => {});
+}
+/* ---- search: add one other place, and send anywhere to Maps ---- */
+let wxSearchCtrl = null, wxSearchT = 0;
+function openWxSearch() {
+  WX.searching = true;
+  document.getElementById('wxSearch').classList.add('show');
+  const i = document.getElementById('wxSearchIn');
+  i.value = ''; document.getElementById('wxResults').innerHTML = '';
+  setTimeout(() => i.focus(), 60);
+}
+function closeWxSearch() { WX.searching = false; document.getElementById('wxSearch').classList.remove('show'); }
+async function wxSearchRun(q) {
+  const out = document.getElementById('wxResults');
+  if (!q || q.trim().length < 2) { out.innerHTML = ''; return; }
+  out.innerHTML = '<div class="wx-r-empty">Searching…</div>';
+  wxSearchCtrl?.abort(); wxSearchCtrl = new AbortController();
+  try {
+    const list = await wxGeocode(q.trim(), wxSearchCtrl.signal);
+    if (!list.length) { out.innerHTML = '<div class="wx-r-empty">Nothing found</div>'; return; }
+    out.innerHTML = list.map((p, i) => `<button class="wx-r" data-i="${i}"><b>${esc(p.name)}</b><small>${esc(p.sub)}</small></button>`).join('');
+    out.querySelectorAll('.wx-r').forEach(b => b.onclick = () => wxPickPlace(list[+b.dataset.i]));
+  } catch (e) { if (e.name !== 'AbortError') out.innerHTML = '<div class="wx-r-empty">Search unavailable</div>'; }
+}
+async function wxPickPlace(p) {
+  const region = (p.sub || '').split(',')[0].trim();
+  const label = [p.name, region && region.toLowerCase() !== (p.name || '').toLowerCase() ? region : ''].filter(Boolean).join(', ').slice(0, 42);
+  const spot = wxSetExtra(label, p.c);
+  closeWxSearch();
+  renderWeatherApp();
+  try { await wxFetchSpot(spot, true); } catch (e) {}
+  renderWeatherApp();
+  showWxFound(spot);
+}
+/* the little banner after a search: place, its local time, its weather, and Send to Maps */
+function showWxFound(spot) {
+  const el = document.getElementById('wxFound');
+  const d = spot.data;
+  const [label, group] = d && d.current ? wxInfo(d.current.weather_code) : ['…', 'cloud'];
+  el.innerHTML = `<span class="f-ico">${wxIcon(group, 34, d && d.current ? d.current.is_day !== 0 : true)}</span>
+    <span class="f-t"><b>${esc(spot.name)}</b><small>${wxLocalTime(spot) || '—'} local · ${label}</small></span>
+    <span class="f-temp">${d && d.current ? Math.round(d.current.temperature_2m) + '°' : '—'}</span>
+    <button class="f-send" id="wxFoundSend">Send to Maps</button>
+    <button class="f-x" id="wxFoundX" aria-label="Dismiss">✕</button>`;
+  el.classList.add('show');
+  document.getElementById('wxFoundSend').onclick = () => sendWeatherToMaps(spot);
+  document.getElementById('wxFoundX').onclick = () => el.classList.remove('show');
+  clearTimeout(WX.foundT);
+  WX.foundT = setTimeout(() => el.classList.remove('show'), 15000);
+}
+function sendWeatherToMaps(spot) {
+  const s = spot || wxCur();
+  if (!s || !s.c) return;
+  closeWeatherApp();
+  closeDrawer();
+  showTab('dir');
+  setWaypoint('to', { title: s.name || 'Weather location', sub: fmtCoord(s.c), icon: '📍', coord: s.c.slice() });
+  toast('Added to Directions — tap Start when you\'re ready', 4000);
 }
 function openWeatherApp() {
   closeDrawer();
@@ -4194,14 +4744,56 @@ function openWeatherApp() {
 }
 function closeWeatherApp() {
   document.body.classList.remove('wx-open');
+  closeWxSearch();
   try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) {}
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
 }
 $('#wxAppClose').onclick = closeWeatherApp;
 $('#wxAppRefresh').onclick = () => loadWeather(true);
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('wx-open')) closeWeatherApp(); });
+$('#wxAppSearch').onclick = openWxSearch;
+$('#wxSearchX').onclick = closeWxSearch;
+$('#wxSend').onclick = () => sendWeatherToMaps();
+$('#wxSearchIn').addEventListener('input', e => { clearTimeout(wxSearchT); const v = e.target.value; wxSearchT = setTimeout(() => wxSearchRun(v), 320); });
+$('#wxDots').addEventListener('click', e => { const b = e.target.closest('[data-wx-i]'); if (b) wxGo(+b.dataset.wxI, +b.dataset.wxI > WX.idx ? 'left' : 'right'); });
+{                                                            // swipe between your location and the place you added
+  const el = $('#wxApp');
+  let x0 = null, y0 = null;
+  el.addEventListener('touchstart', e => { if (WX.searching) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', e => {
+    if (x0 == null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    wxGo(WX.idx + (dx < 0 ? 1 : -1), dx < 0 ? 'left' : 'right');
+  }, { passive: true });
+}
+document.addEventListener('keydown', e => {
+  if (!document.body.classList.contains('wx-open')) return;
+  if (e.key === 'Escape') { WX.searching ? closeWxSearch() : closeWeatherApp(); }
+  if (e.key === 'ArrowRight') wxGo(WX.idx + 1, 'left');
+  if (e.key === 'ArrowLeft') wxGo(WX.idx - 1, 'right');
+});
+/* splash: two seconds while the map, settings and forecast come up behind it */
+{
+  const sp = document.getElementById('splash'), logo = document.getElementById('splashLogo');
+  const brand = document.querySelector('.brand img');
+  if (logo && brand) logo.src = brand.src;
+  const MIN = 2000, MAX = 3500, t0 = performance.now();
+  let done = false;
+  const finish = () => {
+    if (done) return; done = true;
+    sp.classList.add('gone');
+    setTimeout(() => { document.body.classList.remove('splashing'); sp.remove(); map.resize(); }, 500);
+  };
+  const ready = () => {
+    const wait = Math.max(0, MIN - (performance.now() - t0));
+    setTimeout(finish, wait);
+  };
+  if (map.loaded()) ready(); else { map.once('load', ready); map.once('idle', ready); }
+  setTimeout(finish, MAX);
+}
 if (location.hash === '#weather') setTimeout(openWeatherApp, 400);
-setInterval(() => { if (WX.data && Date.now() - WX.at > WX_MAX_AGE) loadWeather(true); }, 5 * 60 * 1000);
+setInterval(() => { const h = wxSpots()[0]; if (h.data && Date.now() - h.at > WX_MAX_AGE) loadWeather(true); }, 5 * 60 * 1000);
 setTimeout(() => loadWeather(), 2500);
 
 /* ================= Trip scorecards & history ================= */
@@ -4823,7 +5415,9 @@ window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visib
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
   tripSample, tripBegin, trackStop,
   WX, loadWeather, wxRisk, wxFactor, wxInfo, wxIcon, windDir, renderWeatherPanel, renderWeatherApp, openWeatherApp, closeWeatherApp, wxEtaNote, routeBase,
-  refreshTraffic, historyTraffic, buildSpeedHistory, historySpeed, routeDur, trafficNote, TRAF, avoidList, osrmFetch, routeOptsNote, renderAvoidOpts, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+  wxSpots, wxCur, wxGo, wxSetExtra, wxRemoveExtra, wxPickPlace, wxGeocode, sendWeatherToMaps, openWxSearch, closeWxSearch, wxSearchRun, wxLocalTime, wxExactHere,
+  refreshTraffic, historyTraffic, buildSpeedHistory, historySpeed, routeDur, trafficNote, TRAF, avoidList, osrmFetch, routeOptsNote, renderAvoidOpts,
+  routeUses, routeBreaks, routeTags, openOptsSheet, closeOptsSheet, timeLine, avoidLine, fasterWarning, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
