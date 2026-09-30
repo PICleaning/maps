@@ -274,6 +274,13 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .sp-unit{position:absolute;left:0;right:0;top:84px;text-align:center;font-size:10px;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
 .speedo.off .sp-val{font-size:15px;top:60px;color:var(--muted)}
 .speedo.off .needle{opacity:0}
+.speedo.digital{width:auto;min-width:112px;height:auto;border-radius:18px;padding:12px 18px 10px}
+.speedo.digital svg{display:none}
+.speedo.digital .sp-val{position:static;font-size:42px;font-weight:700;line-height:.95;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-1px}
+.speedo.digital .sp-unit{position:static;margin-top:4px}
+.speedo.digital.off .sp-val{font-size:20px}
+.speedo .sp-tap{position:absolute;right:6px;top:6px;font-size:9px;color:var(--muted);opacity:.7;letter-spacing:.4px}
+.speedo.digital .sp-tap{top:5px;right:8px}
 .menu-btn{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--strong);box-shadow:var(--shadow);display:grid;place-items:center}
 .menu-btn:hover{background:var(--hover)}
 
@@ -393,6 +400,16 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .stop-prompt .small{font-size:12px;opacity:.8;margin:10px 0 0}
 .av-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);margin-bottom:8px;font-size:13px}
 .av-item b{color:var(--strong)}
+.avoid-opts{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 2px}
+.avoid-opts.hide{display:none}
+.ao{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);
+  border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600}
+.ao:hover{background:var(--hover)}
+.ao.on{background:var(--route);color:var(--route-ink);border-color:transparent}
+details.rt{border:1px solid var(--line);border-radius:12px;background:var(--panel-2);padding:8px 10px;margin-top:8px}
+details.rt summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--strong)}
+.rt-row{display:flex;gap:8px;padding:0 4px}
+.rt-row input{flex:1;min-width:0;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 10px;font-size:14px}
 .av-item .sp{flex:1;min-width:0}
 .av-item small{display:block;color:var(--muted);font-size:11px}
 .av-x{border:0;background:transparent;color:var(--muted);width:28px;height:28px;border-radius:50%;flex:none}
@@ -417,8 +434,8 @@ body.route-ready .route-banner{display:flex}
 body.route-ready .search{display:none}
 .rb-ico{width:26px;height:26px;border-radius:50%;background:var(--route);color:var(--route-ink);display:grid;place-items:center;flex:none}
 .rb-txt{flex:1;min-width:0;line-height:1.2}
-.rb-t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rb-s{font-size:12px;color:#e6e6e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-t{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-s{display:block;font-size:12px;color:#e6e6e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rb-go{height:34px;padding:0 16px;border:0;border-radius:17px;background:var(--route);color:var(--route-ink);font-weight:700;font-size:14px;
   display:flex;align-items:center;gap:7px;flex:none}
 .rb-x{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#fff;flex:none}
@@ -491,6 +508,8 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
   .bl-stack{left:10px;bottom:calc(48vh + 12px);gap:8px}
   body.sheet-down .bl-stack{bottom:62px}
   .speedo{width:88px;height:88px}
+  .speedo.digital{width:auto;height:auto;padding:9px 14px 8px;min-width:92px}
+  .speedo.digital .sp-val{font-size:34px}
   .speedo svg{transform:scale(.786);transform-origin:0 0}
   .sp-val{top:50px;font-size:17px}
   .sp-unit{top:69px;font-size:8px}
@@ -605,6 +624,10 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
       <button class="mode" data-mode="transit">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l1.5-4M15 21l-1.5-4"/><circle cx="8.5" cy="14" r=".6" fill="currentColor"/><circle cx="15.5" cy="14" r=".6" fill="currentColor"/></svg>Transit</button>
     </div>
+    <div class="avoid-opts" id="avoidOpts" role="group" aria-label="Route options">
+      <button class="ao" data-ao="avoidToll" aria-pressed="false">🪙 Avoid tolls</button>
+      <button class="ao" data-ao="avoidMotorway" aria-pressed="false">🛣️ Avoid motorways</button>
+    </div>
     <div class="t-when">Depart <input type="datetime-local" id="departAt" aria-label="Departure time"> <span>(blank = now)</span></div>
     <button class="btn primary go" id="goBtn">Get directions</button>
     <div id="transitNear"></div>
@@ -660,6 +683,7 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
         <line x1="56" y1="33" x2="56" y2="19" stroke-width="3" stroke-linecap="round"/>
       </g>
     </svg>
+    <span class="sp-tap" id="spTap"></span>
     <div class="sp-val" id="spVal">GPS</div>
     <div class="sp-unit" id="spUnit">tap to start</div>
   </button>
@@ -697,7 +721,7 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
     <button class="dr-item" data-go="settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
     <button class="dr-item" data-go="whatsnew"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>What's new<span class="newdot" id="newDot" hidden>NEW</span></button>
     <div class="dr-foot">One Maps <span id="verLabel"></span></div>
-    <div class="dr-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · tiles <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> / <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> · routing OSRM · search Photon · traffic lights Overpass · transit <a href="https://transitous.org/sources/" target="_blank" rel="noopener">Transitous</a></div>
+    <div class="dr-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · tiles <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> / <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> · satellite imagery © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>, Maxar, Earthstar Geographics · routing OSRM · search Photon · traffic lights Overpass · transit <a href="https://transitous.org/sources/" target="_blank" rel="noopener">Transitous</a></div>
   </div>
   <div class="dr-view" id="drPlaces">
     <div id="placesBody"></div>
@@ -724,6 +748,11 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
     <div class="set-group">
       <h3>On the map</h3>
       <div id="optDisplay"></div>
+    </div>
+    <div class="set-group">
+      <h3>Satellite &amp; connectivity</h3>
+      <div id="optSatellite"></div>
+      <div id="optRealtime"></div>
     </div>
     <div class="set-group">
       <h3>Saved traffic lights</h3>
@@ -767,10 +796,10 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
 <div class="toast" id="toast"></div>
 <button class="zoomfix" id="zoomFix">↺ Reset zoom</button>
 <div class="stop-prompt" id="stopPrompt" role="alertdialog" aria-live="assertive">
-  <h4>🚦 Stopped at traffic lights?</h4>
-  <p id="stopPromptTxt">You've been stopped near an intersection.</p>
-  <div class="row2"><button class="yes" id="stopYes">Yes</button><button class="no" id="stopNo">No</button>
-    <button class="no traffic" id="stopTraffic">Stuck in traffic</button></div>
+  <h4>🛑 Why have you stopped?</h4>
+  <p id="stopPromptTxt">You've been stopped for a few seconds.</p>
+  <div class="row2"><button class="yes" id="stopYes">🚦 Traffic light</button><button class="no jam" id="stopTraffic">Traffic</button>
+    <button class="no traffic" id="stopNo">Something else</button></div>
   <div class="bar"><i></i></div>
 </div>
 <div class="stop-prompt" id="detourPrompt" role="alertdialog" aria-live="assertive">
@@ -800,6 +829,7 @@ const AU_BBOX = [112.5, -44.2, 154.2, -9.0];           // W,S,E,N — mainland, 
 const MAX_BOUNDS = [[100, -50], [166, -2]];
 const MELBOURNE = [144.9631, -37.8136];
 const TILES = 'https://tiles.openfreemap.org/planet';
+const SAT_TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 const GLYPHS = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
 const DEM = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
 const PHOTON = 'https://photon.komoot.io';
@@ -850,7 +880,7 @@ const PAL = {
 
 /* ================= Settings ================= */
 const SETTINGS_KEY = 'aumaps.settings';
-const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false, sensors: true };
+const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false, sensors: true, satellite: false, trafficOn: true, speedoDigital: false, avoidToll: false, avoidMotorway: false };
 try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
 if (!ROUTE_COLORS[SET.route]) SET.route = 'green';
 if (!PAL[SET.theme]) SET.theme = 'dark';
@@ -903,6 +933,8 @@ const ROUTE_DYNAMIC = new Set(['route-glow', 'route-casing', 'route-line', 'rout
 function buildStyle(p) {
   const layers = [
     { id: 'bg', type: 'background', paint: { 'background-color': p.bg } },
+    { id: 'sat', type: 'raster', source: 'sat', layout: { visibility: SET.satellite ? 'visible' : 'none' },
+      paint: { 'raster-opacity': 1, 'raster-fade-duration': 250 } },
     { id: 'landcover-wood', type: 'fill', source: 'omt', 'source-layer': 'landcover', filter: classIs('wood', 'forest'),
       paint: { 'fill-color': p.wood, 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 5, 0.5, 12, 0.85] } },
     { id: 'landcover-grass', type: 'fill', source: 'omt', 'source-layer': 'landcover', filter: classIs('grass', 'wetland', 'farmland', 'scrub'),
@@ -989,6 +1021,10 @@ function buildStyle(p) {
     { id: 'route-line', type: 'line', source: 'route', filter: ['==', ['get', 'sel'], true],
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: { 'line-color': '#22c55e', 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 4.5, 16, 9] } },
+    { id: 'traffic', type: 'line', source: 'traffic',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': ['match', ['get', 'lvl'], 3, '#dc2626', 2, '#ef4444', 1, '#f59e0b', '#22c55e'],
+        'line-width': ['interpolate', ['linear'], ['zoom'], 6, 3, 16, 6.5], 'line-opacity': 0.95 } },
     { id: 'route-flow', type: 'line', source: 'route', filter: ['==', ['get', 'sel'], true],
       layout: { 'line-cap': 'butt', 'line-join': 'round' },
       paint: { 'line-color': '#ffffff', 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 1.5, 16, 3], 'line-opacity': 0.5,
@@ -1129,6 +1165,7 @@ function buildStyle(p) {
     ...(SET.terrain ? { terrain: { source: 'dem', exaggeration: 1.4 } } : {}),
     sky: { ...p.sky, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.7, 'fog-ground-blend': 0.6, 'atmosphere-blend': 0.4 },
     sources: {
+      sat: { type: 'raster', tiles: [SAT_TILES], tileSize: 256, maxzoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
       omt: { type: 'vector', url: TILES, attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>' },
       dem: { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14, attribution: 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank">AWS Terrain Tiles</a>' },
       fuel: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
@@ -1141,6 +1178,7 @@ function buildStyle(p) {
       trees3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       bridges3d: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       route: { type: 'geojson', lineMetrics: true, data: { type: 'FeatureCollection', features: [] } },
+      traffic: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       signals: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } }
     },
     layers
@@ -1182,6 +1220,32 @@ function applyRouteColor() {
   map.setPaintProperty('route-line', 'line-color', rc.c);
   if (!REVEAL.on) setProgress(PROG.frac, true);
 }
+/* ---- satellite basemap: imagery underneath, roads, labels and your route on top ---- */
+const SAT_HIDE = ['landcover-wood', 'landcover-grass', 'landcover-sand', 'landuse-res', 'landuse-other', 'landuse-civic',
+  'park', 'park-outline', 'water', 'waterway', 'aeroway-area', 'hillshade', 'tree-trunk', 'tree-canopy'];
+const SAT_LABELS = ['road-label', 'road-shield', 'housenumber', 'water-name', 'waterway-name', 'poi-label',
+  'airport-label', 'peak-label', 'place-minor', 'place-village', 'place-town', 'place-city', 'place-state'];
+function applySatellite() {
+  if (!map.getLayer('sat')) return;
+  const on = !!SET.satellite;
+  map.setLayoutProperty('sat', 'visibility', on ? 'visible' : 'none');
+  for (const id of SAT_HIDE) if (map.getLayer(id)) {
+    try { map.setLayoutProperty(id, 'visibility', on ? 'none' : 'visible'); } catch (e) {}
+  }
+  const p = P();
+  for (const id of SAT_LABELS) if (map.getLayer(id)) {
+    try {
+      map.setPaintProperty(id, 'text-color', on ? '#ffffff' : undefined);
+      map.setPaintProperty(id, 'text-halo-color', on ? 'rgba(0,0,0,.8)' : undefined);
+      map.setPaintProperty(id, 'text-halo-width', on ? 1.8 : undefined);
+    } catch (e) {}
+  }
+  if (map.getLayer('buildings')) { try { map.setPaintProperty('buildings', 'fill-extrusion-opacity', on ? 0.55 : 0.92); } catch (e) {} }
+  if (!on) applyTheme();
+  applyDisplay();
+  document.body.classList.toggle('sat-on', on);
+}
+
 function applyTheme() {
   applyUiColors();
   const st = buildStyle(P());
@@ -1549,6 +1613,10 @@ const TOGGLES = [
   { key: 'poiLabels', icon: '🏪', label: 'Shop & place names', desc: 'Names of stores, cafés, parks, airports and more' },
   { key: 'roadLabels', icon: '🛣️', label: 'Street & suburb names', desc: 'Road, suburb, town and water names' }
 ];
+const SAT_TOGGLES = [
+  { key: 'satellite', icon: '🛰️', label: 'Satellite imagery', desc: 'Real aerial imagery under your roads, labels and route' },
+  { key: 'trafficOn', icon: '🚗', label: 'Traffic on your route', desc: 'Colour the route by how it usually flows and fold the delay into your ETA' }
+];
 const SENSOR_TOGGLE = { key: 'sensors', icon: '📶', label: 'Motion sensors', desc: "Use the phone's motion sensors with GPS so your speed reacts straight away and reads zero when you're stopped" };
 const toggleRow = (t, desc, id) => `
   <div class="tg-row" role="switch" tabindex="0" data-toggle="${t.key}" aria-checked="${!!SET[t.key]}">
@@ -1556,6 +1624,8 @@ const toggleRow = (t, desc, id) => `
     <span class="ol">${t.label}<small${id ? ` id="${id}"` : ''}>${desc}</small></span><span class="switch"></span></div>`;
 function renderToggles() {
   $('#optDisplay').innerHTML = TOGGLES.map(t => toggleRow(t, t.desc)).join('');
+  $('#optSatellite').innerHTML = SAT_TOGGLES.map(t => toggleRow(t, t.desc)).join('');
+  renderRealtimeSetting();
   $('#optDevice').innerHTML = toggleRow({ key: 'keepAwake', icon: '📱', label: 'Keep screen awake' }, wakeStatusText(), 'wakeDesc') +
     toggleRow({ key: 'autoLocate', icon: '📍', label: 'Find my location on start' }, 'Centre the map on you when the app opens') +
     toggleRow(SENSOR_TOGGLE, SENSOR_TOGGLE.desc);
@@ -1568,6 +1638,8 @@ function flipToggle(el) {
   if (key === 'keepAwake') { SET.keepAwake ? requestWake(true) : releaseWake(); }
   if (key === 'autoLocate' && SET.autoLocate) autoLocate();
   if (key === 'sensors') { SET.sensors ? startMotionSensors(true) : stopMotionSensors(); }
+  if (key === 'satellite') applySatellite();
+  if (key === 'trafficOn') refreshTraffic(true);
   if (key === 'terrain') set3d(is3d, { animate: false });
   if (key === 'traffic' && SET.traffic) { loadSignalsInView(); if (S.routes[S.sel]) loadRouteSignals(S.routes[S.sel]); }
   if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
@@ -1924,8 +1996,61 @@ document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
   S.mode = b.dataset.mode;
   document.querySelectorAll('.mode').forEach(x => x.classList.toggle('on', x === b));
   setTransitMode(S.mode === 'transit');
+  renderAvoidOpts();
   if (S.from && S.to && (was !== S.mode)) route();
 });
+/* Avoid tolls / motorways — lives here in Directions only, and stays as you set it */
+function renderAvoidOpts() {
+  const box = $('#avoidOpts');
+  box.classList.toggle('hide', S.mode !== 'car');
+  box.querySelectorAll('.ao').forEach(b => {
+    const on = !!SET[b.dataset.ao];
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+}
+$('#avoidOpts').addEventListener('click', e => {
+  const b = e.target.closest('.ao'); if (!b) return;
+  SET[b.dataset.ao] = !SET[b.dataset.ao];
+  saveSettings();
+  renderAvoidOpts();
+  if (S.from && S.to) route();
+  else if (S.routes.length) { S.stale = true; updateGoBtn(); }
+});
+renderAvoidOpts();
+/* OSRM can refuse some combinations, so drop them one at a time rather than failing */
+function avoidList() {
+  const ex = [];
+  if (S.mode === 'car') { if (SET.avoidToll) ex.push('toll'); if (SET.avoidMotorway) ex.push('motorway'); }
+  return ex;
+}
+async function osrmFetch(base, signal) {
+  const want = avoidList();
+  const tries = want.length ? (want.length > 1 ? [want, [want[0]], [want[1]], []] : [want, []]) : [[]];
+  let last = null;
+  for (const ex of tries) {
+    let j;
+    try { j = await (await fetch(base + (ex.length ? '&exclude=' + ex.join(',') : ''), signal ? { signal } : undefined)).json(); }
+    catch (err) { if (err.name === 'AbortError') throw err; last = last || { code: 'Error', message: err.message }; continue; }
+    if (j && j.code === 'Ok' && j.routes && j.routes.length) { j._excluded = ex; j._wanted = want; return j; }
+    last = j;
+  }
+  return last || { code: 'Error', message: 'No route found' };
+}
+const AVOID_NAME = { toll: 'tolls', motorway: 'motorways' };
+function routeOptsNote(j) {
+  const want = (j && j._wanted) || [], got = (j && j._excluded) || [];
+  if (!want.length) return '';
+  const missed = want.filter(x => !got.includes(x));
+  if (!missed.length) return `🚫 Avoiding ${want.map(x => AVOID_NAME[x]).join(' and ')}.`;
+  return got.length
+    ? `🚫 Avoiding ${got.map(x => AVOID_NAME[x]).join(' and ')} — no route could also avoid ${missed.map(x => AVOID_NAME[x]).join(' and ')}.`
+    : `⚠️ No route could avoid ${missed.map(x => AVOID_NAME[x]).join(' and ')}, so this one uses ${missed.length > 1 ? 'them' : 'it'}.`;
+}
+function updateRouteOptsInfo() {
+  const el = document.getElementById('routeOpts');
+  if (el) el.textContent = S.optsNote || '';
+}
 const START_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg>';
 function updateGoBtn() {
   const b = $('#goBtn');
@@ -1942,7 +2067,7 @@ function updateRouteBanner(ready) {
   const r = S.routes[S.sel] || S.routes[0];
   $('#rbTitle').textContent = (S.to && S.to.title) || 'Destination';
   const bits = [];
-  if (r && r.duration) bits.push(fmtDur(r.duration));
+  if (r && r.duration) bits.push(fmtDur(routeDur(r)));
   if (r && r.distance) bits.push(fmtDist(r.distance));
   if (S.from && S.from.title) bits.push('from ' + S.from.title);
   $('#rbSub').textContent = bits.join(' · ');
@@ -2033,9 +2158,9 @@ async function routeInner() {
   const pts = `${S.from.coord[0]},${S.from.coord[1]};${S.to.coord[0]},${S.to.coord[1]}`;
   const url = `${ROUTER[S.mode]}/route/v1/driving/${pts}?overview=full&geometries=geojson&steps=true&alternatives=3`;
   try {
-    const r = await fetch(url, { signal: routeCtrl.signal });
-    const j = await r.json();
+    const j = await osrmFetch(url, routeCtrl.signal);
     if (j.code !== 'Ok' || !j.routes?.length) throw new Error(j.message || 'No route found between these points');
+    S.optsNote = routeOptsNote(j);
     S.routes = j.routes.slice(0, 3);
     const pick = pickRoute(S.routes);
     S.sel = pick.sel; S.avoid = pick;
@@ -2057,6 +2182,7 @@ function drawRoutes(reveal) {
   feats.sort((a, b) => (a.properties.sel ? 1 : 0) - (b.properties.sel ? 1 : 0));
   src.setData({ type: 'FeatureCollection', features: feats });
   refreshSignalSource();
+  refreshTraffic(true);
   drawTransitLegs();
   if (reveal && feats.length) revealRoute();
 }
@@ -2070,16 +2196,18 @@ function viaName(r) {
 function renderRoutes() {
   const out = $('#dirOut');
   const r = S.routes[S.sel];
-  const eta = r.transit ? fmtClock(r.it.endTime) : new Date(Date.now() + r.duration * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const eta = r.transit ? fmtClock(r.it.endTime) : new Date(Date.now() + routeDur(r) * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const steps = r.legs.flatMap(l => l.steps);
   out.innerHTML = `<div class="routes">${S.routes.map((x, i) => x.transit ? transitCard(x, i) : `
       <div class="route-card ${i === S.sel ? 'on' : ''}" data-i="${i}">
-        <div><div class="dur">${fmtDur(x.duration)}</div><div class="via">via ${esc(viaName(x) || 'local roads')}</div></div>
+        <div><div class="dur">${fmtDur(routeDur(x))}</div><div class="via">via ${esc(viaName(x) || 'local roads')}</div></div>
         <div style="text-align:right"><div class="dist">${fmtDist(x.distance)}</div>${i === 0 ? '<div class="via">Fastest</div>' : ''}</div>
       </div>`).join('')}</div>
     <div class="hint" style="margin-top:10px">${r.transit ? `Leave ${leaveIn(r.it.startTime)} · arrive <b>${eta}</b>` : `Arrive around <b>${eta}</b>`}</div>
     <div class="hint" id="routeSig" style="margin-top:2px"></div>
     <div class="hint" id="routeAvoid" style="margin-top:2px"></div>
+    <div class="hint" id="routeTraffic" style="margin-top:2px"></div>
+    <div class="hint" id="routeOpts" style="margin-top:2px"></div>
     <div class="btns">
       <button class="btn primary" id="navStart" style="flex:1;justify-content:center;display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg> Start</button>
@@ -2098,6 +2226,8 @@ function renderRoutes() {
     map.flyTo({ center: s.maneuver.location, zoom: 17, bearing: is3d ? s.maneuver.bearing_after || 0 : 0, pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1100 });
   });
   updateAvoidInfo();
+  updateTrafficInfo();
+  updateRouteOptsInfo();
   $('#clearRoute').onclick = clearRoute;
   $('#navStart').onclick = () => startNav(false);
   $('#navSim').onclick = () => startNav(true);
@@ -2191,7 +2321,7 @@ function nearestSignal(p) {
 // Remembers a traffic light you confirmed (kept on this device until you remove it in Settings)
 function confirmUserSignal(p) {
   const near = nearestSignal(p);
-  if (near.d < 20) return near.c;                          // already on the map
+  if (near.d < 40) return near.c;                          // there's already a light on this junction
   const u = { id: Date.now(), lat: +p[1].toFixed(6), lon: +p[0].toFixed(6), created: Date.now() };
   USER_SIGNALS.push(u); saveUserSignals(); addUserSignalsToMap();
   return [u.lon, u.lat];
@@ -2199,15 +2329,37 @@ function confirmUserSignal(p) {
 function renderUserSignalSetting() {
   const box = document.getElementById('optUserSignals'); if (!box) return;
   const n = USER_SIGNALS.length;
-  box.innerHTML = `<p class="hint" style="margin:0 4px 8px">${n ? `You've confirmed <b>${n}</b> traffic light${n === 1 ? ' that wasn\'t' : 's that weren\'t'} on the map. They're remembered on this device and used on every trip.` : 'When you confirm a red-light stop where the map has no traffic lights, it\'s saved here and used on future trips.'}</p>` +
-    (n ? `<button class="btn ghost" id="clearUserSignals">Remove my saved traffic lights</button>` : '');
-  const b = document.getElementById('clearUserSignals');
-  if (b) b.onclick = () => {
-    USER_SIGNALS = []; saveUserSignals();
-    for (const k of [...SIG.feats.keys()]) if (String(k).startsWith('u')) SIG.feats.delete(k);
-    refreshSignalSource(); toast('Saved traffic lights removed');
-  };
+  box.innerHTML = `<p class="hint" style="margin:0 4px">${n ? `You've confirmed <b>${n}</b> traffic light${n === 1 ? ' that wasn\'t' : 's that weren\'t'} on the map. They're kept on this device for good and used on every trip.` : 'When you confirm that you stopped at a light the map doesn\'t know about, it\'s saved here and used on every future trip.'}</p>`;
 }
+/* ============ Real-time data: optional TomTom key for live traffic ============ */
+const TTKEY = 'onemaps.ttkey';
+const ttKey = () => { try { return localStorage.getItem(TTKEY) || ''; } catch (e) { return ''; } };
+function setTtKey(k) {
+  try { k ? localStorage.setItem(TTKEY, k) : localStorage.removeItem(TTKEY); } catch (e) {}
+  renderRealtimeSetting();
+  refreshTraffic(true);
+}
+function renderRealtimeSetting() {
+  const box = document.getElementById('optRealtime'); if (!box) return;
+  const k = ttKey();
+  box.innerHTML = `<details class="rt"${k ? ' open' : ''}><summary>Real-time data</summary>
+      <p class="hint" style="margin:8px 4px">Traffic normally comes from the speeds you've recorded on your own past trips. For live traffic, paste a free TomTom key — it's stored on this device only and never sent anywhere else.
+        <a href="https://developer.tomtom.com/" target="_blank" rel="noopener">Get a key</a></p>
+      <div class="rt-row"><input id="ttKeyIn" type="password" autocomplete="off" spellcheck="false" placeholder="TomTom API key" value="${esc(k)}">
+        <button class="btn ghost" id="ttSave">Save</button></div>
+      <p class="hint" id="ttState" style="margin:6px 4px 0">${k ? '✅ Live traffic on — using your TomTom key' : 'Using your own trip history'}</p>
+      ${k ? '<button class="btn ghost" id="ttClear" style="margin-top:8px">Remove key</button>' : ''}
+    </details>`;
+  const save = document.getElementById('ttSave');
+  if (save) save.onclick = () => {
+    const v = (document.getElementById('ttKeyIn').value || '').trim();
+    setTtKey(v);
+    toast(v ? 'Key saved — live traffic on' : 'Key cleared');
+  };
+  const clr = document.getElementById('ttClear');
+  if (clr) clr.onclick = () => { setTtKey(''); toast('Key removed — back to your own trip history'); };
+}
+
 /* ============ Roads you've reported closed or jammed (avoided for 60 days) ============ */
 const AVOID_KEY = 'onemaps.avoid', AVOID_DAYS = 60, AVOID_NEAR = 45;
 let AVOID = (() => { try { const l = JSON.parse(localStorage.getItem(AVOID_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } })();
@@ -2231,7 +2383,10 @@ function pickRoute(routes) {
   if (!routes || !routes.length) return { sel: 0, avoided: [], stuck: [] };
   const hits = routes.map(routeAvoidHits);
   let sel = 0;
-  for (let i = 0; i < routes.length; i++) if (hits[i].length < hits[sel].length) sel = i;
+  for (let i = 0; i < routes.length; i++) {
+    if (hits[i].length < hits[sel].length) sel = i;
+    else if (hits[i].length === hits[sel].length && routeDur(routes[i]) < routeDur(routes[sel]) - 30) sel = i;
+  }
   const chosen = new Set(hits[sel].map(a => a.id));
   return { sel, avoided: hits[0].filter(a => !chosen.has(a.id)), stuck: hits[sel] };
 }
@@ -2764,6 +2919,12 @@ const SPEEDO = {
     }
     g.innerHTML = html;
   },
+  applyStyle() {
+    const el = $('#speedo');
+    el.classList.toggle('digital', !!SET.speedoDigital);
+    $('#spTap').textContent = this.state === 'on' ? (SET.speedoDigital ? 'DIAL' : '123') : '';
+    el.title = this.state === 'on' ? 'Tap to switch between dial and digital' : 'Speedometer — tap to turn GPS on';
+  },
   setState(state, msg) {
     this.state = state;
     const el = $('#speedo');
@@ -2772,9 +2933,10 @@ const SPEEDO = {
     if (state === 'off') { $('#spVal').textContent = 'GPS'; $('#spUnit').textContent = msg || 'tap to start'; this.set(0, true); }
     if (state === 'wait') { $('#spVal').textContent = '…'; $('#spUnit').textContent = 'finding GPS'; }
     if (state === 'on') $('#spUnit').textContent = 'km/h';
+    this.applyStyle();
   },
   set(kmh, silent) {
-    this.target = Math.max(0, Math.min(250, kmh || 0));
+    this.target = Math.max(0, Math.min(MAX_KMH[NAV.on ? NAV.mode : 'car'] || 220, kmh || 0));
     if (!silent && this.state !== 'on') this.setState('on');
     const frac = Math.min(1, this.target / this.max);
     $('#spArc').style.strokeDashoffset = String(100 - frac * 100);
@@ -2793,6 +2955,7 @@ const SPEEDO = {
   setQuality(acc) { if (this.state === 'on') $('#spUnit').textContent = acc != null && acc > 40 ? 'km/h · weak GPS' : 'km/h'; }
 };
 SPEEDO.init();
+SPEEDO.applyStyle();
 
 /* ============ Phone motion sensors: used to sharpen the speed reading ============ */
 const MSENSE = { avail: typeof DeviceMotionEvent !== 'undefined', on: false, mag: 0, still: 0, g: null, t: 0 };
@@ -2824,6 +2987,9 @@ function stopMotionSensors() {
   window.removeEventListener('devicemotion', onDeviceMotion);
   Object.assign(MSENSE, { on: false, mag: 0, still: 0, g: null });
 }
+const MAX_MS = { car: 61, bike: 19, foot: 7 };                        // 220 / 68 / 25 km/h — anything above is bad data
+const MAX_KMH = { car: 220, bike: 68, foot: 25, transit: 220 };
+const modeMaxMs = () => MAX_MS[NAV.on ? NAV.mode : 'car'] || MAX_MS.car;
 /* speed: a small filter that blends what the GPS reports with how far you actually moved,
    weighted by how good each reading is, and loosened when the sensors feel you speeding up */
 const SPD = { v: 0, p: 9, big: 0 };
@@ -2832,9 +2998,11 @@ function fuseSpeed(z, sigma, dt) {
   const shake = MSENSE.on ? Math.min(6, MSENSE.mag * 3) : 1.2;
   SPD.p += (5.5 + shake * 3) * Math.max(0.05, Math.min(5, dt));       // a car can gain or lose ~3 m/s a second
   if (z == null || isNaN(z)) return SPD.v;
-  const inn = z - SPD.v;
-  if (Math.abs(inn) > 8) {                                            // two wildly different readings in a row:
-    if (++SPD.big >= 2) { SPD.v = Math.max(0, z); SPD.p = 12; SPD.big = 0; return SPD.v; }   // believe them
+  if (z > modeMaxMs()) return SPD.v;                                  // nothing on this trip goes that fast
+  const inn = z - SPD.v, acc = inn / Math.max(0.2, dt);
+  if (acc > 6 || acc < -10) sigma = Math.max(sigma, 6);               // no car changes speed that hard: distrust it
+  if (Math.abs(inn) > 8) {                                            // two big jumps in a row, both believable:
+    if (++SPD.big >= 2) { SPD.v = Math.max(0, z); SPD.p = 12; SPD.big = 0; return SPD.v; }
   } else SPD.big = 0;
   const R = Math.max(0.2, sigma * sigma), K = SPD.p / (SPD.p + R);
   SPD.v = Math.max(0, SPD.v + K * inn);
@@ -2891,7 +3059,13 @@ function toggleGPS() {
   if (GPS.watch != null) { if (NAV.on && !NAV.sim) return toast('GPS is needed while navigating'); stopGPS(); }
   else if (startGPS(false)) toast('Speedometer on — waiting for GPS');
 }
-$('#speedo').onclick = () => { startMotionSensors(true); toggleGPS(); };
+$('#speedo').onclick = () => {
+  startMotionSensors(true);
+  if (GPS.watch == null) { toggleGPS(); return; }                     // off → turn it on
+  SET.speedoDigital = !SET.speedoDigital; saveSettings();             // on  → swap dial ⇄ digital
+  SPEEDO.applyStyle();
+  toast(SET.speedoDigital ? 'Digital speedometer' : 'Dial speedometer', 1600);
+};
 function onGpsFix(pos) {
   const c = [pos.coords.longitude, pos.coords.latitude], t = pos.timestamp || Date.now();
   const acc = pos.coords.accuracy != null && !isNaN(pos.coords.accuracy) ? pos.coords.accuracy : 30;
@@ -3075,6 +3249,7 @@ function prepNavRoute(r) {
   let acc = 0; const starts = steps.map(s => { const v = acc; acc += s.distance * scale; return v; });
   Object.assign(NAV, { route: r, coords, cum, total: cum[cum.length - 1], steps, starts, signals: r._signals || [], sigKeys: r._sigKeys || [], lastAlong: 0 });
   refreshSignalSource();
+  refreshTraffic(true);
 }
 const projectOnRoute = p => projectOn(p, NAV.coords, NAV.cum);
 function projectOn(p, coords, cum) {
@@ -3113,6 +3288,8 @@ function startNav(simulate) {
   NAV.orig = { route: r, coords: NAV.coords.slice(), cum: NAV.cum.slice(), steps: NAV.steps, starts: NAV.starts,
     names: new Set(NAV.steps.map(st => (st.name || '').toLowerCase()).filter(Boolean)) };
   resetDetour();
+  clearInterval(TRAF.timer);
+  TRAF.timer = setInterval(() => { if (NAV.on) refreshTraffic(true); }, 180000);
   hideTripHighlights();
   tripBegin(r);
   resetMotion();
@@ -3169,6 +3346,7 @@ function startNav(simulate) {
 }
 function stopSim() { if (NAV.simTimer) clearInterval(NAV.simTimer); NAV.simTimer = null; }
 function exitNav() {
+  clearInterval(TRAF.timer); TRAF.timer = 0;
   stopSim();
   hideStopPrompt(); hideDetourPrompt(); stopRedTimer();
   NAV.orig = null;
@@ -3202,7 +3380,7 @@ function setEtaBar(remT, remD) {
 }
 function updateNavCard(along) {
   const r = NAV.route, rem = Math.max(0, NAV.total - along);
-  const remT = r.duration * (rem / (NAV.total || 1));
+  const remT = routeDur(r) * (rem / (NAV.total || 1));
   setEtaBar(remT, rem);
   const ns = SET.traffic ? (NAV.signals || []).find(a => a > along + 3) : null;
   $('#navSig').textContent = ns != null && ns - along <= 2000 ? `🚦 ${fmtDist(ns - along)}` : '';
@@ -3268,13 +3446,16 @@ async function reroute(p) {
   toast('Re-routing…');
   try {
     const url = `${ROUTER[NAV.mode]}/route/v1/driving/${p[0]},${p[1]};${S.to.coord[0]},${S.to.coord[1]}?overview=full&geometries=geojson&steps=true&alternatives=3`;
-    const j = await (await fetch(url)).json();
+    const j = await osrmFetch(url);
     if (j.code === 'Ok' && j.routes.length) {
       const pick = pickRoute(j.routes);                     // steer around anything you've reported
       j.routes = [j.routes[pick.sel]];
       S.routes = [j.routes[0]]; S.sel = 0; S.avoid = pick;
       if (TRIP.rec) TRIP.rec.reroutes++;
       PROG.frac = 0; drawRoutes(true); prepNavRoute(j.routes[0]); NAV.offCount = 0;
+      NAV.orig = { route: j.routes[0], coords: NAV.coords.slice(), cum: NAV.cum.slice(), steps: NAV.steps, starts: NAV.starts,
+        names: new Set(NAV.steps.map(st => (st.name || '').toLowerCase()).filter(Boolean)) };
+      resetDetour();                                        // the new route is the plan from here on
       MOTION.along = null; MOTION.v = 0; loadRouteSignals(j.routes[0]);
     }
   } catch (e) { /* keep old route */ }
@@ -3486,8 +3667,18 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 const CHANGELOG = [
+  { v: '1.3.0', items: [
+    'Satellite imagery, switched on in Settings under Satellite & connectivity',
+    'Traffic on your route: it colours the line and folds the delay into your ETA, learnt from the speeds you drive. Add a free TomTom key under Real-time data for live traffic instead',
+    'Avoid tolls and Avoid motorways, right above Get directions — set once and they stay set',
+    'Tap the speedometer while it\'s running to switch between the dial and a big digital readout',
+    'Speed readings that no car could do are thrown away, and top speed now has to be held, so a GPS glitch can\'t record 300 km/h',
+    '"Why this way?" only asks after you genuinely leave the route — not at intersections, and not after a re-route',
+    'Stop within 30 m of a known light and the red-light timer just starts; stop anywhere else and the app asks Traffic light, Traffic or Something else',
+    'Confirming a light puts it on the junction ahead (up to 250 m) when there isn\'t one there already',
+    'Traffic lights you confirm are now permanent'] },
   { v: '1.2.0', items: [
     'Trips over an hour now read properly on the bottom banner (1 hr 19 min)',
     'Map credits moved off the map — they live at the bottom of the menu',
@@ -3523,6 +3714,134 @@ function renderWhatsNew() {
 $('#verLabel').textContent = 'v' + APP_VERSION;
 try { $('#newDot').hidden = localStorage.getItem('onemaps.seenVersion') === APP_VERSION; } catch (e) { $('#newDot').hidden = false; }
 
+/* ================= Traffic: your own trip speeds, or live with a TomTom key ================= */
+const TRAF = { cells: null, built: 0, seq: 0, src: 'history', at: 0, timer: 0 };
+const TRAF_CELL = 0.0012;                                  // ~130 m squares
+const cellOf = (v, c) => Math.round(v / c);
+/* every trip you drive teaches the app how fast that stretch normally goes */
+function buildSpeedHistory(force) {
+  if (TRAF.cells && !force && Date.now() - TRAF.built < 60000) return TRAF.cells;
+  const cells = new Map();
+  for (const t of tripsAll()) {
+    if (t.sim) continue;
+    for (const s of (t.spd || [])) {
+      if (!s || s.length < 3) continue;
+      const k = cellOf(s[0], TRAF_CELL) + ':' + cellOf(s[1], TRAF_CELL);
+      const e = cells.get(k) || { sum: 0, n: 0 };
+      e.sum += s[2]; e.n++; cells.set(k, e);
+    }
+  }
+  TRAF.cells = cells; TRAF.built = Date.now();
+  return cells;
+}
+function historySpeed(c) {
+  const cells = buildSpeedHistory();
+  const x = cellOf(c[0], TRAF_CELL), y = cellOf(c[1], TRAF_CELL);
+  let sum = 0, n = 0;
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+    const e = cells.get((x + dx) + ':' + (y + dy));
+    if (e) { sum += e.sum; n += e.n; }
+  }
+  return n >= 3 ? sum / n : null;
+}
+function freeFlowSegs(r) {
+  if (r._ff) return r._ff;
+  const steps = r.legs ? r.legs.flatMap(l => l.steps) : [];
+  const total = r.geometry ? cumOf(r.geometry.coordinates).pop() : r.distance;
+  const scale = total / (steps.reduce((a, st) => a + st.distance, 0) || 1);
+  let acc = 0;
+  const out = steps.map(st => {
+    const len = st.distance * scale, v = st.duration > 0.5 ? (st.distance / st.duration) * 3.6 : null;
+    const seg = { a0: acc, a1: acc + len, v }; acc += len; return seg;
+  });
+  return (r._ff = out);
+}
+function freeFlowAt(r, along) {
+  for (const seg of freeFlowSegs(r)) if (along >= seg.a0 && along <= seg.a1 && seg.v) return seg.v;
+  return r.duration > 0 ? (r.distance / r.duration) * 3.6 : 50;
+}
+function sampleRoute(r, step) {
+  const coords = r.geometry.coordinates, cum = cumOf(coords), total = cum[cum.length - 1];
+  const out = [];
+  for (let a = 0; a <= total; a += step) out.push({ along: a, c: pointOn(coords, cum, a) });
+  if (out.length < 2 || out[out.length - 1].along < total - 1) out.push({ along: total, c: coords[coords.length - 1] });
+  return { pts: out, coords, cum, total };
+}
+const trafLevel = ratio => ratio >= 0.82 ? 0 : ratio >= 0.6 ? 1 : ratio >= 0.4 ? 2 : 3;
+function buildTrafficFeats(r, samples, speeds) {
+  const feats = [];
+  let delay = 0, known = 0;
+  for (let i = 0; i < samples.pts.length - 1; i++) {
+    const a = samples.pts[i], b = samples.pts[i + 1];
+    const len = b.along - a.along; if (len <= 0) continue;
+    const now = speeds[i] != null ? speeds[i] : speeds[i + 1];
+    const ff = freeFlowAt(r, (a.along + b.along) / 2);
+    if (now == null || !ff) continue;
+    known += len;
+    const ratio = Math.max(0.12, Math.min(1.25, now / ff));
+    delay += len / Math.max(2, now / 3.6) - len / (ff / 3.6);
+    const line = [];
+    for (let d = a.along; d < b.along; d += 40) line.push(pointOn(samples.coords, samples.cum, d));
+    line.push(b.c);
+    feats.push({ type: 'Feature', properties: { lvl: trafLevel(ratio) }, geometry: { type: 'LineString', coordinates: line } });
+  }
+  return { feats, delay: Math.round(delay), cover: samples.total ? known / samples.total : 0 };
+}
+function historyTraffic(r) {
+  const samples = sampleRoute(r, 150);
+  const speeds = samples.pts.map(pt => historySpeed(pt.c));
+  return buildTrafficFeats(r, samples, speeds);
+}
+async function liveTraffic(r, key) {
+  const samples = sampleRoute(r, Math.max(900, r.distance / 12));
+  const pts = samples.pts.slice(0, 13);
+  const speeds = await Promise.all(pts.map(async pt => {
+    try {
+      const u = `https://api.tomtom.com/traffic/services/4/flowSegmentData/relative0/10/json?point=${pt.c[1].toFixed(5)},${pt.c[0].toFixed(5)}&unit=KMPH&key=${encodeURIComponent(key)}`;
+      const j = await (await fetch(u)).json();
+      const f = j && j.flowSegmentData;
+      if (!f || !f.currentSpeed) return null;
+      return { cur: f.currentSpeed, free: f.freeFlowSpeed || f.currentSpeed };
+    } catch (e) { return null; }
+  }));
+  if (speeds.every(x => x == null)) return null;
+  samples.pts = pts;
+  return buildTrafficFeats(r, samples, speeds.map(x => x && x.cur));
+}
+const routeDur = r => (r && (r.duration || 0)) + ((r && r._delay) || 0);
+async function refreshTraffic(force) {
+  const src = map.getSource('traffic'); if (!src) return;
+  const r = activeRoute();
+  if (!SET.trafficOn || !r || r.transit || !r.geometry) { src.setData(EMPTY_FC); if (r) { r._delay = 0; r._traf = null; } updateTrafficInfo(); return; }
+  if (!force && r._traf && Date.now() - r._trafAt < 150000) return;
+  const my = ++TRAF.seq;
+  const key = ttKey();
+  let res = null;
+  if (key) { r._trafSrc = 'live'; res = await liveTraffic(r, key); }
+  if (!res) { r._trafSrc = key ? 'history (TomTom unavailable)' : 'history'; res = historyTraffic(r); }
+  if (my !== TRAF.seq || activeRoute() !== r) return;
+  r._delay = res.cover > 0.12 ? res.delay : 0;
+  r._traf = res; r._trafAt = Date.now();
+  src.setData({ type: 'FeatureCollection', features: res.cover > 0.12 ? res.feats : [] });
+  updateTrafficInfo();
+  if (NAV.on) updateNavCard(NAV.lastAlong || 0);
+}
+function trafficNote(r) {
+  if (!SET.trafficOn || !r || !r._traf) return '';
+  const live = (r._trafSrc || '').startsWith('live');
+  if (r._traf.cover <= 0.12) return live ? '' : '🚗 No traffic history for this route yet — drive it once and the ETA will learn it.';
+  const d = r._delay || 0;
+  const how = live ? 'live TomTom traffic' : 'your past trips on these roads';
+  if (Math.abs(d) < 45) return `🚗 Running normally — ETA checked against ${how}.`;
+  return d > 0 ? `🚗 ${fmtSecs(d)} of delay built into the ETA, from ${how}.`
+    : `🚗 ${fmtSecs(-d)} quicker than the map estimate, from ${how}.`;
+}
+function updateTrafficInfo() {
+  const el = document.getElementById('routeTraffic');
+  if (el) el.textContent = trafficNote(activeRoute());
+  updateRouteBanner(S.routes.length > 0 && !S.stale && !S.loading && !NAV.on);
+}
+
 /* ================= Trip scorecards & history ================= */
 const TRIPS_KEY = 'aumaps.trips', TRIP_KEEP_MS = 30 * 24 * 3600 * 1000;
 const TRIP = { rec: null };
@@ -3545,9 +3864,9 @@ function saveTrips(list) {
   for (let attempt = 0; attempt < 6; attempt++) {
     try { localStorage.setItem(TRIPS_KEY, JSON.stringify(list)); return; }
     catch (e) {                                            // storage full: drop map detail from the oldest trips first
-      const withPath = list.filter(t => t.path && t.path.length);
+      const withPath = list.filter(t => (t.path && t.path.length) || (t.spd && t.spd.length));
       if (!withPath.length) { list = list.slice(0, Math.max(1, Math.floor(list.length * 0.7))); continue; }
-      withPath.slice(-Math.max(1, Math.ceil(withPath.length / 3))).forEach(t => { t.path = []; });
+      withPath.slice(-Math.max(1, Math.ceil(withPath.length / 3))).forEach(t => { t.path = []; t.spd = []; });
     }
   }
 }
@@ -3555,9 +3874,9 @@ function tripsAll() { const l = loadTrips(); return l.length || !TRIP.mem ? l : 
 function updateTripCount() { const n = tripsAll().length; $('#drTripCount').textContent = n ? String(n) : ''; }
 function tripBegin(r) {
   TRIP.rec = { id: Date.now(), sim: !!NAV.sim, mode: NAV.mode, from: S.from ? S.from.title : 'Start', to: S.to ? S.to.title : 'Destination',
-    plannedDur: r.duration, plannedDist: NAV.total, startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
+    plannedDur: routeDur(r), plannedDist: NAV.total, startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
     dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, userKeys: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false, redTime: 0, traffic: 0,
-    path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0 };
+    path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0, spd: [], spdLast: null, recent: [] };
 }
 function tripSetOff(along) {
   const R = TRIP.rec; if (!R || R.startedAt) return;
@@ -3570,7 +3889,7 @@ function tripSetOff(along) {
 function tripSample(p, speedMs, along) {
   const R = TRIP.rec; if (!R || !R.startedAt || R.done) return;
   const now = performance.now();
-  const kmh = Math.max(0, Math.min(300, ((speedMs || 0) * 3.6) / (NAV.simFactor || 1)));
+  const kmh = Math.max(0, Math.min(MAX_KMH[NAV.mode] || 220, ((speedMs || 0) * 3.6) / (NAV.simFactor || 1)));
   if (R.lastT != null) {
     const dt = Math.min(5, (now - R.lastT) / 1000);
     let dd = NAV.sim ? Math.max(0, along - R.lastAlong) : geoDist(R.lastP, p);
@@ -3580,8 +3899,17 @@ function tripSample(p, speedMs, along) {
     R.hist[bin] = (R.hist[bin] || 0) + dt;
     if (v < 2) { R.stopT += dt; R.stopRun += dt; } else R.stopRun = 0;
   }
-  if (kmh > R.max) { R.max = kmh; R.topAt = p.slice(); }
+  /* top speed has to be held, not flashed: the middle of the last three readings, on decent fixes only */
+  R.recent.push(kmh); if (R.recent.length > 3) R.recent.shift();
+  const okFix = NAV.sim || (GPS.acc == null || GPS.acc <= 30);
+  if (R.recent.length === 3 && okFix) {
+    const held = [...R.recent].sort((a, b) => a - b)[1];
+    if (held > R.max) { R.max = held; R.topAt = p.slice(); }
+  }
   if (!R.path.length || geoDist(R.path[R.path.length - 1], p) > 8) R.path.push(p.slice());
+  if (!NAV.sim && R.spd.length < 700 && (!R.spdLast || geoDist(R.spdLast, p) > 45)) {   // your speed here, for traffic
+    R.spd.push([+p[0].toFixed(5), +p[1].toFixed(5), Math.round(kmh)]); R.spdLast = p.slice();
+  }
   trackStop(R, p, kmh, along, now);
   const sig = NAV.signals || [], keys = NAV.sigKeys || [];
   for (let i = 0; i < sig.length; i++) {
@@ -3594,11 +3922,28 @@ function tripSample(p, speedMs, along) {
   R.lastT = now; R.lastP = p; R.lastAlong = along; R.lastKmh = kmh;
 }
 /* stop detection: 3 s at ~0 km/h → red light if lights are there, otherwise ask when it looks like an intersection */
-const STOP_SECS = 3, STOP_PROMPT_METRES = 30;
-function knownSignalNear(p, along) {
+const STOP_SECS = 3, SIGNAL_NEAR = 30, NEXT_IX_AHEAD = 250;
+function knownSignalNear(p, along) {                        // a light you're within 30 m of
   const sig = NAV.signals || [];
-  for (const a of sig) if (along >= a - 40 && along <= a + 10) return true;
-  return nearestSignal(p).d < 35;
+  for (const a of sig) if (along >= a - SIGNAL_NEAR && along <= a + 10) return true;
+  return nearestSignal(p).d < SIGNAL_NEAR;
+}
+/* where a light would belong if you say you stopped at one: the next junction ahead, within 250 m */
+function nextIntersection(p, along) {
+  if (NAV.on && NAV.coords && along != null) {
+    for (let i = 1; i < NAV.steps.length - 1; i++) {
+      const a = NAV.starts[i];
+      if (a > along - 15 && a - along <= NEXT_IX_AHEAD) {
+        const loc = NAV.steps[i].maneuver && NAV.steps[i].maneuver.location;
+        if (loc) return loc.slice();
+      }
+    }
+    for (let d = 25; d <= NEXT_IX_AHEAD; d += 25) {
+      const ix = intersectionNear(pointAt(Math.min(NAV.total, along + d)).p, 28);
+      if (ix) return ix;
+    }
+  }
+  return intersectionNear(p, 60);
 }
 function segDist(p, a, b, kx) {
   const ax = (a[0] - p[0]) * kx, ay = (a[1] - p[1]) * M_LAT, dx = (b[0] - a[0]) * kx, dy = (b[1] - a[1]) * M_LAT;
@@ -3662,7 +4007,7 @@ function nearIntersection(p) { return !!intersectionNear(p, 30); }
 /* ===== "Why this way?" — you left the planned route, so ask once per new street ===== */
 const DETOUR = { asked: {}, n: 0, open: false, timer: 0, lastOn: null };
 let detourFor = null;
-function resetDetour() { DETOUR.asked = {}; DETOUR.n = 0; DETOUR.lastOn = null; hideDetourPrompt(); }
+function resetDetour() { DETOUR.asked = {}; DETOUR.n = 0; DETOUR.lastOn = null; clearOffTrack(); hideDetourPrompt(); }
 function roadNameAt(p) {
   let feats = [];
   try { feats = map.querySourceFeatures('omt', { sourceLayer: 'transportation_name' }); } catch (e) {}
@@ -3693,15 +4038,30 @@ function skippedAhead() {                                   // the piece of the 
   for (let i = 0; i < o.steps.length; i++) if (o.starts[i] <= along && o.steps[i].name) name = o.steps[i].name;
   return { c: pointOn(o.coords, o.cum, along), name: name || 'that stretch' };
 }
+const OFF_METRES = 120, OFF_SECS = 12, OFF_TRAVEL = 200;
+function clearOffTrack() { DETOUR.offSince = 0; DETOUR.offDist = 0; DETOUR.offLast = null; }
 function maybeAskDetour(p, speed) {
-  if (!NAV.on || NAV.sim || !NAV.orig || NAV.arrived) return;
-  const pr = projectNear(p, NAV.orig.route);
-  if (pr.d < 40) { DETOUR.lastOn = { along: pr.along, t: Date.now() }; return; }
-  if (DETOUR.open || DETOUR.n >= 8 || promptStop) return;
-  if ((speed || 0) * 3.6 < 8) return;                       // wait until you're actually driving down it
+  if (!NAV.on || NAV.sim || !NAV.orig || NAV.arrived || NAV.rerouting) return;
+  const o = NAV.orig, pr = projectNear(p, o.route);
+  if (pr.d < OFF_METRES) {                                  // on the route, or just crossing an intersection on it
+    if (pr.d < 45) DETOUR.lastOn = { along: pr.along, t: Date.now() };
+    clearOffTrack();
+    return;
+  }
+  const end = o.cum[o.cum.length - 1];
+  const last = DETOUR.lastOn ? DETOUR.lastOn.along : 0;
+  if (last < 100 || last > end - 150) return;               // leaving your street or parking at the far end
+  const now = Date.now();
+  if (!DETOUR.offSince) { DETOUR.offSince = now; DETOUR.offDist = 0; DETOUR.offLast = p.slice(); return; }
+  DETOUR.offDist += geoDist(DETOUR.offLast, p);
+  DETOUR.offLast = p.slice();
+  // only once you've genuinely committed: well off the line, for a while, and a good distance of it
+  if (now - DETOUR.offSince < OFF_SECS * 1000 || DETOUR.offDist < OFF_TRAVEL) return;
+  if (DETOUR.open || DETOUR.n >= 6 || promptStop) return;
+  if ((speed || 0) * 3.6 < 8) return;
   const nm = roadNameAt(p); if (!nm) return;
   const key = nm.toLowerCase();
-  if (NAV.orig.names.has(key) || DETOUR.asked[key]) return;
+  if (o.names.has(key) || DETOUR.asked[key]) return;
   DETOUR.asked[key] = 1; DETOUR.n++;
   showDetourPrompt(nm, skippedAhead());
 }
@@ -3716,7 +4076,7 @@ function showDetourPrompt(nm, skip) {
   DETOUR.timer = setTimeout(hideDetourPrompt, 25000);
 }
 function hideDetourPrompt() {
-  DETOUR.open = false; detourFor = null;
+  DETOUR.open = false; detourFor = null; clearOffTrack();
   clearTimeout(DETOUR.timer);
   document.getElementById('detourPrompt')?.classList.remove('show');
 }
@@ -3748,11 +4108,11 @@ function trackStop(R, p, kmh, along, now) {
   if (dur < STOP_SECS || cs.checked) return;
   cs.checked = true;
   const nearEnds = geoDist(cs.c, NAV.coords[0]) < 50 || geoDist(cs.c, NAV.coords[NAV.coords.length - 1]) < 60;
+  // within 30 m of a light you already know about: that's a red light, start timing, no question asked
   if (knownSignalNear(cs.c, along)) { cs.kind = 'red'; startRedTimer('red', cs.t0); return; }
-  if (nearEnds || R.declined.some(d => geoDist(d, cs.c) < 40)) return;
-  // stopped within 30 m of an intersection and the red-light timer hasn't started — ask
-  const ix = intersectionNear(cs.c, STOP_PROMPT_METRES);
-  if (ix && !RED.on) { cs.ix = ix; showStopPrompt(cs, dur); }
+  if (nearEnds || RED.on || R.declined.some(d => geoDist(d, cs.c) < 40)) return;
+  cs.ix = nextIntersection(cs.c, along);                     // anywhere else: ask why you've stopped
+  showStopPrompt(cs, dur);
 }
 /* red-light timer: pops out of the trip stopwatch as a small pill while you wait */
 const RED = { on: false, t0: 0, timer: null, kind: null };
@@ -3776,7 +4136,9 @@ function stopRedTimer() {
 let promptStop = null;
 function showStopPrompt(cs, dur) {
   promptStop = cs;
-  $('#stopPromptTxt').textContent = `You've been stopped at this intersection for ${Math.round(dur)} seconds. Were you waiting at a red light?`;
+  const far = cs.ix ? Math.round(geoDist(cs.c, cs.ix)) : null;
+  $('#stopPromptTxt').textContent = `You've been stopped for ${Math.round(dur)} seconds. Why?` +
+    (far != null && far > 35 ? ` (a light would go on the junction ${fmtDist(far)} ahead)` : '');
   $('#stopPrompt').classList.add('show');
 }
 function hideStopPrompt() { promptStop = null; $('#stopPrompt').classList.remove('show'); }
@@ -3784,7 +4146,7 @@ $('#stopYes').onclick = () => {
   const R = TRIP.rec, cs = promptStop;
   hideStopPrompt();
   if (!R || !cs) return;
-  const c = confirmUserSignal(cs.ix || cs.c);                 // the light goes on the intersection, not where you stopped
+  const c = confirmUserSignal(cs.ix || cs.c);                 // the light goes on the junction ahead, not where you stopped
   cs.kind = 'confirmed';
   const k = sigKey(c);
   R.red[k] = 1; R.userKeys[k] = 1; R.confirmed++;
@@ -3797,7 +4159,7 @@ $('#stopYes').onclick = () => {
     }
   }
   startRedTimer('confirmed', cs.t0);
-  toast('Thanks — traffic light saved to your map');
+  toast(cs.ix && geoDist(cs.c, cs.ix) > 35 ? 'Thanks — light saved on the junction ahead' : 'Thanks — traffic light saved to your map');
 };
 $('#stopNo').onclick = () => {
   const R = TRIP.rec, cs = promptStop;
@@ -3837,7 +4199,7 @@ function tripFinish(status) {
     lights: Object.keys(R.passed).length, red: Object.keys(R.red).length, lightsKnown: !!(NAV.signals && NAV.signals.length) || R.mode === 'transit' ? !!(NAV.signals && NAV.signals.length) : false,
     reroutes: R.reroutes, simFactor: NAV.simFactor || 1,
     confirmed: R.confirmed, redTime: R.redTime || 0, traffic: R.traffic || 0,
-    topAt: R.topAt, stopsList: R.stops.slice(0, 80),
+    topAt: R.topAt, stopsList: R.stops.slice(0, 80), spd: R.spd.slice(0, 450),
     lightsMap: [...new Set([...Object.keys(R.passed), ...Object.keys(R.red)])].map(k => {
       const [la, lo] = k.split(',').map(Number);
       return isFinite(la) && isFinite(lo) ? { c: [lo, la], red: !!R.red[k], user: !!R.userKeys[k] } : null;
@@ -4080,6 +4442,14 @@ requestWake();
 if (SET.autoLocate) autoLocate();
 renderUserSignalSetting();
 renderAvoidSetting();
+map.on('load', () => applySatellite());
+/* if the imagery can't load (offline, or the provider is down), fall back to the map rather than a blank screen */
+let satFails = 0;
+map.on('error', e => { if (SET.satellite && e && e.sourceId === 'sat' && ++satFails >= 6) {
+  satFails = 0; SET.satellite = false; saveSettings(); applySatellite(); renderToggles();
+  toast('Satellite imagery isn\'t loading right now — back to the map view', 4500);
+} });
+map.on('sourcedata', e => { if (e.sourceId === 'sat' && e.isSourceLoaded) satFails = 0; });
 addUserSignalsToMap();
 
 document.addEventListener('keydown', e => {
@@ -4087,8 +4457,10 @@ document.addEventListener('keydown', e => {
 });
 if (isMobile()) setCollapsed(true);
 window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visibleSignals, projectNear, refreshSignalSource,
-  get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR,
-  MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+  get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
+  MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
+  tripSample, tripBegin, trackStop,
+  refreshTraffic, historyTraffic, buildSpeedHistory, historySpeed, routeDur, trafficNote, TRAF, avoidList, osrmFetch, routeOptsNote, renderAvoidOpts, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
