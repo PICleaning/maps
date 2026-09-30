@@ -489,6 +489,86 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
 .grab{display:none;width:100%;height:18px;border:0;background:transparent;flex:none;position:relative}
 .grab::after{content:"";position:absolute;left:50%;top:7px;width:44px;height:5px;border-radius:3px;background:var(--line);transform:translateX(-50%)}
 
+/* ---------- Weather ---------- */
+.wx-now{display:flex;align-items:center;gap:14px;padding:4px 4px 12px}
+.wx-ico{flex:none;color:var(--strong)}
+.wx-temp{font-size:44px;font-weight:700;line-height:1;color:var(--strong);font-variant-numeric:tabular-nums}
+.wx-temp sup{font-size:.42em;font-weight:600;vertical-align:baseline;position:relative;top:-.5em;left:1px}
+.wx-cond{font-size:14px;color:var(--text);margin-top:3px}
+.wx-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.wx-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:4px 0 14px}
+.wx-cell{border:1px solid var(--line);border-radius:12px;background:var(--panel-2);padding:9px 11px}
+.wx-k{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.wx-v{font-size:17px;font-weight:700;color:var(--strong);margin-top:3px;display:flex;align-items:center;gap:7px}
+.wx-v small{font-size:11px;font-weight:600;color:var(--muted)}
+.wx-arrow{width:20px;height:20px;flex:none;color:var(--route);transition:transform .5s cubic-bezier(.25,.8,.25,1)}
+.wx-days{display:flex;flex-direction:column}
+#weatherBody a,.wx-foot a{color:var(--muted);text-decoration:underline}
+.wx-foot a{color:inherit}
+.wx-day{display:grid;grid-template-columns:44px 30px 1fr 74px;align-items:center;gap:10px;padding:9px 4px;border-top:1px solid var(--line);font-size:13px}
+.wx-day:first-child{border-top:0}
+.wx-dn{color:var(--text);font-weight:600}
+.wx-pop{font-size:11px;color:#60a5fa;text-align:center}
+.wx-bar{display:block;position:relative;height:6px;border-radius:3px;background:var(--ico);overflow:hidden}
+.wx-bar i{position:absolute;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,#60a5fa,#facc15,#f97316)}
+.wx-mm{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.wx-mm b{color:var(--strong)}
+.wx-hours{display:flex;gap:14px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:none}
+.wx-hours::-webkit-scrollbar{display:none}
+.wx-hour{flex:none;text-align:center;min-width:46px}
+.wx-hour .h{font-size:11px;color:var(--muted)}
+.wx-hour .t{font-size:15px;font-weight:700;color:var(--strong);margin-top:4px}
+.wx-hour .p{font-size:10px;color:#60a5fa;margin-top:2px;min-height:12px}
+.wx-note{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:12px;background:var(--panel-2)}
+.wx-warn{border-color:#f59e0b55;color:var(--text)}
+.icon-only{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--strong);display:grid;place-items:center;flex:none}
+.icon-only:hover{background:var(--hover)}
+.wx-head{display:flex;align-items:center;gap:8px;padding:0 4px 10px}
+.wx-head .sp{flex:1}
+
+/* the weather as its own screen */
+.wx-app{position:fixed;inset:0;z-index:80;display:none;flex-direction:column;color:#fff;overflow-y:auto;
+  background:linear-gradient(170deg,#1b2740 0%,#141a26 55%,#0f1319 100%)}
+body.wx-open .wx-app{display:flex}
+body.wx-open{overflow:hidden}
+.wx-app.day{background:linear-gradient(170deg,#2f6fb8 0%,#3d4f6b 55%,#171c24 100%)}
+.wx-app.wet{background:linear-gradient(170deg,#33475e 0%,#232c38 55%,#12161c 100%)}
+.wx-app-bar{display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 6px}
+.wx-app-bar .loc{flex:1;min-width:0;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wx-app-bar button{width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;flex:none}
+.wx-app-bar button:hover{background:rgba(255,255,255,.26)}
+.wx-hero{text-align:center;padding:18px 16px 6px}
+.wx-hero .big{font-size:86px;font-weight:200;line-height:1;letter-spacing:-3px;font-variant-numeric:tabular-nums}
+.wx-hero .big sup{font-size:.34em;font-weight:300;vertical-align:baseline;position:relative;top:-.62em;left:2px;letter-spacing:0}
+.wx-hero .c{font-size:19px;margin-top:6px;opacity:.95}
+.wx-hero .r{font-size:14px;opacity:.7;margin-top:4px}
+.wx-hero .ico{opacity:.95;margin-bottom:2px}
+.wx-app .wrap{width:min(560px,100%);margin:0 auto;padding:0 16px calc(28px + env(safe-area-inset-bottom))}
+.wx-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px 16px;margin-top:12px;backdrop-filter:blur(6px)}
+.wx-card h4{margin:0 0 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.65;font-weight:700}
+.wx-app .wx-day{border-top-color:rgba(255,255,255,.12);color:#fff}
+.wx-app .wx-dn{color:#fff}
+.wx-app .wx-mm{color:rgba(255,255,255,.65)}
+.wx-app .wx-mm b{color:#fff}
+.wx-app .wx-bar{background:rgba(255,255,255,.18)}
+.wx-app .wx-hour .h,.wx-app .wx-hour .t{color:#fff}
+.wx-app .wx-hour .h{opacity:.7}
+.wx-wind{display:flex;align-items:center;gap:16px}
+.wx-dial{width:74px;height:74px;flex:none;position:relative}
+.wx-dial svg{position:absolute;inset:0}
+.wx-dial .pin{transition:transform .6s cubic-bezier(.25,.8,.25,1);transform-origin:37px 37px}
+.wx-wind .v{font-size:26px;font-weight:700;line-height:1.1}
+.wx-wind .s{font-size:13px;opacity:.75;margin-top:2px}
+.wx-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.wx-stats .k{font-size:10px;letter-spacing:.8px;text-transform:uppercase;opacity:.6;font-weight:700}
+.wx-stats .v{font-size:18px;font-weight:700;margin-top:3px}
+.wx-foot{font-size:11px;opacity:.55;text-align:center;margin-top:16px;line-height:1.6}
+.wx-foot a{color:inherit}
+@media (max-width:760px){
+  .wx-hero .big{font-size:74px}
+  .wx-app .wrap{padding-left:14px;padding-right:14px}
+}
+
 /* ---------- Mobile ---------- */
 @media (max-width:760px){
   .stop-prompt{bottom:calc(48vh + 12px)}
@@ -714,6 +794,7 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
     <button class="dr-item" data-go="recentre"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/></svg>Re-centre on me</button>
     <button class="dr-item" data-go="gps"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 18a9 9 0 1 1 14 0"/><path d="m12 13 4-5"/></svg>Speedometer GPS<span class="state" id="drGpsState">Off</span></button>
     <button class="dr-item" data-go="places"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Home, Work &amp; Favourites</button>
+    <button class="dr-item" data-go="weather"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.3 11.2 3.9 3.9 0 0 0 7 19z"/><path d="M12 4.5V3"/></svg>Weather<span class="state" id="drWxState"></span></button>
     <button class="dr-item" data-go="trips"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21V4M4 4h11l-2 4 2 4H4"/><path d="M14 17h6M17 14v6"/></svg>Trip history<span class="state" id="drTripCount"></span></button>
     <button class="dr-item" data-go="resetview"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><circle cx="12" cy="12" r="2.5"/></svg>Reset view &amp; zoom</button>
     <div class="dr-spacer"></div>
@@ -721,7 +802,7 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
     <button class="dr-item" data-go="settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
     <button class="dr-item" data-go="whatsnew"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>What's new<span class="newdot" id="newDot" hidden>NEW</span></button>
     <div class="dr-foot">One Maps <span id="verLabel"></span></div>
-    <div class="dr-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · tiles <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> / <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> · satellite imagery © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>, Maxar, Earthstar Geographics · routing OSRM · search Photon · traffic lights Overpass · transit <a href="https://transitous.org/sources/" target="_blank" rel="noopener">Transitous</a></div>
+    <div class="dr-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · tiles <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> / <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> · satellite imagery © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>, Maxar, Earthstar Geographics · routing OSRM · search Photon · traffic lights Overpass · transit <a href="https://transitous.org/sources/" target="_blank" rel="noopener">Transitous</a> · weather <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)</div>
   </div>
   <div class="dr-view" id="drPlaces">
     <div id="placesBody"></div>
@@ -731,6 +812,7 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
       <div class="btns"><button class="btn ghost" id="peHere">📍 Use my current location</button><button class="btn ghost" id="peCancel">Cancel</button></div>
     </div>
   </div>
+  <div class="dr-view" id="drWeather"><div id="weatherBody"></div></div>
   <div class="dr-view" id="drWhatsNew"><div id="whatsNewBody"></div></div>
   <div class="dr-view" id="drTrips">
     <p class="hint" style="margin:4px 4px 12px">Scorecards from your trips in the last 30 days. They're saved on this device only.</p>
@@ -748,6 +830,10 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
     <div class="set-group">
       <h3>On the map</h3>
       <div id="optDisplay"></div>
+    </div>
+    <div class="set-group">
+      <h3>Weather</h3>
+      <div id="optWeather"></div>
     </div>
     <div class="set-group">
       <h3>Satellite &amp; connectivity</h3>
@@ -818,6 +904,18 @@ body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
   </div>
   <div class="hl-legend" id="hlLegend"></div>
 </div>
+<div class="wx-app" id="wxApp" role="dialog" aria-modal="true" aria-label="Weather">
+  <div class="wx-app-bar">
+    <div class="loc" id="wxAppLoc">Weather</div>
+    <button id="wxAppRefresh" aria-label="Refresh">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+    </button>
+    <button id="wxAppClose" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="wrap" id="wxAppBody"></div>
+</div>
 <div class="modal" id="scoreModal" role="dialog" aria-modal="true" aria-label="Trip scorecard"><div class="score" id="scoreCard"></div></div>
 
 <script>
@@ -880,7 +978,7 @@ const PAL = {
 
 /* ================= Settings ================= */
 const SETTINGS_KEY = 'aumaps.settings';
-const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false, sensors: true, satellite: false, trafficOn: true, speedoDigital: false, avoidToll: false, avoidMotorway: false };
+const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false, sensors: true, satellite: false, trafficOn: true, wxEta: true, speedoDigital: false, avoidToll: false, avoidMotorway: false };
 try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
 if (!ROUTE_COLORS[SET.route]) SET.route = 'green';
 if (!PAL[SET.theme]) SET.theme = 'dark';
@@ -1563,12 +1661,14 @@ function showDrawerView(v) {
   $('#drTrips').classList.toggle('on', v === 'trips');
   $('#drPlaces').classList.toggle('on', v === 'places');
   $('#drWhatsNew').classList.toggle('on', v === 'whatsnew');
+  $('#drWeather').classList.toggle('on', v === 'weather');
   if (v === 'places') renderPlacesView();
   if (v === 'whatsnew') renderWhatsNew();
+  if (v === 'weather') { renderWeatherPanel(); loadWeather(); }
   $('#drBack').style.display = v !== 'main' ? 'grid' : 'none';
-  $('#drTitle').textContent = { settings: 'Settings', trips: 'Trip history', places: 'Saved places', whatsnew: "What's new" }[v] || 'One Maps';
+  $('#drTitle').textContent = { settings: 'Settings', trips: 'Trip history', places: 'Saved places', whatsnew: "What's new", weather: 'Weather' }[v] || 'One Maps';
   if (v === 'trips') renderTripList();
-  if (v === 'main') updateTripCount();
+  if (v === 'main') { updateTripCount(); updateWxBadge(); }
 }
 $('#menuBtn').onclick = () => openDrawer();
 $('#drClose').onclick = closeDrawer;
@@ -1583,6 +1683,7 @@ drawer.addEventListener('click', e => {
   if (go === 'trips') return showDrawerView('trips');
   if (go === 'places') return showDrawerView('places');
   if (go === 'whatsnew') return showDrawerView('whatsnew');
+  if (go === 'weather') return showDrawerView('weather');
   if (go === 'resetview') { closeDrawer(); resetView(); return; }
   closeDrawer();
   if (go === 'search') { showTab('search'); $('#q').focus(); }
@@ -1613,6 +1714,9 @@ const TOGGLES = [
   { key: 'poiLabels', icon: '🏪', label: 'Shop & place names', desc: 'Names of stores, cafés, parks, airports and more' },
   { key: 'roadLabels', icon: '🛣️', label: 'Street & suburb names', desc: 'Road, suburb, town and water names' }
 ];
+const WX_TOGGLES = [
+  { key: 'wxEta', icon: '🌧️', label: 'Allow for the weather', desc: 'When it\'s wet, icy or stormy, add 20% to the ETA on any trip over 10 minutes' }
+];
 const SAT_TOGGLES = [
   { key: 'satellite', icon: '🛰️', label: 'Satellite imagery', desc: 'Real aerial imagery under your roads, labels and route' },
   { key: 'trafficOn', icon: '🚗', label: 'Traffic on your route', desc: 'Colour the route by how it usually flows and fold the delay into your ETA' }
@@ -1624,6 +1728,7 @@ const toggleRow = (t, desc, id) => `
     <span class="ol">${t.label}<small${id ? ` id="${id}"` : ''}>${desc}</small></span><span class="switch"></span></div>`;
 function renderToggles() {
   $('#optDisplay').innerHTML = TOGGLES.map(t => toggleRow(t, t.desc)).join('');
+  $('#optWeather').innerHTML = WX_TOGGLES.map(t => toggleRow(t, t.desc)).join('');
   $('#optSatellite').innerHTML = SAT_TOGGLES.map(t => toggleRow(t, t.desc)).join('');
   renderRealtimeSetting();
   $('#optDevice').innerHTML = toggleRow({ key: 'keepAwake', icon: '📱', label: 'Keep screen awake' }, wakeStatusText(), 'wakeDesc') +
@@ -1640,6 +1745,7 @@ function flipToggle(el) {
   if (key === 'sensors') { SET.sensors ? startMotionSensors(true) : stopMotionSensors(); }
   if (key === 'satellite') applySatellite();
   if (key === 'trafficOn') refreshTraffic(true);
+  if (key === 'wxEta') { updateWeatherInfo(); if (S.routes.length) renderRoutes(); if (NAV.on) updateNavCard(NAV.lastAlong || 0); }
   if (key === 'terrain') set3d(is3d, { animate: false });
   if (key === 'traffic' && SET.traffic) { loadSignalsInView(); if (S.routes[S.sel]) loadRouteSignals(S.routes[S.sel]); }
   if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
@@ -2208,6 +2314,7 @@ function renderRoutes() {
     <div class="hint" id="routeAvoid" style="margin-top:2px"></div>
     <div class="hint" id="routeTraffic" style="margin-top:2px"></div>
     <div class="hint" id="routeOpts" style="margin-top:2px"></div>
+    <div class="hint" id="routeWx" style="margin-top:2px"></div>
     <div class="btns">
       <button class="btn primary" id="navStart" style="flex:1;justify-content:center;display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg> Start</button>
@@ -2228,6 +2335,7 @@ function renderRoutes() {
   updateAvoidInfo();
   updateTrafficInfo();
   updateRouteOptsInfo();
+  updateWeatherInfo();
   $('#clearRoute').onclick = clearRoute;
   $('#navStart').onclick = () => startNav(false);
   $('#navSim').onclick = () => startNav(true);
@@ -3667,8 +3775,14 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '2.0.0';
 const CHANGELOG = [
+  { v: '2.0.0', items: [
+    'New: Weather. Open it from the menu for current conditions, wind speed and direction, an hour-by-hour strip and the next 7 days',
+    'Tap the full-screen icon and the weather becomes its own clean, full-screen app — add it to your home screen from the One Maps shortcut menu',
+    'When it\'s wet, icy, snowy or stormy, 20% is added to the ETA of any trip over 10 minutes, with a note on the route telling you why',
+    'Turn the weather allowance off any time under Settings › Weather',
+    'Forecasts come from Open-Meteo — free, no account, nothing to set up'] },
   { v: '1.3.0', items: [
     'Satellite imagery, switched on in Settings under Satellite & connectivity',
     'Traffic on your route: it colours the line and folds the delay into your ETA, learnt from the speeds you drive. Add a free TomTom key under Real-time data for live traffic instead',
@@ -3808,7 +3922,8 @@ async function liveTraffic(r, key) {
   samples.pts = pts;
   return buildTrafficFeats(r, samples, speeds.map(x => x && x.cur));
 }
-const routeDur = r => (r && (r.duration || 0)) + ((r && r._delay) || 0);
+const routeBase = r => (r && (r.duration || 0)) + ((r && r._delay) || 0);
+const routeDur = r => { const b = routeBase(r); return b * wxFactor(b); };
 async function refreshTraffic(force) {
   const src = map.getSource('traffic'); if (!src) return;
   const r = activeRoute();
@@ -3841,6 +3956,253 @@ function updateTrafficInfo() {
   if (el) el.textContent = trafficNote(activeRoute());
   updateRouteBanner(S.routes.length > 0 && !S.stale && !S.loading && !NAV.on);
 }
+
+/* ================= Weather (Open-Meteo — free, no key, CC BY 4.0) ================= */
+const WX = { data: null, at: 0, loc: null, place: '', busy: false, err: '', seq: 0 };
+const WX_MAX_AGE = 15 * 60 * 1000;
+const WX_CODES = {
+  0: ['Clear', 'sun'], 1: ['Mainly clear', 'sun'], 2: ['Partly cloudy', 'partly'], 3: ['Overcast', 'cloud'],
+  45: ['Fog', 'fog'], 48: ['Freezing fog', 'fog'],
+  51: ['Light drizzle', 'drizzle'], 53: ['Drizzle', 'drizzle'], 55: ['Heavy drizzle', 'drizzle'],
+  56: ['Freezing drizzle', 'ice'], 57: ['Freezing drizzle', 'ice'],
+  61: ['Light rain', 'rain'], 63: ['Rain', 'rain'], 65: ['Heavy rain', 'rain'],
+  66: ['Freezing rain', 'ice'], 67: ['Freezing rain', 'ice'],
+  71: ['Light snow', 'snow'], 73: ['Snow', 'snow'], 75: ['Heavy snow', 'snow'], 77: ['Snow grains', 'snow'],
+  80: ['Showers', 'rain'], 81: ['Showers', 'rain'], 82: ['Heavy showers', 'rain'],
+  85: ['Snow showers', 'snow'], 86: ['Snow showers', 'snow'],
+  95: ['Thunderstorm', 'storm'], 96: ['Storm with hail', 'storm'], 99: ['Storm with hail', 'storm']
+};
+const wxInfo = code => WX_CODES[code] || ['—', 'cloud'];
+const WX_WET = new Set(['drizzle', 'rain', 'storm']), WX_SLIP = new Set(['ice', 'snow']);
+function wxIcon(group, size = 40, day = true) {
+  const S = size, a = `width="${S}" height="${S}" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"`;
+  const cloud = '<path d="M34 37H15a8 8 0 0 1-.6-16 11 11 0 0 1 20.9 3.2A7 7 0 0 1 34 37z"/>';
+  const sun = day
+    ? '<circle cx="24" cy="24" r="8"/><path d="M24 6v4M24 38v4M6 24h4M38 24h4M11.2 11.2l2.8 2.8M34 34l2.8 2.8M11.2 36.8l2.8-2.8M34 14l2.8-2.8"/>'
+    : '<path d="M32 30a12 12 0 0 1-14-16 12 12 0 1 0 14 16z"/>';
+  const drops = (n, dash) => Array.from({ length: n }, (_, i) => `<path d="M${17 + i * 7} 40l-1.6 4" ${dash ? 'stroke-dasharray="2 3"' : ''}/>`).join('');
+  const body = {
+    sun: sun,
+    partly: `<g transform="translate(6,-4) scale(.62)">${sun}</g>${cloud}`,
+    cloud: cloud,
+    fog: `${cloud}<path d="M13 42h22M17 46h14"/>`,
+    drizzle: `${cloud}${drops(3, true)}`,
+    rain: `${cloud}${drops(3)}`,
+    ice: `${cloud}<path d="M18 41l3 3M21 41l-3 3M29 41l3 3M32 41l-3 3"/>`,
+    snow: `${cloud}<path d="M18 42h.01M25 44h.01M32 42h.01" stroke-width="4"/>`,
+    storm: `${cloud}<path d="M25 38l-5 7h6l-4 6"/>`
+  }[group] || cloud;
+  return `<svg ${a} aria-hidden="true">${body}</svg>`;
+}
+const WX_DIRS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+const windDir = deg => WX_DIRS[Math.round(((deg || 0) % 360) / 22.5) % 16];
+const wxTemp = t => `${Math.round(t)}<sup>°</sup>`;
+
+async function loadWeather(force) {
+  const c = myLoc || (map ? [map.getCenter().lng, map.getCenter().lat] : null);
+  if (!c) return null;
+  const fresh = WX.data && Date.now() - WX.at < WX_MAX_AGE && WX.loc && geoDist(WX.loc, c) < 5000;
+  if (fresh && !force) return WX.data;
+  if (WX.busy) return WX.data;
+  WX.busy = true; WX.err = ''; renderWeatherPanel();
+  const my = ++WX.seq;
+  try {
+    const u = 'https://api.open-meteo.com/v1/forecast?latitude=' + c[1].toFixed(4) + '&longitude=' + c[0].toFixed(4) +
+      '&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day' +
+      '&hourly=temperature_2m,precipitation_probability,weather_code' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,sunrise,sunset,uv_index_max' +
+      '&timezone=auto&forecast_days=7&wind_speed_unit=kmh';
+    const j = await (await fetch(u)).json();
+    if (my !== WX.seq) return WX.data;
+    if (!j || !j.current) throw new Error('No weather for this spot');
+    WX.data = j; WX.at = Date.now(); WX.loc = c.slice();
+  } catch (e) {
+    if (my === WX.seq) WX.err = 'Weather unavailable right now';
+  }
+  WX.busy = false;
+  if (!WX.place || !fresh) wxPlaceName(c);
+  renderWeatherPanel(); renderWeatherApp(); updateWxBadge(); updateWeatherInfo();
+  if (S.routes.length) { updateRouteBanner(S.routes.length > 0 && !S.stale && !S.loading && !NAV.on); }
+  return WX.data;
+}
+async function wxPlaceName(c) {
+  try {
+    const j = await (await fetch(`https://photon.komoot.io/reverse?lat=${c[1].toFixed(4)}&lon=${c[0].toFixed(4)}&limit=1`)).json();
+    const pr = j && j.features && j.features[0] && j.features[0].properties;
+    if (pr) { WX.place = pr.city || pr.district || pr.name || pr.county || pr.state || ''; renderWeatherPanel(); renderWeatherApp(); }
+  } catch (e) {}
+}
+/* rain, ice and storms make the road slower — this is what the ETA rule looks at */
+function wxRisk() {
+  const d = WX.data; if (!d || !d.current) return null;
+  const cur = d.current;
+  const [label, group] = wxInfo(cur.weather_code);
+  const wet = WX_WET.has(group) || cur.precipitation > 0.05;
+  const slip = WX_SLIP.has(group) || (cur.temperature_2m <= 2 && (cur.precipitation > 0 || WX_WET.has(group)));
+  if (!wet && !slip) return null;
+  return { kind: slip ? (group === 'snow' ? 'snow' : 'ice') : group === 'storm' ? 'storm' : 'rain', label, group };
+}
+const WX_PENALTY = 1.2, WX_MIN_TRIP = 600;
+function wxFactor(seconds) {
+  if (!SET.wxEta || !(seconds > WX_MIN_TRIP)) return 1;
+  return wxRisk() ? WX_PENALTY : 1;
+}
+function wxEtaNote() {
+  if (!SET.wxEta) return '';
+  const r = wxRisk(); if (!r) return '';
+  const road = r.kind === 'ice' ? 'icy roads' : r.kind === 'snow' ? 'snow' : r.kind === 'storm' ? 'storm conditions' : 'wet roads';
+  return `🌧️ ${r.label} — 20% added to trips over 10 minutes for ${road}.`;
+}
+function updateWeatherInfo() {
+  const el = document.getElementById('routeWx');
+  if (!el) return;
+  const sel = S.routes[S.sel];
+  const base = sel ? (sel.duration || 0) + (sel._delay || 0) : 0;
+  el.textContent = base > WX_MIN_TRIP ? wxEtaNote() : '';
+}
+function updateWxBadge() {
+  const el = document.getElementById('drWxState');
+  if (el) el.textContent = WX.data && WX.data.current ? Math.round(WX.data.current.temperature_2m) + '°' : '';
+}
+
+/* ---- the compact view inside the menu ---- */
+function wxDaysHtml(d, rows = 7) {
+  const dy = d.daily;
+  const lo = Math.min(...dy.temperature_2m_min), hi = Math.max(...dy.temperature_2m_max), span = Math.max(1, hi - lo);
+  return `<div class="wx-days">` + dy.time.slice(0, rows).map((t, i) => {
+    const day = i === 0 ? 'Today' : new Date(t + 'T12:00').toLocaleDateString([], { weekday: 'short' });
+    const a = dy.temperature_2m_min[i], b = dy.temperature_2m_max[i];
+    const pop = dy.precipitation_probability_max ? dy.precipitation_probability_max[i] : null;
+    return `<div class="wx-day">
+        <span class="wx-dn">${day}</span>
+        <span class="wx-ico">${wxIcon(wxInfo(dy.weather_code[i])[1], 22)}</span>
+        <span><span class="wx-bar"><i style="left:${((a - lo) / span * 100).toFixed(1)}%;right:${((hi - b) / span * 100).toFixed(1)}%"></i></span>
+          ${pop != null && pop >= 20 ? `<span class="wx-pop" style="display:block;text-align:left;margin-top:3px">💧 ${pop}%</span>` : ''}</span>
+        <span class="wx-mm">${Math.round(a)}° <b>${Math.round(b)}°</b></span>
+      </div>`;
+  }).join('') + `</div>`;
+}
+function wxHoursHtml(d, hours = 12) {
+  const h = d.hourly; if (!h || !h.time) return '';
+  const now = Date.now();
+  let start = h.time.findIndex(t => new Date(t).getTime() >= now - 1800000);
+  if (start < 0) start = 0;
+  const idx = h.time.slice(start, start + hours).map((_, i) => start + i);
+  return `<div class="wx-hours">` + idx.map(i => {
+    const t = new Date(h.time[i]);
+    const pop = h.precipitation_probability ? h.precipitation_probability[i] : null;
+    return `<div class="wx-hour"><div class="h">${i === idx[0] ? 'Now' : t.toLocaleTimeString([], { hour: 'numeric' }).replace(' ', '')}</div>
+      <div style="margin-top:4px">${wxIcon(wxInfo(h.weather_code[i])[1], 22, true)}</div>
+      <div class="t">${Math.round(h.temperature_2m[i])}°</div>
+      <div class="p">${pop != null && pop >= 20 ? pop + '%' : ''}</div></div>`;
+  }).join('') + `</div>`;
+}
+const FULLSCREEN_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+function renderWeatherPanel() {
+  const box = document.getElementById('weatherBody'); if (!box) return;
+  const head = `<div class="wx-head"><span class="wx-sub" id="wxWhere">${esc(WX.place || 'Your location')}</span><span class="sp"></span>
+      <button class="icon-only" id="wxFull" aria-label="Open the weather app full screen" title="Full screen">${FULLSCREEN_SVG}</button>
+      <button class="icon-only" id="wxRefresh" aria-label="Refresh weather" title="Refresh">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button></div>`;
+  const wire = () => {
+    const f = document.getElementById('wxFull'); if (f) f.onclick = openWeatherApp;
+    const r = document.getElementById('wxRefresh'); if (r) r.onclick = () => loadWeather(true);
+  };
+  const d = WX.data;
+  if (!d || !d.current) {
+    box.innerHTML = head + `<p class="hint" style="padding:0 4px">${WX.busy ? 'Getting the forecast…' : esc(WX.err || 'No forecast yet.')}</p>`;
+    wire(); return;
+  }
+  const c = d.current, [label, group] = wxInfo(c.weather_code);
+  const dy = d.daily;
+  box.innerHTML = head + `
+    <div class="wx-now">
+      <span class="wx-ico">${wxIcon(group, 56, c.is_day !== 0)}</span>
+      <div><div class="wx-temp">${wxTemp(c.temperature_2m)}</div>
+        <div class="wx-cond">${label}</div>
+        <div class="wx-sub">Feels like ${Math.round(c.apparent_temperature)}° · today ${Math.round(dy.temperature_2m_min[0])}° to ${Math.round(dy.temperature_2m_max[0])}°</div></div>
+    </div>
+    <div class="wx-grid">
+      <div class="wx-cell"><div class="wx-k">Wind</div><div class="wx-v">
+        <svg class="wx-arrow" viewBox="0 0 24 24" fill="currentColor" style="transform:rotate(${Math.round((c.wind_direction_10m || 0) + 180)}deg)"><path d="M12 2 5 21l7-5 7 5z"/></svg>
+        ${Math.round(c.wind_speed_10m)} <small>km/h ${windDir(c.wind_direction_10m)}</small></div></div>
+      <div class="wx-cell"><div class="wx-k">Humidity</div><div class="wx-v">${Math.round(c.relative_humidity_2m)}<small>%</small></div></div>
+      <div class="wx-cell"><div class="wx-k">Rain chance</div><div class="wx-v">${dy.precipitation_probability_max ? Math.round(dy.precipitation_probability_max[0]) : 0}<small>% today</small></div></div>
+      <div class="wx-cell"><div class="wx-k">Gusts</div><div class="wx-v">${Math.round(c.wind_gusts_10m || c.wind_speed_10m)} <small>km/h</small></div></div>
+    </div>
+    ${wxHoursHtml(d, 10)}
+    ${wxDaysHtml(d)}
+    ${wxEtaNote() ? `<div class="wx-note wx-warn">${wxEtaNote()}</div>` : `<div class="wx-note">Clear roads — no weather allowance on your ETAs.</div>`}
+    <p class="hint" style="font-size:10px;margin:10px 4px 0">Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · CC BY 4.0</p>`;
+  wire();
+  updateWxBadge();
+}
+
+/* ---- the weather as its own full-screen app ---- */
+function renderWeatherApp() {
+  const box = document.getElementById('wxAppBody'); if (!box) return;
+  const d = WX.data;
+  document.getElementById('wxAppLoc').textContent = WX.place || 'Weather';
+  if (!d || !d.current) { box.innerHTML = `<p style="opacity:.7;text-align:center;padding:40px 0">${WX.busy ? 'Getting the forecast…' : esc(WX.err || 'No forecast yet.')}</p>`; return; }
+  const c = d.current, dy = d.daily, [label, group] = wxInfo(c.weather_code);
+  const app = document.getElementById('wxApp');
+  app.classList.toggle('day', c.is_day !== 0 && !WX_WET.has(group));
+  app.classList.toggle('wet', WX_WET.has(group) || WX_SLIP.has(group));
+  const sun = t => t ? new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '—';
+  box.innerHTML = `
+    <div class="wx-hero">
+      <div class="ico">${wxIcon(group, 76, c.is_day !== 0)}</div>
+      <div class="big">${wxTemp(c.temperature_2m)}</div>
+      <div class="c">${label}</div>
+      <div class="r">${Math.round(dy.temperature_2m_max[0])}° / ${Math.round(dy.temperature_2m_min[0])}° · feels like ${Math.round(c.apparent_temperature)}°</div>
+    </div>
+    <div class="wx-card"><h4>Next hours</h4>${wxHoursHtml(d, 14)}</div>
+    <div class="wx-card"><h4>Wind</h4>
+      <div class="wx-wind">
+        <div class="wx-dial">
+          <svg viewBox="0 0 74 74" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="1.5">
+            <circle cx="37" cy="37" r="32"/><path d="M37 5v6M37 63v6M5 37h6M63 37h6"/>
+            <text x="37" y="15" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.55)" stroke="none">N</text>
+          </svg>
+          <svg class="pin" viewBox="0 0 74 74" fill="#fff" style="transform:rotate(${Math.round((c.wind_direction_10m || 0) + 180)}deg)">
+            <path d="M37 14 27 50l10-7 10 7z"/>
+          </svg>
+        </div>
+        <div><div class="v">${Math.round(c.wind_speed_10m)} <span style="font-size:14px;font-weight:600;opacity:.7">km/h</span></div>
+          <div class="s">From the ${windDir(c.wind_direction_10m)} · gusting ${Math.round(c.wind_gusts_10m || c.wind_speed_10m)} km/h</div></div>
+      </div>
+    </div>
+    <div class="wx-card"><div class="wx-stats">
+      <div><div class="k">Humidity</div><div class="v">${Math.round(c.relative_humidity_2m)}%</div></div>
+      <div><div class="k">Rain today</div><div class="v">${dy.precipitation_probability_max ? Math.round(dy.precipitation_probability_max[0]) : 0}%</div></div>
+      <div><div class="k">UV max</div><div class="v">${dy.uv_index_max ? Math.round(dy.uv_index_max[0]) : '—'}</div></div>
+      <div><div class="k">Sunrise</div><div class="v">${sun(dy.sunrise && dy.sunrise[0])}</div></div>
+      <div><div class="k">Sunset</div><div class="v">${sun(dy.sunset && dy.sunset[0])}</div></div>
+      <div><div class="k">Wind max</div><div class="v">${Math.round(dy.wind_speed_10m_max ? dy.wind_speed_10m_max[0] : c.wind_speed_10m)}<span style="font-size:11px;font-weight:600;opacity:.65"> km/h</span></div></div>
+    </div></div>
+    <div class="wx-card"><h4>Next 7 days</h4>${wxDaysHtml(d)}</div>
+    ${wxEtaNote() ? `<div class="wx-card" style="border-color:#f59e0b66">${wxEtaNote()}</div>` : ''}
+    <div class="wx-foot">Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · CC BY 4.0<br>Updated ${new Date(WX.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>`;
+}
+function openWeatherApp() {
+  closeDrawer();
+  document.body.classList.add('wx-open');
+  renderWeatherApp();
+  loadWeather();
+  try { const el = document.getElementById('wxApp'); if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); } catch (e) {}
+  try { history.replaceState(null, '', '#weather'); } catch (e) {}
+}
+function closeWeatherApp() {
+  document.body.classList.remove('wx-open');
+  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) {}
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+}
+$('#wxAppClose').onclick = closeWeatherApp;
+$('#wxAppRefresh').onclick = () => loadWeather(true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('wx-open')) closeWeatherApp(); });
+if (location.hash === '#weather') setTimeout(openWeatherApp, 400);
+setInterval(() => { if (WX.data && Date.now() - WX.at > WX_MAX_AGE) loadWeather(true); }, 5 * 60 * 1000);
+setTimeout(() => loadWeather(), 2500);
 
 /* ================= Trip scorecards & history ================= */
 const TRIPS_KEY = 'aumaps.trips', TRIP_KEEP_MS = 30 * 24 * 3600 * 1000;
@@ -4460,6 +4822,7 @@ window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visib
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
   tripSample, tripBegin, trackStop,
+  WX, loadWeather, wxRisk, wxFactor, wxInfo, wxIcon, windDir, renderWeatherPanel, renderWeatherApp, openWeatherApp, closeWeatherApp, wxEtaNote, routeBase,
   refreshTraffic, historyTraffic, buildSpeedHistory, historySpeed, routeDur, trafficNote, TRAF, avoidList, osrmFetch, routeOptsNote, renderAvoidOpts, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
