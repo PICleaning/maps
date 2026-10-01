@@ -208,6 +208,18 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .hint{color:var(--muted);font-size:13px;line-height:1.5}
 .hint b{color:var(--strong)}
 
+.oh-box{margin-top:12px}
+.oh-head{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
+.oh-head b{color:var(--strong);font-weight:600}
+.oh-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.oh-dot.open{background:#22c55e}
+.oh-dot.shut{background:#ef4444}
+.oh-more{margin-left:auto;border:0;background:transparent;color:var(--route);font-size:12.5px;font-weight:600;padding:2px 4px}
+.oh-today{font-size:13px;color:var(--muted);margin-top:3px}
+.oh-none{font-size:13px;color:var(--muted)}
+.oh-week{margin-top:8px;border-top:1px solid var(--line)}
+.oh-row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+.oh-row.on{color:var(--strong);font-weight:600}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .chip{border:1px solid var(--line);background:var(--panel-2);border-radius:20px;padding:8px 14px;font-size:13px;display:flex;gap:6px;align-items:center}
 .chip:hover{border-color:var(--muted)}
@@ -463,6 +475,11 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .stop-prompt .small{font-size:12px;opacity:.8;margin:10px 0 0}
 .av-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);margin-bottom:8px;font-size:13px}
 .av-item b{color:var(--strong)}
+.dev-group{border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+.dev-head{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:8px 4px;text-align:left}
+.dev-head:hover{color:var(--strong)}
+.dev-head svg{transition:transform .25s var(--ease)}
+.dev-head[aria-expanded="true"] svg{transform:rotate(90deg)}
 /* Directions header: title, and a pill showing whatever's switched on */
 .dir-head{text-align:center;position:relative;padding:2px 0 14px}
 .dir-head h2{margin:0;font-size:20px;font-weight:700;color:var(--strong);letter-spacing:.2px}
@@ -573,10 +590,6 @@ body.route-ready .search{display:none}
 .rb-txt{flex:1;min-width:0;line-height:1.2}
 .rb-t{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rb-s{display:block;font-size:12px;color:var(--banner-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rb-go{height:34px;padding:0 16px;border:0;border-radius:17px;background:var(--route);color:var(--route-ink);font-weight:700;font-size:14px;
-  display:flex;align-items:center;gap:7px;flex:none}
-.rb-x{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:inherit;flex:none}
-.rb-x:hover{background:var(--banner-btn-on)}
 
 /* navigation: Apple-style instruction banner on top, ETA banner across the bottom */
 body.navigating .banner{display:none}
@@ -844,8 +857,6 @@ body.wx-open{overflow:hidden}
   <div class="route-banner" id="routeBanner">
     <span class="rb-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M9 13v-2a1 1 0 0 1 1-1h5"/></svg></span>
     <span class="rb-txt"><span class="rb-t" id="rbTitle">Destination</span><span class="rb-s" id="rbSub"></span></span>
-    <button class="rb-go" id="rbGo">Start</button>
-    <button class="rb-x" id="rbClear" title="Clear route" aria-label="Clear route">✕</button>
   </div>
   <button class="banner-btn" id="dirBtn" title="Directions">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M9 13v-2a1 1 0 0 1 1-1h5"/><path d="m13 8 2 2-2 2"/></svg>
@@ -995,7 +1006,6 @@ body.wx-open{overflow:hidden}
     <button class="dr-item" data-go="explore"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>Explore nearby</button>
     <div class="dr-sep"></div>
     <button class="dr-item" data-go="australia"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Show all of Australia</button>
-    <button class="dr-item" data-go="gps"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 18a9 9 0 1 1 14 0"/><path d="m12 13 4-5"/></svg>Speedometer GPS<span class="state" id="drGpsState">Off</span></button>
     <button class="dr-item" data-go="weather"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.3 11.2 3.9 3.9 0 0 0 7 19z"/><path d="M12 4.5V3"/></svg>Weather<span class="state" id="drWxState"></span></button>
     <button class="dr-item" data-go="trips"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21V4M4 4h11l-2 4 2 4H4"/><path d="M14 17h6M17 14v6"/></svg>Trip history<span class="state" id="drTripCount"></span></button>
     <button class="dr-item" data-go="resetview"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><circle cx="12" cy="12" r="2.5"/></svg>Reset view &amp; zoom</button>
@@ -1055,6 +1065,17 @@ body.wx-open{overflow:hidden}
       <div id="optDevice"></div>
     </div>
     <p class="hint" style="padding:0 4px">Settings are saved on this device.</p>
+    <div class="set-group dev-group">
+      <button class="dev-head" id="devHead" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/><path d="M13 20h7"/></svg>
+        Developer
+      </button>
+      <div id="devBody" hidden>
+        <p class="hint" style="margin:10px 4px">Everything this build is made of: the app's full source code, plus the data saved on this device — settings, saved places, the traffic lights you've confirmed, roads you've reported, learnt ETAs and your trip history.</p>
+        <button class="btn primary" id="devPdf" style="width:100%;justify-content:center;padding:13px">📄 Download PDF</button>
+        <p class="hint" style="margin:10px 4px;font-size:11px">Built on this device and never uploaded. Your TomTom key is listed as set or not set, never printed.</p>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -1217,7 +1238,7 @@ const PAL = {
     rail: '#bdb7ab', ferry: '#6fb2d8', bld: ['#e6e1d7', '#ded8cd', '#d3ccc0'],
     brCol: { motorway: '#ffcf8a', trunk: '#ffe3b4', primary: '#fff4dd', secondary: '#fffdf6', tertiary: '#f1eee7', rail: '#c9c0b0', transit: '#c9c0b0', other: '#ece8e0' },
     railing: '#9a958b', pillar: '#c3bdb2',
-    canopy: ['#64a35a', '#7cbb6c', '#9ed087'], trunk: '#8b6b4a', alt: '#a6a99f', travelled: '#bdb8ae',
+    canopy: ['#8cc08a', '#a2cf99', '#bcdfae'], trunk: '#a8927c', alt: '#a6a99f', travelled: '#bdb8ae',
     waterLabel: '#3a7fa8', waterHalo: '#dff0fa', roadLabel: '#37383c', roadHalo: '#ffffff', shieldHalo: '#2e7d4f', house: '#8b8579',
     poiLabel: '#5a5f66', poiStroke: '#ffffff', poiOther: '#848990', halo: '#ffffff', minorPlace: '#6f7378', village: '#3a3c40',
     town: '#1f2124', city: '#111111', peak: '#5d6b4d', state: '#6c7076',
@@ -1686,12 +1707,23 @@ function buildingIndex(center, R) {
     return false;
   };
 }
+/* Classic keeps its trees small and softly rounded, the way a light map reads best */
+const treeStyle = () => SET.theme === 'classic' ? { scale: 0.66, sides: 12, round: true } : { scale: 1, sides: 8, round: false };
 function addTree(out, c, seed, scale = 1) {
-  const h = (7 + seed * 8) * scale, r = (2.1 + seed * 2) * scale, shade = hash2(seed * 1e6, 7);
-  out.push({ type: 'Feature', properties: { part: 'trunk', h: h * 0.4 }, geometry: { type: 'Polygon', coordinates: ringAt(c, 0.32 * scale + 0.1, 6) } });
-  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.3, h: h * 0.62, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.8, 8, seed * 3) } });
-  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.62, h: h * 0.86, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r, 8, seed * 5) } });
-  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.86, h, shade: Math.min(1, shade + 0.15) }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.55, 8, seed * 7) } });
+  const ts = treeStyle();
+  const k = scale * ts.scale, sides = ts.sides;
+  const h = (7 + seed * 8) * k, r = (2.1 + seed * 2) * k, shade = hash2(seed * 1e6, 7);
+  out.push({ type: 'Feature', properties: { part: 'trunk', h: h * 0.4 }, geometry: { type: 'Polygon', coordinates: ringAt(c, 0.3 * k + 0.08, 6) } });
+  if (ts.round) {                                          // four slim tiers: a soft dome instead of a blob
+    out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.34, h: h * 0.58, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.72, sides, seed * 3) } });
+    out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.58, h: h * 0.76, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.92, sides, seed * 4) } });
+    out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.76, h: h * 0.9, shade: Math.min(1, shade + 0.1) }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.68, sides, seed * 5) } });
+    out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.9, h, shade: Math.min(1, shade + 0.18) }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.36, sides, seed * 7) } });
+    return;
+  }
+  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.3, h: h * 0.62, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.8, sides, seed * 3) } });
+  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.62, h: h * 0.86, shade }, geometry: { type: 'Polygon', coordinates: ringAt(c, r, sides, seed * 5) } });
+  out.push({ type: 'Feature', properties: { part: 'canopy', b: h * 0.86, h, shade: Math.min(1, shade + 0.15) }, geometry: { type: 'Polygon', coordinates: ringAt(c, r * 0.55, sides, seed * 7) } });
 }
 const MAX_TREES = 1800;
 function genTrees(center, R, inBuilding) {
@@ -2155,6 +2187,148 @@ function setMarker(key, coord, type) {
 
 /* ================= Search tab ================= */
 const S = { from: null, to: null, mode: 'car', routes: [], sel: 0, place: null };
+/* ============ Opening hours for shops and businesses (OpenStreetMap) ============ */
+const OH_ORDER = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const OH_FULL = { Mo: 'Monday', Tu: 'Tuesday', We: 'Wednesday', Th: 'Thursday', Fr: 'Friday', Sa: 'Saturday', Su: 'Sunday' };
+const ohCap = d => d.slice(0, 1).toUpperCase() + d.slice(1, 2).toLowerCase();
+const ohTime = m => {
+  const h = Math.floor((m % 1440) / 60), mi = m % 60;
+  const ap = h < 12 || h === 24 ? 'am' : 'pm';
+  const hh = h % 12 === 0 ? 12 : h % 12;
+  return mi ? `${hh}:${String(mi).padStart(2, '0')} ${ap}` : `${hh} ${ap}`;
+};
+function ohDays(part) {
+  const out = [];
+  for (const chunk of String(part).split(',')) {
+    const c = chunk.trim(); if (!c) continue;
+    const range = c.match(/^(Mo|Tu|We|Th|Fr|Sa|Su)\s*-\s*(Mo|Tu|We|Th|Fr|Sa|Su)$/i);
+    if (range) {
+      const i = OH_ORDER.indexOf(ohCap(range[1])), j = OH_ORDER.indexOf(ohCap(range[2]));
+      if (i < 0 || j < 0) continue;
+      for (let k = 0; k < 7; k++) { out.push(OH_ORDER[(i + k) % 7]); if ((i + k) % 7 === j) break; }
+    } else if (OH_ORDER.includes(ohCap(c))) out.push(ohCap(c));
+  }
+  return out;
+}
+/* enough of the OSM opening_hours syntax for shops: day ranges, several spans, off, 24/7 */
+function parseHours(str) {
+  if (!str) return null;
+  const txt = String(str).trim();
+  const days = Object.fromEntries(OH_ORDER.map(d => [d, []]));
+  if (/^24\s*\/\s*7$/.test(txt)) { OH_ORDER.forEach(d => days[d].push([0, 1440])); return { days, always: true, raw: txt }; }
+  let any = false;
+  for (const rule of txt.split(';')) {
+    const r = rule.trim(); if (!r) continue;
+    if (/^(ph|sh|easter|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|week|\d{4})/i.test(r)) continue;
+    if (/sunrise|sunset|dusk|dawn/i.test(r)) continue;
+    const m = r.match(/^((?:(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:\s*-\s*(?:Mo|Tu|We|Th|Fr|Sa|Su))?[,\s]*)+)?(.*)$/i);
+    if (!m) continue;
+    const list = (m[1] || '').trim() ? ohDays(m[1]) : OH_ORDER.slice();
+    const timePart = (m[2] || '').trim();
+    if (/^(off|closed)$/i.test(timePart)) { list.forEach(d => { days[d] = []; }); any = true; continue; }
+    const spans = [];
+    for (const t of timePart.split(',')) {
+      const tm = t.trim().match(/^(\d{1,2}):?(\d{2})?\s*-\s*(\d{1,2}):?(\d{2})?$/);
+      if (!tm) continue;
+      const a = (+tm[1]) * 60 + (+(tm[2] || 0));
+      let b = (+tm[3]) * 60 + (+(tm[4] || 0));
+      if (b <= a) b += 1440;
+      spans.push([a, b]);
+    }
+    if (!spans.length) continue;
+    any = true;
+    list.forEach(d => { days[d] = days[d].concat(spans); });
+  }
+  return any ? { days, raw: txt } : null;
+}
+function hoursStatus(parsed, now) {
+  if (!parsed) return null;
+  const d = now || new Date();
+  const idx = (d.getDay() + 6) % 7;                         // 0 = Monday
+  const mins = d.getHours() * 60 + d.getMinutes();
+  const dayAt = k => parsed.days[OH_ORDER[((idx + k) % 7 + 7) % 7]] || [];
+  if (parsed.always) return { open: true, text: 'Open 24 hours', today: 'Open 24 hours' };
+  for (const [a, b] of dayAt(0)) if (mins >= a && mins < b) {
+    const left = b - mins;
+    return { open: true, closesAt: b, text: left <= 60 ? `Closing soon · ${ohTime(b)}` : `Open · closes ${ohTime(b)}`, today: todayText(dayAt(0)) };
+  }
+  for (const [a, b] of dayAt(-1)) if (b > 1440 && mins < b - 1440) {
+    return { open: true, closesAt: b - 1440, text: `Open · closes ${ohTime(b)}`, today: todayText(dayAt(0)) };
+  }
+  for (let k = 0; k < 8; k++) {
+    for (const [a] of dayAt(k)) {
+      if (k === 0 && a <= mins) continue;
+      const when = k === 0 ? `today ${ohTime(a)}` : k === 1 ? `tomorrow ${ohTime(a)}` : `${OH_FULL[OH_ORDER[(idx + k) % 7]]} ${ohTime(a)}`;
+      return { open: false, text: `Closed · opens ${when}`, today: todayText(dayAt(0)) };
+    }
+  }
+  return { open: false, text: 'Closed', today: todayText(dayAt(0)) };
+}
+const todayText = spans => spans && spans.length ? spans.map(([a, b]) => `${ohTime(a)} – ${ohTime(b)}`).join(', ') : 'Closed today';
+function hoursWeekHtml(parsed) {
+  if (!parsed) return '';
+  const idx = (new Date().getDay() + 6) % 7;
+  return `<div class="oh-week">${OH_ORDER.map((d, i) => `<div class="oh-row${i === idx ? ' on' : ''}"><span>${OH_FULL[d]}</span>
+    <span>${parsed.always ? '24 hours' : (parsed.days[d] || []).length ? parsed.days[d].map(([a, b]) => `${ohTime(a)} – ${ohTime(b)}`).join(', ') : 'Closed'}</span></div>`).join('')}</div>`;
+}
+const HOURS_CACHE = new Map();
+const ohNorm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+/* ask OpenStreetMap what this business's hours are */
+async function fetchPlaceInfo(p) {
+  const key = p.coord.map(v => v.toFixed(5)).join(',');
+  if (HOURS_CACHE.has(key)) return HOURS_CACHE.get(key);
+  const [lon, lat] = p.coord;
+  const q = `[out:json][timeout:20];(nwr(around:70,${lat.toFixed(5)},${lon.toFixed(5)})["name"];);out center 40;`;
+  let best = null;
+  try {
+    const j = await overpass(q);
+    const want = ohNorm(p.title);
+    let bestScore = -1;
+    for (const el of j.elements || []) {
+      const t = el.tags || {}; if (!t.name) continue;
+      const c = el.type === 'node' ? [el.lon, el.lat] : el.center ? [el.center.lon, el.center.lat] : null;
+      if (!c) continue;
+      const nm = ohNorm(t.name);
+      const d = geoDist(c, p.coord);
+      let score = (nm === want ? 100 : nm.includes(want) || want.includes(nm) ? 60 : 0) - d / 10;
+      if (t.opening_hours) score += 25;
+      if (score > bestScore) { bestScore = score; best = { tags: t, c, d }; }
+    }
+    if (bestScore < 20) best = null;                        // nothing that's convincingly this place
+  } catch (e) { best = null; }
+  const info = best ? {
+    hours: best.tags.opening_hours || '', parsed: parseHours(best.tags.opening_hours),
+    phone: best.tags.phone || best.tags['contact:phone'] || '', website: best.tags.website || best.tags['contact:website'] || '',
+    cuisine: best.tags.cuisine || '', brand: best.tags.brand || '', name: best.tags.name
+  } : null;
+  HOURS_CACHE.set(key, info);
+  return info;
+}
+function renderPlaceInfo(p, info) {
+  const box = document.getElementById('pcInfo'); if (!box) return;
+  if (!info) { box.innerHTML = `<div class="oh-none">No opening hours listed for this place.</div>`; return; }
+  const st = hoursStatus(info.parsed);
+  const bits = [];
+  if (st) bits.push(`<div class="oh-head"><span class="oh-dot ${st.open ? 'open' : 'shut'}"></span><b>${esc(st.text)}</b>
+      <button class="oh-more" id="ohMore" aria-expanded="false">All hours</button></div>
+    <div class="oh-today">Today: ${esc(st.today)}</div>
+    <div id="ohWeek" hidden>${hoursWeekHtml(info.parsed)}</div>`);
+  else if (info.hours) bits.push(`<div class="oh-head"><span class="oh-dot"></span><b>${esc(info.hours)}</b></div>`);
+  else bits.push(`<div class="oh-none">No opening hours listed for this place.</div>`);
+  const links = [];
+  if (info.phone) links.push(`<a class="btn ghost" href="tel:${esc(info.phone.replace(/\s+/g, ''))}">📞 Call</a>`);
+  if (info.website) links.push(`<a class="btn ghost" href="${esc(info.website)}" target="_blank" rel="noopener">🌐 Website</a>`);
+  if (links.length) bits.push(`<div class="btns" style="margin-top:10px">${links.join('')}</div>`);
+  box.innerHTML = bits.join('');
+  const more = document.getElementById('ohMore');
+  if (more) more.onclick = () => {
+    const w = document.getElementById('ohWeek');
+    w.hidden = !w.hidden;
+    more.setAttribute('aria-expanded', String(!w.hidden));
+    more.textContent = w.hidden ? 'All hours' : 'Hide hours';
+  };
+}
+
 function showPlace(p, { fly = true } = {}) {
   S.place = p;
   setMarker('place', p.coord, 'p');
@@ -2172,6 +2346,7 @@ function showPlace(p, { fly = true } = {}) {
       <div class="sub">${esc(p.kind ? p.kind[0].toUpperCase() + p.kind.slice(1) : '')}${p.kind && p.sub ? ' · ' : ''}${esc(p.sub)}</div>
       <div class="coords">${fmtCoord(p.coord)}</div></div>
     </div>
+    <div id="pcInfo" class="oh-box">${p.key && p.key !== 'place' && p.key !== 'highway' && p.key !== 'boundary' ? '<div class="oh-none">Checking opening hours…</div>' : ''}</div>
     <div class="btns">
       <button class="btn primary" id="pcTo">➤ Directions</button>
       <button class="btn ghost" id="pcFrom">Start here</button>
@@ -2188,6 +2363,9 @@ function showPlace(p, { fly = true } = {}) {
   $('#pcTo').onclick = () => { setWaypoint('to', p); showTab('dir'); if (!S.from) { $('#fromIn').focus(); toast('Now choose a starting point'); } };
   $('#pcFrom').onclick = () => { setWaypoint('from', p); showTab('dir'); if (!S.to) $('#toIn').focus(); };
   $('#pcCopy').onclick = () => { navigator.clipboard?.writeText(fmtCoord(p.coord)).then(() => toast('Coordinates copied'), () => toast(fmtCoord(p.coord))); };
+  if (p.key && p.key !== 'place' && p.key !== 'highway' && p.key !== 'boundary') {
+    fetchPlaceInfo(p).then(info => { if (S.place === p) renderPlaceInfo(p, info); }).catch(() => renderPlaceInfo(p, null));
+  }
   showTab('search');
 }
 const qIn = $('#q');
@@ -2573,10 +2751,7 @@ function updateRouteBanner(ready) {
   if (r && r.distance) bits.push(fmtDist(r.distance));
   if (S.from && S.from.title) bits.push('from ' + S.from.title);
   $('#rbSub').textContent = bits.join(' · ');
-  $('#rbGo').innerHTML = `${START_SVG} <span>Start</span>`;
 }
-$('#rbGo').onclick = () => startNav(false);
-$('#rbClear').onclick = () => clearRoute();
 $('#goBtn').onclick = () => { if ($('#goBtn').dataset.ready) startNav(false); else route(); };
 [fromIn, toIn].forEach(inp => inp.addEventListener('input', () => { if (S.routes.length) { S.stale = true; updateGoBtn(); } }));
 
@@ -3523,7 +3698,8 @@ const SPEEDO = {
     this.state = state;
     const el = $('#speedo');
     el.classList.toggle('off', state !== 'on');
-    $('#drGpsState').textContent = state === 'off' ? 'Off' : state === 'wait' ? 'Starting…' : 'On';
+    const gpsState = document.getElementById('drGpsState');
+    if (gpsState) gpsState.textContent = state === 'off' ? 'Off' : state === 'wait' ? 'Starting…' : 'On';
     if (state === 'off') { $('#spVal').textContent = 'GPS'; $('#spUnit').textContent = msg || 'tap to start'; this.set(0, true); }
     if (state === 'wait') { $('#spVal').textContent = '…'; $('#spUnit').textContent = 'finding GPS'; }
     if (state === 'on') $('#spUnit').textContent = 'km/h';
@@ -4233,7 +4409,8 @@ function exDetails(p) {
   const cuisine = t.cuisine ? t.cuisine.split(';').slice(0, 2).map(x => x.replace(/_/g, ' ')).join(', ') : '';
   bits.push(cuisine ? `${kind} · ${cuisine}` : kind);
   const addr = [t['addr:housenumber'], t['addr:street']].filter(Boolean).join(' ') || t['addr:suburb'] || '';
-  return { kind: bits.join(''), addr, hours: t.opening_hours ? String(t.opening_hours).slice(0, 48) : '' };
+  const st = hoursStatus(parseHours(t.opening_hours));
+  return { kind: bits.join(''), addr, hours: st ? st.text : t.opening_hours ? String(t.opening_hours).slice(0, 48) : '', open: st ? st.open : null };
 }
 function renderExplore() {
   const box = $('#nearBox');
@@ -4269,8 +4446,16 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '2.0.3';
+const APP_VERSION = '2.0.4';
 const CHANGELOG = [
+  { v: '2.0.4', items: [
+    'Search any shop or business and see whether it\'s open, when it closes and its hours for the week',
+    'The weather allowance drops to 5% on trips over 40 minutes, where a downpour evens out',
+    'Scorecards now name the street you set off from instead of "Your location"',
+    'Classic draws smaller, smoother trees so the light map stays calm',
+    'The search bar just shows where you\'re headed — starting is on the route card',
+    'Speedometer GPS removed from the menu; tap the dial on the map instead',
+    'New Developer section at the bottom of Settings with Download PDF: the whole app and everything saved on this device'] },
   { v: '2.0.3', items: [
     'Adaptive ETA: if you arrive late to the same place twice, the app learns it and builds the extra time into every future trip there',
     'It keeps adjusting with each trip, so the estimate gets closer rather than drifting high',
@@ -4730,23 +4915,26 @@ function wxRisk() {
   if (!wet && !slip) return null;
   return { kind: slip ? (group === 'snow' ? 'snow' : 'ice') : group === 'storm' ? 'storm' : 'rain', label, group };
 }
-const WX_PENALTY = 1.2, WX_MIN_TRIP = 600;
+const WX_PENALTY = 1.2, WX_LONG_PENALTY = 1.05, WX_MIN_TRIP = 600, WX_LONG_TRIP = 2400;
+const wxPenaltyFor = seconds => seconds > WX_LONG_TRIP ? WX_LONG_PENALTY : WX_PENALTY;
 function wxFactor(seconds) {
-  if (!SET.wxEta || !(seconds > WX_MIN_TRIP)) return 1;
-  return wxRisk() ? WX_PENALTY : 1;
+  if (!SET.wxEta || !(seconds > WX_MIN_TRIP)) return 1;     // short hops aren't worth padding
+  return wxRisk() ? wxPenaltyFor(seconds) : 1;              // over 40 min the weather evens out, so 5%
 }
-function wxEtaNote() {
+function wxEtaNote(seconds) {
   if (!SET.wxEta) return '';
   const r = wxRisk(); if (!r) return '';
   const road = r.kind === 'ice' ? 'icy roads' : r.kind === 'snow' ? 'snow' : r.kind === 'storm' ? 'storm conditions' : 'wet roads';
-  return `🌧️ ${r.label} — 20% added to trips over 10 minutes for ${road}.`;
+  if (seconds == null) return `🌧️ ${r.label} — 20% added for ${road} on trips over 10 minutes, 5% on trips over 40.`;
+  const pct = Math.round((wxPenaltyFor(seconds) - 1) * 100);
+  return `🌧️ ${r.label} — ${pct}% added for ${road}${seconds > WX_LONG_TRIP ? ' (long trip, so the allowance is smaller)' : ''}.`;
 }
 function updateWeatherInfo() {
   const el = document.getElementById('routeWx');
   if (!el) return;
   const sel = S.routes[S.sel];
   const base = sel ? (sel.duration || 0) + (sel._delay || 0) : 0;
-  el.textContent = base > WX_MIN_TRIP ? wxEtaNote() : '';
+  el.textContent = base > WX_MIN_TRIP ? wxEtaNote(base) : '';
 }
 function updateWxBadge() {
   const el = document.getElementById('drWxState');
@@ -5019,6 +5207,128 @@ if (location.hash === '#weather') setTimeout(openWeatherApp, 400);
 setInterval(() => { const h = wxSpots()[0]; if (h.data && Date.now() - h.at > WX_MAX_AGE) loadWeather(true); }, 5 * 60 * 1000);
 setTimeout(() => loadWeather(), 2500);
 
+/* ================= Developer: a printable report of the app and your data ================= */
+async function appSource() {
+  try {
+    const r = await fetch(location.href.split('#')[0], { cache: 'no-store' });
+    if (r.ok) { const t = await r.text(); if (t && t.length > 1000) return t; }
+  } catch (e) {}
+  return '<!-- served from the live page -->\n' + document.documentElement.outerHTML;
+}
+function devData() {
+  const clock = ms => ms ? new Date(ms).toLocaleString() : '—';
+  const trips = tripsAll();
+  return {
+    app: { name: 'One Maps', version: APP_VERSION, generated: new Date().toLocaleString(),
+      screen: `${screen.width}×${screen.height}`, agent: navigator.userAgent, language: navigator.language,
+      standalone: !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches) },
+    settings: { ...SET, theme: SET.theme, route: SET.route },
+    extras: {
+      'Motion permission': motionAnswer() || 'not asked yet',
+      'TomTom key': ttKey() ? 'set (not shown)' : 'not set',
+      'Extra weather place': (wxSavedPlace() && wxSavedPlace().name) || 'none',
+      'Time mode': S.timeMode || 'now'
+    },
+    places: { home: PLACES.home, work: PLACES.work, favs: PLACES.favs },
+    signals: USER_SIGNALS.map(u => ({ lat: u.lat, lon: u.lon, confirmed: clock(u.created) })),
+    avoid: activeAvoid().map(a => ({ road: a.name, reason: a.kind, until: clock(a.until) })),
+    etafit: Object.entries(ETAFIT).map(([k, f]) => ({ place: f.name || k, key: k, trips: f.n, late: f.late,
+      adjustment: `${Math.round((Math.min(1.6, f.factor) - 1) * 100)}%`, lastTrip: clock(f.lastAt) })),
+    trips: trips.map(t => ({ when: clock(t.startedAt), from: t.from, to: t.to, mode: t.mode, status: t.status,
+      planned: fmtDur(t.estDur || 0), actual: SW.fmt(t.elapsed * 1000), km: (t.dist / 1000).toFixed(2),
+      lights: t.lights, red: t.red, confirmed: t.confirmed, schools: t.schools || 0, top: t.top })),
+    counts: { trips: trips.length, confirmedLights: USER_SIGNALS.length, avoidedRoads: activeAvoid().length,
+      learntPlaces: Object.keys(ETAFIT).length, speedSamples: trips.reduce((a, t) => a + ((t.spd && t.spd.length) || 0), 0) }
+  };
+}
+const devTable = rows => !rows || !rows.length ? '<p class="none">Nothing saved yet.</p>' :
+  `<table><thead><tr>${Object.keys(rows[0]).map(k => `<th>${esc(k)}</th>`).join('')}</tr></thead>
+   <tbody>${rows.map(r => `<tr>${Object.values(r).map(v => `<td>${esc(v == null ? '—' : typeof v === 'object' ? JSON.stringify(v) : v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+const devPairs = obj => `<table><tbody>${Object.entries(obj || {}).map(([k, v]) =>
+  `<tr><th>${esc(k)}</th><td>${esc(typeof v === 'object' && v ? (v.title || JSON.stringify(v)) : String(v))}</td></tr>`).join('')}</tbody></table>`;
+async function buildDevReport() {
+  const d = devData();
+  const src = await appSource();
+  const lines = src.split('\n');
+  const code = lines.map((l, i) => `<div class="cl"><span class="n">${i + 1}</span>${esc(l) || '&nbsp;'}</div>`).join('');
+  return `<!doctype html><html><head><meta charset="utf-8"><title>One Maps v${d.app.version} — app &amp; data report</title>
+<style>
+  :root{color-scheme:light}
+  body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#111;margin:0;padding:28px;background:#fff}
+  h1{font-size:26px;margin:0 0 4px}h2{font-size:17px;margin:26px 0 8px;padding-top:14px;border-top:2px solid #111}
+  h3{font-size:13px;margin:16px 0 6px;color:#444;text-transform:uppercase;letter-spacing:.6px}
+  .sub{color:#555;margin:0 0 18px}
+  table{border-collapse:collapse;width:100%;margin:6px 0 14px;font-size:12px}
+  th,td{border:1px solid #d7d7d7;padding:5px 7px;text-align:left;vertical-align:top;word-break:break-word}
+  thead th{background:#f2f2f2}
+  tbody th{background:#fafafa;width:34%}
+  .none{color:#777;font-style:italic;margin:4px 0 12px}
+  .cards{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
+  .kpi{border:1px solid #d7d7d7;border-radius:8px;padding:8px 12px;min-width:110px}
+  .kpi b{display:block;font-size:20px}
+  .kpi span{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px}
+  .code{font:10px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid #ddd;border-radius:6px;padding:8px}
+  .cl{white-space:pre-wrap;word-break:break-word}
+  .cl .n{display:inline-block;width:46px;color:#999;user-select:none;text-align:right;padding-right:10px}
+  .note{background:#f6f8fa;border:1px solid #dde3ea;border-radius:8px;padding:10px 12px;margin:10px 0 18px;font-size:12px}
+  @media print{body{padding:12mm 10mm}h2{page-break-before:auto}.code{border:0;padding:0}}
+</style></head><body>
+<h1>One Maps v${d.app.version}</h1>
+<p class="sub">Application &amp; data report · generated ${esc(d.app.generated)}</p>
+<div class="note">Everything in this document was assembled on your own device from the running app and the data it has stored locally. Nothing was uploaded to produce it. Your TomTom key, if you have one, is shown only as “set”.</div>
+<div class="cards">
+  <div class="kpi"><b>${d.counts.trips}</b><span>Trips kept</span></div>
+  <div class="kpi"><b>${d.counts.confirmedLights}</b><span>Lights you confirmed</span></div>
+  <div class="kpi"><b>${d.counts.avoidedRoads}</b><span>Roads avoided</span></div>
+  <div class="kpi"><b>${d.counts.learntPlaces}</b><span>Places learnt</span></div>
+  <div class="kpi"><b>${d.counts.speedSamples}</b><span>Speed samples</span></div>
+  <div class="kpi"><b>${lines.length}</b><span>Lines of code</span></div>
+</div>
+<h2>Build &amp; device</h2>${devPairs(d.app)}
+<h2>Your settings</h2>${devPairs(d.settings)}<h3>Other state</h3>${devPairs(d.extras)}
+<h2>Saved places</h2>${devPairs({ Home: d.places.home ? d.places.home.title : 'not set', Work: d.places.work ? d.places.work.title : 'not set' })}
+${d.places.favs && d.places.favs.length ? devTable(d.places.favs.map(f => ({ favourite: f.title, detail: f.sub || '', lat: f.coord[1].toFixed(5), lon: f.coord[0].toFixed(5) }))) : '<p class="none">No favourites saved.</p>'}
+<h2>Traffic lights you confirmed</h2>${devTable(d.signals)}
+<h2>Roads you reported</h2>${devTable(d.avoid)}
+<h2>Learnt ETAs</h2>${devTable(d.etafit)}
+<h2>Trip history</h2>${devTable(d.trips)}
+<h2>Source code</h2>
+<p class="sub">The complete single-file application, exactly as it runs on this device — ${lines.length.toLocaleString()} lines.</p>
+<div class="code">${code}</div>
+</body></html>`;
+}
+async function downloadDevReport() {
+  const btn = document.getElementById('devPdf');
+  if (btn) { btn.disabled = true; btn.textContent = 'Building report…'; }
+  try {
+    const html = await buildDevReport();
+    const w = window.open('', '_blank');
+    if (w && w.document) {
+      w.document.open(); w.document.write(html); w.document.close();
+      w.focus();
+      setTimeout(() => { try { w.print(); } catch (e) {} }, 700);
+      toast('Report ready — choose “Save as PDF” in the print dialog', 6000);
+    } else {                                                // popups blocked: hand over the file instead
+      const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      const a = document.createElement('a');
+      a.href = url; a.download = `one-maps-v${APP_VERSION}-report.html`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      toast('Report downloaded — open it and print to PDF', 6000);
+    }
+  } catch (e) {
+    toast('Could not build the report: ' + (e.message || e), 5000);
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '📄 Download PDF'; }
+}
+$('#devHead').onclick = () => {
+  const body = $('#devBody'), open = body.hidden;
+  body.hidden = !open;
+  $('#devHead').setAttribute('aria-expanded', String(open));
+  if (open) setTimeout(() => body.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60);
+};
+$('#devPdf').onclick = downloadDevReport;
+
 /* ================= Trip scorecards & history ================= */
 const TRIPS_KEY = 'aumaps.trips', TRIP_KEEP_MS = 30 * 24 * 3600 * 1000;
 const TRIP = { rec: null };
@@ -5049,13 +5359,26 @@ function saveTrips(list) {
 }
 function tripsAll() { const l = loadTrips(); return l.length || !TRIP.mem ? l : TRIP.mem.filter(t => Date.now() - t.endedAt < TRIP_KEEP_MS); }
 function updateTripCount() { const n = tripsAll().length; $('#drTripCount').textContent = n ? String(n) : ''; }
+function streetLabel(pl) {
+  const q = (pl && pl.props) || {};
+  const line1 = [q.housenumber, q.street || q.name].filter(Boolean).join(' ');
+  const area = q.district || q.suburb || q.city || q.county || q.state || '';
+  return [line1 || (pl && pl.title) || '', area].filter(Boolean).join(', ');
+}
 function tripBegin(r) {
   TRIP.rec = { id: Date.now(), sim: !!NAV.sim, mode: NAV.mode, from: S.from ? S.from.title : 'Start', to: S.to ? S.to.title : 'Destination',
     plannedDur: routeDur(r), plannedDist: NAV.total,
     destKey: destKeyOf(S.to && S.to.coord, NAV.mode), destName: S.to ? S.to.title : '',
     schools: r._schools || 0, schoolHours: inSchoolHours(new Date()), startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
     dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, userKeys: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false, redTime: 0, traffic: 0,
-    path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0, spd: [], spdLast: null, recent: [] };
+    path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0, spd: [], spdLast: null, recent: [], fromAddr: '' };
+  const start = (S.from && S.from.coord) || (NAV.coords && NAV.coords[0]);
+  if (start) {                                              // "Your location" → the actual street you set off from
+    reverse(start).then(pl => {
+      const label = streetLabel(pl);
+      if (TRIP.rec && label) TRIP.rec.fromAddr = label;
+    }).catch(() => {});
+  }
 }
 function tripSetOff(along) {
   const R = TRIP.rec; if (!R || R.startedAt) return;
@@ -5372,7 +5695,8 @@ function tripFinish(status) {
   const tw = bins.reduce((a, [k, v]) => a + k * v, 0), tt = bins.reduce((a, [, v]) => a + v, 0);
   const avg = NAV.sim ? (tt ? tw / tt : 0) : (elapsed > 0 ? (R.dist / 1000) / (elapsed / 3600) : 0);
   const card = {
-    id: R.id, sim: R.sim, mode: R.mode, status, from: R.from, to: R.to,
+    id: R.id, sim: R.sim, mode: R.mode, status,
+    from: R.fromAddr && /your location|^start$/i.test(R.from) ? R.fromAddr : (R.from || R.fromAddr), fromAddr: R.fromAddr, to: R.to,
     startedAt: R.startedAt, endedAt: Date.now(), estDur: R.estDur, etaAtStart: R.etaAtStart, elapsed,
     dist: R.dist, delta: R.estDur - elapsed, avg, top, timeTop, low: isFinite(low) ? low : null, timeLow, stopT: R.stopT,
     lights: Object.keys(R.passed).length, red: Object.keys(R.red).length, lightsKnown: !!(NAV.signals && NAV.signals.length) || R.mode === 'transit' ? !!(NAV.signals && NAV.signals.length) : false,
@@ -5642,7 +5966,7 @@ if (isMobile()) setCollapsed(true);
 window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visibleSignals, routeSignalHits, projectNear, refreshSignalSource, motionAnswer, startMotionSensors,
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
-  tripSample, tripBegin, trackStop,
+  tripSample, tripBegin, trackStop, buildDevReport, downloadDevReport, devData, appSource, parseHours, hoursStatus, fetchPlaceInfo, renderPlaceInfo, streetLabel, wxPenaltyFor, treeStyle,
   WX, loadWeather, wxRisk, wxFactor, schoolFactor, inSchoolHours, schoolNote, loadRouteSchools, departureTime,
   get ETAFIT() { return ETAFIT; }, learnEta, etaFit, learnedFactor, learnedNote, destKeyOf, saveEtaFit, wxInfo, wxIcon, windDir, renderWeatherPanel, renderWeatherApp, openWeatherApp, closeWeatherApp, wxEtaNote, routeBase,
   wxSpots, wxCur, wxGo, wxSetExtra, wxRemoveExtra, wxPickPlace, wxGeocode, sendWeatherToMaps, openWxSearch, closeWxSearch, wxSearchRun, wxLocalTime, wxExactHere,
