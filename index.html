@@ -43,7 +43,9 @@
   --route-soft:rgba(34,197,94,.14);
   --amber:#f5b942;
   --ease:cubic-bezier(.22,.9,.28,1);
-  --radius:14px;
+  --radius:18px;
+  --radius-sm:13px;
+  --blur:saturate(180%) blur(20px);
   --shadow:0 10px 32px rgba(0,0,0,.5);
   --banner-ink:#ffffff;
   --banner-sub:#e6e6e6;
@@ -145,36 +147,38 @@ html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:10
 .tag{display:inline-block;font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:6px;background:var(--line);color:var(--text);vertical-align:middle}
 .tag.good{background:#16a34a;color:#fff}.tag.bad{background:#dc2626;color:#fff}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:-.01em}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer}
 
 /* ---------- Banner (always grey with white text) ---------- */
 .banner{position:fixed;top:0;left:0;right:0;height:64px;z-index:20;display:flex;align-items:center;gap:14px;
-  padding:0 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:var(--banner-ink);box-shadow:0 2px 14px rgba(0,0,0,.18)}
+  padding:0 16px;background:linear-gradient(180deg,var(--banner),var(--banner-2));color:var(--banner-ink);
+  box-shadow:0 1px 0 rgba(0,0,0,.14),0 6px 18px rgba(0,0,0,.14);backdrop-filter:var(--blur)}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:.2px;white-space:nowrap;color:inherit}
 .brand svg{flex:none}
-.brand small{display:block;font-weight:500;font-size:11px;color:var(--banner-sub);letter-spacing:.6px;text-transform:uppercase}
+.brand small{display:block;font-weight:500;font-size:10.5px;color:var(--banner-sub);letter-spacing:.7px;text-transform:uppercase;margin-top:1px}
 .search{position:relative;flex:1;max-width:340px}
-.search input{width:100%;height:36px;border-radius:18px;font-size:14px;border:1px solid var(--banner-line);
+.search input{width:100%;height:40px;border-radius:20px;font-size:14.5px;border:1px solid var(--banner-line);
   background:var(--banner-field);color:inherit;padding:0 42px;outline:none;transition:background .2s ease,border-color .2s ease}
 .search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 .search input::placeholder{color:var(--banner-sub)}
 .search input:focus{background:var(--banner-field-on);border-color:var(--banner-line-on)}
 .search .ac{min-width:320px}
-.search .ico{position:absolute;left:13px;top:9px;opacity:.9;pointer-events:none}
-.search .clear{position:absolute;right:5px;top:4px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;display:none;color:inherit}
+.search .ico{position:absolute;left:14px;top:11px;opacity:.85;pointer-events:none}
+.search .clear{position:absolute;right:6px;top:6px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;display:none;color:inherit}
 .search .clear:hover{background:var(--banner-btn-on)}
-.banner-btn{height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--banner-line);background:var(--banner-btn);
+.banner-btn{height:40px;padding:0 15px;border-radius:20px;border:1px solid var(--banner-line);background:var(--banner-btn);
   color:inherit;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:background .2s ease}
 .banner-btn:hover{background:var(--banner-btn-on)}
 
 /* ---------- Autocomplete ---------- */
-.ac{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line);color:var(--text);
-  border-radius:12px;box-shadow:var(--shadow);display:none;z-index:40;max-height:60vh;overflow-y:auto}
+.ac{position:absolute;left:0;right:0;top:calc(100% + 8px);background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:var(--radius-sm);box-shadow:var(--shadow);display:none;z-index:40;max-height:60vh;overflow-y:auto;backdrop-filter:var(--blur)}
 .ac.open{display:block;animation:acin .18s var(--ease)}
 @keyframes acin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.ac-item{display:flex;gap:12px;align-items:center;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line)}
+.ac-item{display:flex;gap:12px;align-items:center;padding:12px 15px;cursor:pointer;border-bottom:1px solid var(--line)}
 .ac-item:last-child{border-bottom:0}
 .ac-item:hover,.ac-item.active{background:var(--hover)}
 .ac-ico{width:32px;height:32px;border-radius:50%;background:var(--ico);display:grid;place-items:center;flex:none;font-size:15px}
@@ -186,11 +190,12 @@ button{cursor:pointer}
 #map{position:fixed;top:64px;left:0;right:0;bottom:0;background:var(--bg)}
 .panel{position:fixed;top:78px;left:14px;bottom:192px;width:370px;z-index:15;background:var(--panel);
   border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
-  display:flex;flex-direction:column;overflow:hidden;transition:transform .36s var(--ease)}
+  display:flex;flex-direction:column;overflow:hidden;transition:transform .36s var(--ease);backdrop-filter:var(--blur)}
 .panel.collapsed{transform:translateX(calc(-100% - 20px))}
-.tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
-.tab{flex:1;padding:13px 6px;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:13px;border-bottom:2px solid transparent}
-.tab.on{color:var(--strong);border-bottom-color:var(--route)}
+/* segmented tabs, iOS style */
+.tabs{display:flex;gap:3px;flex:none;margin:12px 12px 4px;padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:13px}
+.tab{flex:1;padding:9px 6px;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:13px;border-radius:10px}
+.tab.on{color:var(--strong);background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.14)}
 .tab:hover{color:var(--strong)}
 .pane{display:none;flex:1;overflow-y:auto;padding:16px}
 .pane.on{display:block}
@@ -204,20 +209,20 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .hint b{color:var(--strong)}
 
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.chip{border:1px solid var(--line);background:var(--panel-2);border-radius:18px;padding:7px 12px;font-size:13px;display:flex;gap:6px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--panel-2);border-radius:20px;padding:8px 14px;font-size:13px;display:flex;gap:6px;align-items:center}
 .chip:hover{border-color:var(--muted)}
 .chip.on{background:var(--amber);color:#1b1b1b;border-color:var(--amber);font-weight:600}
-.row{display:flex;gap:12px;align-items:center;padding:10px 8px;border-radius:10px;cursor:pointer}
+.row{display:flex;gap:12px;align-items:center;padding:12px 10px;border-radius:12px;cursor:pointer}
 .row:hover{background:var(--hover)}
 .row .ac-ico{width:30px;height:30px}
 .row-main{min-width:0;flex:1}
 
-.card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
+.card{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px;margin-bottom:16px}
 .card h2{margin:0 0 4px;font-size:18px;color:var(--strong)}
 .card .sub{color:var(--muted);font-size:13px;line-height:1.45}
 .card .coords{color:var(--muted);opacity:.8;font-size:12px;margin-top:6px;font-family:ui-monospace,Menlo,monospace}
 .btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.btn{border:0;border-radius:20px;padding:9px 14px;font-weight:600;font-size:13px;display:flex;gap:6px;align-items:center}
+.btn{border:0;border-radius:var(--radius-sm);padding:10px 15px;font-weight:600;font-size:13.5px;display:flex;gap:6px;align-items:center}
 .btn.primary{background:var(--route);color:var(--route-ink)}
 .btn.primary:hover{filter:brightness(1.08)}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--strong)}
@@ -239,15 +244,16 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .modes{display:flex;gap:4px;margin-bottom:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:4px}
 .mode{flex:1;border:0;background:transparent;border-radius:11px;padding:11px 4px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
 .mode:hover{background:var(--hover)}
-.mode.on{color:var(--route-ink);background:var(--route);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.mode.on{color:var(--strong);background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+.mode.on svg{color:var(--route)}
 .mode.on svg{stroke:currentColor}
 .go{width:100%;justify-content:center;padding:14px;border-radius:15px;font-size:15px;margin-top:2px}
 .routes{margin-top:16px}
 .routes{margin-top:14px;display:flex;flex-direction:column;gap:8px}
-.route-card{border:1px solid var(--line);background:var(--panel-2);border-radius:14px;padding:13px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.route-card{border:1px solid var(--line);background:var(--panel-2);border-radius:var(--radius);padding:15px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .route-card:hover{background:var(--hover)}
 .route-card.on{border-color:var(--route);box-shadow:inset 3px 0 0 var(--route),0 4px 14px rgba(0,0,0,.08)}
-.route-card .dur{font-size:18px;font-weight:700;color:var(--strong)}
+.route-card .dur{font-size:22px;font-weight:700;color:var(--strong);letter-spacing:-.4px}
 .route-card.on .dur{color:var(--route)}
 .route-card .dist{color:var(--muted);font-size:13px}
 .route-card .via{color:var(--muted);font-size:12px;margin-top:2px}
@@ -263,8 +269,8 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ---------- Map chrome ---------- */
-.fab{width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--strong);display:grid;place-items:center;
-  box-shadow:var(--shadow);font-weight:700;font-size:13px}
+.fab{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--strong);display:grid;place-items:center;
+  box-shadow:var(--shadow);font-weight:700;font-size:13px;backdrop-filter:var(--blur)}
 .fab:hover{background:var(--hover)}
 .fab.on{color:var(--route);border-color:var(--route)}
 .maplibregl-ctrl-group{background:var(--panel)!important;border:1px solid var(--line);box-shadow:var(--shadow)!important}
@@ -292,7 +298,7 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 /* top-right: stopwatch + buttons */
 .tr-stack{position:fixed;right:10px;top:78px;z-index:18;display:flex;flex-direction:column;align-items:flex-end;gap:10px;transition:top .36s var(--ease)}
 .map-ctl{display:flex;flex-direction:column;gap:8px}
-.stopwatch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 14px;box-shadow:var(--shadow);min-width:196px;position:relative}
+.stopwatch{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:11px 13px 11px 15px;box-shadow:var(--shadow);min-width:196px;position:relative;backdrop-filter:var(--blur)}
 /* red-light timer pops out of the trip stopwatch */
 .red-pill{position:absolute;right:calc(100% + 8px);top:12px;display:flex;align-items:center;gap:6px;white-space:nowrap;
   background:#dc2626;color:#fff;border-radius:14px;padding:6px 11px;font-weight:700;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.45);
@@ -313,12 +319,12 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 :root[data-theme="classic"] .sw-time.run,:root[data-theme="classic"] .fab.on,:root[data-theme="classic"] .route-card.on .dur{color:var(--route-dark);filter:none}
 .sw-status{font-size:12px;color:var(--muted);max-width:200px}
 .sw-btns{display:flex;gap:6px;margin-top:8px}
-.sw-btn{flex:1;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--strong);display:grid;place-items:center}
+.sw-btn{flex:1;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--strong);display:grid;place-items:center}
 .sw-btn:hover{background:var(--hover)}
 
 /* bottom-left: speedometer + menu */
 .bl-stack{position:fixed;left:14px;bottom:18px;z-index:19;display:flex;flex-direction:column;align-items:flex-start;gap:10px;transition:bottom .36s var(--ease)}
-.speedo{width:112px;height:112px;border-radius:50%;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;cursor:pointer;padding:0}
+.speedo{width:112px;height:112px;border-radius:50%;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;cursor:pointer;padding:0;backdrop-filter:var(--blur)}
 .speedo svg{position:absolute;inset:0}
 .speedo .arc-bg{stroke:var(--line)}
 .speedo .arc{stroke:var(--route);transition:stroke-dashoffset .6s cubic-bezier(.25,.8,.25,1)}
@@ -337,7 +343,7 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .speedo.digital.off .sp-val{font-size:20px}
 .speedo .sp-tap{position:absolute;right:6px;top:6px;font-size:9px;color:var(--muted);opacity:.7;letter-spacing:.4px}
 .speedo.digital .sp-tap{top:5px;right:8px}
-.menu-btn{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--strong);box-shadow:var(--shadow);display:grid;place-items:center}
+.menu-btn{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--strong);box-shadow:var(--shadow);display:grid;place-items:center;backdrop-filter:var(--blur)}
 .menu-btn:hover{background:var(--hover)}
 
 /* drawer */
@@ -352,7 +358,7 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .icon-btn:hover{background:rgba(255,255,255,.15)}
 .dr-view{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:10px}
 .dr-view.on{display:flex}
-.dr-item{display:flex;align-items:center;gap:14px;width:100%;border:0;background:transparent;padding:12px 12px;border-radius:10px;text-align:left;font-size:15px;color:var(--text)}
+.dr-item{display:flex;align-items:center;gap:14px;width:100%;border:0;background:transparent;padding:14px 13px;border-radius:12px;text-align:left;font-size:15.5px;color:var(--text)}
 .dr-item:hover{background:var(--hover)}
 .dr-item svg{flex:none;color:var(--muted)}
 .dr-item .state{margin-left:auto;font-size:12px;color:var(--muted)}
@@ -442,7 +448,7 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 
 /* stop prompt, red-light chip, trip highlights */
 .stop-prompt{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);z-index:66;width:min(380px,calc(100vw - 24px));opacity:0;pointer-events:none;
-  background:var(--card);color:var(--card-ink);border-radius:16px;box-shadow:var(--card-shadow);padding:14px 16px;
+  background:var(--card);color:var(--card-ink);border-radius:20px;box-shadow:var(--card-shadow);padding:15px 17px;backdrop-filter:var(--blur);
   transition:opacity .28s ease,transform .32s cubic-bezier(.22,.9,.28,1)}
 .stop-prompt.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .stop-prompt h4{margin:0 0 4px;font-size:17px}
@@ -462,14 +468,14 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .dir-head h2{margin:0;font-size:20px;font-weight:700;color:var(--strong);letter-spacing:.2px}
 .dir-x{position:absolute;right:0;top:-2px;width:32px;height:32px;border-radius:50%;border:0;background:var(--ico);color:var(--muted);display:grid;place-items:center}
 .dir-x:hover{background:var(--hover);color:var(--strong)}
-.opts-pill{margin-top:7px;border:0;border-radius:18px;padding:7px 16px;font-size:14px;font-weight:700;
+.opts-pill{margin-top:8px;border:0;border-radius:18px;padding:8px 17px;font-size:14px;font-weight:700;
   background:var(--ico);color:var(--muted);transition:background .2s ease,color .2s ease}
 .opts-pill.on{background:var(--route);color:var(--route-ink)}
 .opts-pill:hover{filter:brightness(1.06)}
 /* Options sheet */
 .sheet-wrap{position:fixed;inset:0;z-index:72;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}
 .sheet-wrap.show{display:flex;animation:fadein .2s}
-.sheet{width:min(520px,100%);max-height:88vh;background:var(--panel);color:var(--text);border-radius:20px 20px 0 0;
+.sheet{width:min(520px,100%);max-height:88vh;background:var(--panel);color:var(--text);border-radius:24px 24px 0 0;backdrop-filter:var(--blur);
   display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -10px 40px rgba(0,0,0,.4);
   transform:translateY(16px);opacity:0;transition:transform .34s var(--ease),opacity .26s ease}
 .sheet-wrap.show .sheet{transform:none;opacity:1}
@@ -482,7 +488,7 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .seg{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:22px}
 .seg button{flex:1;border:0;background:transparent;border-radius:11px;padding:10px 6px;font-size:14px;font-weight:600;color:var(--muted)}
 .seg button.on{background:var(--route);color:var(--route-ink);box-shadow:0 2px 8px rgba(0,0,0,.16)}
-.sh-group{border:1px solid var(--line);background:var(--panel-2);border-radius:14px;overflow:hidden;margin-bottom:22px}
+.sh-group{border:1px solid var(--line);background:var(--panel-2);border-radius:var(--radius);overflow:hidden;margin-bottom:22px}
 .sh-row{display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid var(--line);font-size:16px;color:var(--text)}
 .sh-row:first-child{border-top:0}
 .sh-row .t{flex:1;min-width:0}
@@ -576,7 +582,7 @@ body.route-ready .search{display:none}
 body.navigating .banner{display:none}
 body.navigating #map{top:0}
 .navcard{position:fixed;top:0;left:0;right:0;z-index:21;
-  background:var(--card);color:var(--card-ink);border-radius:0 0 18px 18px;box-shadow:var(--card-shadow);display:none;overflow:hidden;
+  background:var(--card);color:var(--card-ink);border-radius:0 0 22px 22px;box-shadow:var(--card-shadow);display:none;overflow:hidden;backdrop-filter:var(--blur);
   padding-top:env(safe-area-inset-top)}
 body.navigating .navcard{display:block;animation:drop .35s ease}
 @keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
@@ -591,7 +597,7 @@ body.navigating .navcard{display:block;animation:drop .35s ease}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-then span{opacity:.7;text-transform:uppercase;letter-spacing:.6px;font-size:11px;font-weight:700}
 .eta-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:21;width:min(720px,100%);display:none;align-items:center;gap:12px;
-  background:var(--card);color:var(--card-ink);border-radius:20px 20px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.28);
+  background:var(--card);color:var(--card-ink);border-radius:24px 24px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.28);backdrop-filter:var(--blur);
   padding:14px 18px calc(14px + env(safe-area-inset-bottom))}
 body.navigating .eta-bar{display:flex;animation:rise .35s ease}
 @keyframes rise{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
@@ -610,7 +616,7 @@ body.navigating .stop-prompt{bottom:calc(132px + env(safe-area-inset-bottom))}
 body.navigating .toast{bottom:calc(122px + env(safe-area-inset-bottom))}
 body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(100px + env(safe-area-inset-bottom))}
 .recentre{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:19;display:none;align-items:center;gap:8px;
-  border:0;border-radius:24px;padding:11px 18px;background:var(--card);color:var(--card-ink);font-weight:600;box-shadow:var(--card-shadow)}
+  border:0;border-radius:24px;padding:12px 19px;background:var(--card);color:var(--card-ink);font-weight:600;box-shadow:var(--card-shadow);backdrop-filter:var(--blur)}
 .recentre.show{display:flex;animation:risein .3s var(--ease)}
 @keyframes risein{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translateX(-50%)}}
 body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
@@ -989,10 +995,7 @@ body.wx-open{overflow:hidden}
     <button class="dr-item" data-go="explore"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>Explore nearby</button>
     <div class="dr-sep"></div>
     <button class="dr-item" data-go="australia"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Show all of Australia</button>
-    <button class="dr-item" data-go="3d"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>3D view<span class="state" id="dr3dState">On</span></button>
-    <button class="dr-item" data-go="recentre"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/></svg>Re-centre on me</button>
     <button class="dr-item" data-go="gps"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 18a9 9 0 1 1 14 0"/><path d="m12 13 4-5"/></svg>Speedometer GPS<span class="state" id="drGpsState">Off</span></button>
-    <button class="dr-item" data-go="places"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Home, Work &amp; Favourites</button>
     <button class="dr-item" data-go="weather"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.3 11.2 3.9 3.9 0 0 0 7 19z"/><path d="M12 4.5V3"/></svg>Weather<span class="state" id="drWxState"></span></button>
     <button class="dr-item" data-go="trips"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21V4M4 4h11l-2 4 2 4H4"/><path d="M14 17h6M17 14v6"/></svg>Trip history<span class="state" id="drTripCount"></span></button>
     <button class="dr-item" data-go="resetview"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><circle cx="12" cy="12" r="2.5"/></svg>Reset view &amp; zoom</button>
@@ -1001,7 +1004,7 @@ body.wx-open{overflow:hidden}
     <button class="dr-item" data-go="settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
     <button class="dr-item" data-go="whatsnew"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>What's new<span class="newdot" id="newDot" hidden>NEW</span></button>
     <div class="dr-foot">One Maps <span id="verLabel"></span></div>
-    <div class="dr-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · tiles <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> / <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> · satellite imagery © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>, Maxar, Earthstar Geographics · routing OSRM · search Photon · traffic lights Overpass · transit <a href="https://transitous.org/sources/" target="_blank" rel="noopener">Transitous</a> · weather <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)</div>
+    <div class="dr-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · tiles <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> / <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> · satellite imagery © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>, Maxar, Earthstar Geographics · routing OSRM &amp; <a href="https://valhalla.openstreetmap.de/" target="_blank" rel="noopener">Valhalla</a> · search Photon · traffic lights Overpass · transit <a href="https://transitous.org/sources/" target="_blank" rel="noopener">Transitous</a> · weather <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)</div>
   </div>
   <div class="dr-view" id="drPlaces">
     <div id="placesBody"></div>
@@ -1626,7 +1629,7 @@ let is3d = true;
 function set3d(on, { animate = true } = {}) {
   is3d = on;
   $('#btn3d').classList.toggle('on', on);
-  $('#dr3dState').textContent = on ? 'On' : 'Off';
+  const st3d = document.getElementById('dr3dState'); if (st3d) st3d.textContent = on ? 'On' : 'Off';
   const wantTerrain = on && SET.terrain, hasTerrain = !!map.getTerrain();
   if (wantTerrain !== hasTerrain) { try { map.stop(); map.setTerrain(wantTerrain ? { source: 'dem', exaggeration: 1.4 } : null); } catch (e) { console.warn(e); } }
   if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 950, easing: EASE_CAM });
@@ -2006,7 +2009,7 @@ function flipToggle(el) {
   applyDisplay();
   if (key === 'keepAwake') { SET.keepAwake ? requestWake(true) : releaseWake(); }
   if (key === 'autoLocate' && SET.autoLocate) autoLocate();
-  if (key === 'sensors') { SET.sensors ? startMotionSensors(true) : stopMotionSensors(); }
+  if (key === 'sensors') { if (SET.sensors) { if (motionAnswer() === 'denied') forgetMotionAnswer(); startMotionSensors(true); } else stopMotionSensors(); }
   if (key === 'satellite') applySatellite();
   if (key === 'trafficOn') refreshTraffic(true);
   if (key === 'wxEta') { updateWeatherInfo(); if (S.routes.length) renderRoutes(); if (NAV.on) updateNavCard(NAV.lastAlong || 0); }
@@ -2427,8 +2430,12 @@ function avoidList() {
   if (S.mode === 'car') { if (SET.avoidToll) ex.push('toll'); if (SET.avoidMotorway) ex.push('motorway'); }
   return ex;
 }
-async function osrmFetch(base, signal) {
+async function osrmFetch(base, signal, pts) {
   const want = avoidList();
+  if (want.length && pts) {                                 // a router that can honour it
+    try { return await valhallaFetch(pts[0], pts[1], S.mode, signal); }
+    catch (e) { if (e.name === 'AbortError') throw e; console.warn('[valhalla]', e.message); }
+  }
   const tries = want.length ? (want.length > 1 ? [want, [want[0]], [want[1]], []] : [want, []]) : [[]];
   let last = null;
   for (const ex of tries) {
@@ -2444,7 +2451,7 @@ async function osrmFetch(base, signal) {
 const TOLL_RE = /\b(citylink|city link|eastlink|east link|peninsula link|clem\s?7|airportlink|airport link|legacy way|go between|gateway (motorway|bridge)|logan motorway|cross city tunnel|lane cove tunnel|eastern distributor|westconnex|northconnex|m[2457]\b|toll)\b/i;
 const MWAY_RE = /\b(motorway|freeway|fwy|mwy|expressway|tollway|autoroute)\b/i;
 function routeUses(r) {
-  if (r._uses) return r._uses;
+  if (r._uses) return r._uses;                              // Valhalla told us per manoeuvre
   const steps = r.legs ? r.legs.flatMap(l => l.steps) : [];
   let toll = 0, mway = 0;
   const tollN = new Set(), mwayN = new Set();
@@ -2460,6 +2467,72 @@ function routeBreaks(r, want) {                              // metres of road y
   const u = routeUses(r);
   return (want.includes('toll') ? u.toll : 0) + (want.includes('motorway') ? u.mway : 0);
 }
+/* The OSM demo OSRM can't exclude roads, so when you ask to avoid something we route with
+   Valhalla instead — it costs tolls and motorways out properly and tells us, per manoeuvre,
+   whether it had to use one anyway. */
+const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
+const VH_TURN = {
+  1: ['depart', ''], 2: ['depart', 'right'], 3: ['depart', 'left'],
+  4: ['arrive', ''], 5: ['arrive', 'right'], 6: ['arrive', 'left'],
+  7: ['new name', ''], 8: ['continue', 'straight'],
+  9: ['turn', 'slight right'], 10: ['turn', 'right'], 11: ['turn', 'sharp right'],
+  12: ['continue', 'uturn'], 13: ['continue', 'uturn'],
+  14: ['turn', 'sharp left'], 15: ['turn', 'left'], 16: ['turn', 'slight left'],
+  17: ['on ramp', 'straight'], 18: ['on ramp', 'right'], 19: ['on ramp', 'left'],
+  20: ['off ramp', 'right'], 21: ['off ramp', 'left'],
+  22: ['fork', 'straight'], 23: ['fork', 'right'], 24: ['fork', 'left'],
+  25: ['merge', ''], 26: ['roundabout', ''], 27: ['exit roundabout', ''],
+  28: ['notification', ''], 29: ['notification', '']
+};
+function valhallaRoute(trip) {
+  const coords = [], steps = [];
+  let toll = 0, mway = 0;
+  const tollN = new Set(), mwayN = new Set();
+  for (const leg of trip.legs || []) {
+    const shape = decodePolyline(leg.shape || '', 6);
+    const base = coords.length;
+    for (let i = (base ? 1 : 0); i < shape.length; i++) coords.push(shape[i]);
+    for (const m of leg.maneuvers || []) {
+      const dist = (m.length || 0) * 1000;
+      const name = (m.street_names || [])[0] || (m.begin_street_names || [])[0] || '';
+      const loc = shape[Math.min(shape.length - 1, Math.max(0, m.begin_shape_index || 0))] || coords[0];
+      const [type, modifier] = VH_TURN[m.type] || ['turn', ''];
+      steps.push({ name, ref: '', distance: dist, duration: m.time || 0, _instr: m.instruction,
+        maneuver: { type, modifier, location: loc, bearing_after: m.begin_heading || 0 } });
+      if (m.toll) { toll += dist; if (name) tollN.add(name); }
+      if (m.highway) { mway += dist; if (name) mwayN.add(name); }
+    }
+  }
+  const r = {
+    distance: (trip.summary && trip.summary.length || 0) * 1000,
+    duration: (trip.summary && trip.summary.time) || 0,
+    geometry: { type: 'LineString', coordinates: coords },
+    legs: [{ steps }], _valhalla: true
+  };
+  r._uses = { toll, mway, tollNames: [...tollN], mwayNames: [...mwayN] };
+  return r;
+}
+async function valhallaFetch(from, to, mode, signal) {
+  const want = avoidList();
+  const costing = mode === 'bike' ? 'bicycle' : mode === 'foot' ? 'pedestrian' : 'auto';
+  const opts = {};
+  if (costing === 'auto') {
+    if (want.includes('toll')) opts.use_tolls = 0;
+    if (want.includes('motorway')) opts.use_highways = 0;
+  }
+  const body = {
+    locations: [{ lat: +from[1].toFixed(6), lon: +from[0].toFixed(6) }, { lat: +to[1].toFixed(6), lon: +to[0].toFixed(6) }],
+    costing, costing_options: { [costing]: opts }, alternates: 2,
+    directions_options: { units: 'kilometers' }
+  };
+  const r = await fetch(`${VALHALLA}?json=${encodeURIComponent(JSON.stringify(body))}`, signal ? { signal } : undefined);
+  if (!r.ok) throw new Error('Valhalla ' + r.status);
+  const j = await r.json();
+  if (!j || !j.trip || !j.trip.legs) throw new Error('No route');
+  const routes = [valhallaRoute(j.trip)];
+  for (const alt of j.alternates || []) if (alt && alt.trip) routes.push(valhallaRoute(alt.trip));
+  return { code: 'Ok', routes, _wanted: want, _excluded: want, _valhalla: true };
+}
 const AVOID_NAME = { toll: 'tolls', motorway: 'motorways' };
 function routeOptsNote(j, pick) {
   const want = avoidList();
@@ -2468,12 +2541,12 @@ function routeOptsNote(j, pick) {
   if (!r) return '';
   const u = routeUses(r);
   const still = [];
-  if (want.includes('toll') && u.toll > 200) still.push(u.tollNames[0] || 'a toll road');
-  if (want.includes('motorway') && u.mway > 200) still.push(u.mwayNames[0] || 'a motorway');
+  if (want.includes('toll') && u.toll > 300) still.push(u.tollNames[0] || 'a toll road');
+  if (want.includes('motorway') && u.mway > 600) still.push(u.mwayNames[0] || 'a motorway');
   const cost = pick ? pick.cost : 0;
-  const extra = cost >= 45 ? ` · ${fmtSecs(cost)} longer than the quickest way` : cost <= -45 ? ` · ${fmtSecs(-cost)} quicker` : ' · same time as the quickest way';
+  const extra = cost >= 45 ? ` · ${fmtSecs(cost)} longer than the quickest way` : cost <= -45 ? ` · ${fmtSecs(-cost)} quicker` : '';
   if (!still.length) return `🚫 Avoiding ${want.map(x => AVOID_NAME[x]).join(' and ')}${extra}.`;
-  return `⚠️ Couldn't get around ${still.map(esc).join(' and ')} — this route still uses ${still.length > 1 ? 'them' : 'it'}.`;
+  return `⚠️ There's no way to this destination without ${still.map(esc).join(' and ')} — the rest of the route avoids what it can.`;
 }
 function updateRouteOptsInfo() {
   const el = document.getElementById('routeOpts');
@@ -2546,6 +2619,7 @@ const compass = b => ['north', 'north-east', 'east', 'south-east', 'south', 'sou
 const ordinal = n => { n = n || 1; const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 function instruction(s, isLast) {
   if (s.text) return s.text;
+  if (s._instr) return s._instr;
   const m = s.maneuver, t = m.type, mod = m.modifier || '';
   const nm = s.name || s.ref || '';
   const onto = nm ? ` onto ${nm}` : '';
@@ -2587,12 +2661,13 @@ async function routeInner() {
   const pts = `${S.from.coord[0]},${S.from.coord[1]};${S.to.coord[0]},${S.to.coord[1]}`;
   const url = `${ROUTER[S.mode]}/route/v1/driving/${pts}?overview=full&geometries=geojson&steps=true&alternatives=3`;
   try {
-    const j = await osrmFetch(url, routeCtrl.signal);
+    const j = await osrmFetch(url, routeCtrl.signal, [S.from.coord, S.to.coord]);
     if (j.code !== 'Ok' || !j.routes?.length) throw new Error(j.message || 'No route found between these points');
     S.routes = j.routes.slice(0, 3);
     const pick = pickRoute(S.routes);
     S.sel = pick.sel; S.avoid = pick;
     S.optsNote = routeOptsNote(j, pick);
+    if (j._valhalla) comparePlainRoute(url, S.routes[S.sel]);     // how much is avoiding them costing you?
     dirBannerEta(pick.cost >= 45 ? `That's ${fmtSecs(pick.cost)} longer on this trip.`
       : avoidList().length ? 'No time lost on this trip.' : '');
     PROG.frac = 0;
@@ -2643,11 +2718,11 @@ function avoidLine(r) {
   if (!want.length) return '';
   const u = routeUses(r);
   const kept = [], broke = [];
-  if (want.includes('toll')) (u.toll > 200 ? broke : kept).push('tolls');
-  if (want.includes('motorway')) (u.mway > 400 ? broke : kept).push('motorways');
+  if (want.includes('toll')) (u.toll > 300 ? broke : kept).push('tolls');
+  if (want.includes('motorway')) (u.mway > 600 ? broke : kept).push('motorways');
   const bits = [];
   if (kept.length) bits.push('Avoids ' + kept.join(' and '));
-  if (broke.length) bits.push('still uses ' + broke.join(' and '));
+  if (broke.length) bits.push(`${Math.round((want.includes('toll') && broke.includes('tolls') ? u.toll : u.mway) / 100) / 10} km on ${broke.join(' and ')} — unavoidable`);
   return bits.join(' · ');
 }
 function carCard(x, i) {
@@ -2672,6 +2747,22 @@ function fasterWarning() {
   const what = want.map(x => AVOID_NAME[x]).join(' and ');
   return `<div class="rc-warn"><span class="w">!</span><span>A faster route is available with ${esc(what)} — ${fmtSecs(cost)} quicker.</span></div>`;
 }
+/* fetch the unrestricted route in the background purely to say "x min quicker with tolls" */
+async function comparePlainRoute(url, chosen) {
+  if (!chosen) return;
+  const mine = routeSeq;
+  try {
+    const j = await (await fetch(url)).json();
+    if (mine !== routeSeq || j.code !== 'Ok' || !j.routes || !j.routes.length) return;
+    const fastest = j.routes.reduce((a, b) => (b.duration < a.duration ? b : a));
+    const cost = Math.round(routeDur(chosen) - routeDur(fastest));
+    if (!S.avoid) S.avoid = { sel: S.sel, avoided: [], stuck: [] };
+    S.avoid.cost = cost;
+    S.optsNote = (S.optsNote || '').replace(/\.$/, '') +
+      (cost >= 45 ? ` · ${fmtSecs(cost)} longer than going via ${routeUses(fastest).toll > 300 ? 'the tollway' : 'the motorway'}.` : '.');
+    if (S.routes.length && !NAV.on) renderRoutes();
+  } catch (e) {}
+}
 function routeTags(r) {
   const u = routeUses(r), t = [];
   if (u.toll > 200) t.push('<span class="rc-tag toll">Toll</span>');
@@ -2692,6 +2783,8 @@ function renderRoutes() {
     <div class="hint" id="routeTraffic" style="margin-top:2px"></div>
     <div class="hint" id="routeOpts" style="margin-top:2px"></div>
     <div class="hint" id="routeWx" style="margin-top:2px"></div>
+    <div class="hint" id="routeSchool" style="margin-top:2px"></div>
+    <div class="hint" id="routeLearn" style="margin-top:2px"></div>
     <div class="btns">
       <button class="btn primary" id="navStart" style="flex:1;justify-content:center;display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg> Start</button>
@@ -2716,11 +2809,14 @@ function renderRoutes() {
   updateTrafficInfo();
   updateRouteOptsInfo();
   updateWeatherInfo();
+  updateSchoolInfo();
+  updateLearnedInfo();
   $('#clearRoute').onclick = clearRoute;
   $('#navStart').onclick = () => startNav(false);
   $('#navSim').onclick = () => startNav(true);
   updateSignalInfo();
   loadRouteSignals(r);
+  loadRouteSchools(r);
 }
 
 /* ================= Traffic lights (OpenStreetMap via Overpass) ================= */
@@ -2767,27 +2863,40 @@ const sigKey = c => c[1].toFixed(4) + ',' + c[0].toFixed(4);
 const USIG_KEY = 'aumaps.userSignals';
 let USER_SIGNALS = (() => { try { const l = JSON.parse(localStorage.getItem(USIG_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } })();
 function saveUserSignals() { try { localStorage.setItem(USIG_KEY, JSON.stringify(USER_SIGNALS)); } catch (e) {} renderUserSignalSetting(); }
-const SIG_ON_ROUTE = 32, SIG_GROUP = 45;
+const SIG_ON_ROUTE = 60, SIG_GROUP = 32;                   // 60 m off the line still counts; 32 m apart is a separate set
 function activeRoute() { return NAV.on ? NAV.route : (S.routes && S.routes[S.sel]) || null; }
 /* with a destination set, the map shows only the lights you'll actually drive up to:
    anything more than ~30 m off your line is hidden, and one intersection shows one light */
-function visibleSignals() {
-  const feats = [...SIG.feats.values()];
-  const r = activeRoute();
-  if (!r || r.transit || !r.geometry) return feats;
+/* every set of lights you'll drive through: near the line, or at a junction you turn at */
+function routeSignalHits(r) {
   const hits = [];
-  for (const f of feats) {
-    const pr = projectNear(f.geometry.coordinates, r);
-    if (pr.d <= SIG_ON_ROUTE) hits.push({ f, a: pr.along, d: pr.d });
+  if (!r || r.transit || !r.geometry) return hits;
+  for (const f of SIG.feats.values()) {
+    const c = f.geometry.coordinates;
+    const pr = projectNear(c, r);
+    let d = pr.d;
+    if (d > SIG_ON_ROUTE && r === activeRoute() && NAV.steps) {    // lights on the far side of a turn
+      for (const st of NAV.steps) {
+        const loc = st.maneuver && st.maneuver.location;
+        if (loc && geoDist(loc, c) < 45) { d = Math.min(d, 45); break; }
+      }
+    }
+    if (d <= SIG_ON_ROUTE) hits.push({ f, a: pr.along, d, c });
   }
   hits.sort((x, y) => x.a - y.a || x.d - y.d);
   const out = [];
   for (const h of hits) {
     const prev = out[out.length - 1];
-    if (prev && h.a - prev.a < SIG_GROUP) { if (h.d < prev.d) out[out.length - 1] = h; continue; }
+    // one marker per intersection: same spot and same point along the route
+    if (prev && h.a - prev.a < SIG_GROUP && geoDist(prev.c, h.c) < 40) { if (h.d < prev.d) out[out.length - 1] = h; continue; }
     out.push(h);
   }
-  return out.map(h => h.f);
+  return out;
+}
+function visibleSignals() {
+  const r = activeRoute();
+  if (!r || r.transit || !r.geometry) return [...SIG.feats.values()];
+  return routeSignalHits(r).map(h => h.f);
 }
 function refreshSignalSource() { map.getSource('signals')?.setData({ type: 'FeatureCollection', features: visibleSignals() }); }
 function addUserSignalsToMap() {
@@ -2985,32 +3094,24 @@ function simplifyLine(coords, tol) {                       // Douglas–Peucker 
 }
 async function loadRouteSignals(r) {
   if (!r || r.transit || !SET.traffic || r._sigLoading || r._signals) return;
-  if (r.distance > 150000) return;                         // very long trips: map shows lights as you go
+  if (r.distance > 400000) return;                         // very long trips: map shows lights as you go
   r._sigLoading = true; updateSignalInfo();
   const coords = r.geometry.coordinates;
   let tol = 6, pts = simplifyLine(coords, tol);
   while (pts.length > 280) { tol *= 1.6; pts = simplifyLine(coords, tol); }
   const path = pts.map(c => c[1].toFixed(5) + ',' + c[0].toFixed(5)).join(',');
-  const cum = cumOf(coords), hits = [];
   try {
-    const j = await overpass(sigQuery(`(around:${Math.round(tol + 14)},${path})`));
+    const j = await overpass(sigQuery(`(around:${Math.round(Math.max(45, tol + 25))},${path})`));
     addSignals(j.elements);
-    for (const el of j.elements || []) {
-      if (el.type !== 'node') continue;
-      const pr = projectOn([el.lon, el.lat], coords, cum);
-      if (pr.d < 30) hits.push({ a: pr.along, k: sigKey([el.lon, el.lat]) });
-    }
   } catch (err) { console.warn('[signals]', err.message); }
-  for (const u of USER_SIGNALS) {                          // lights you confirmed yourself
-    const pr = projectOn([u.lon, u.lat], coords, cum);
-    if (pr.d < 30) hits.push({ a: pr.along, k: sigKey([u.lon, u.lat]), user: true });
-  }
-  hits.sort((x, y) => x.a - y.a);
-  const ded = hits.filter((h, i) => i === 0 || h.a - hits[i - 1].a > 45);   // one entry per intersection
+  addUserSignalsToMap();                                   // lights you confirmed yourself count too
+  const ded = routeSignalHits(r);                          // exactly what the map is showing
   r._signals = ded.map(h => h.a);
-  r._sigKeys = ded.map(h => h.k);
+  r._sigKeys = ded.map(h => sigKey(h.f.geometry.coordinates));
   r._sigLoading = false;
+  refreshSignalSource();
   updateSignalInfo();
+  if (NAV.on && NAV.route === r) { NAV.signals = r._signals; NAV.sigKeys = r._sigKeys; }
 }
 function updateSignalInfo() {
   const r = S.routes[S.sel], el = document.getElementById('routeSig');
@@ -3449,9 +3550,10 @@ const SPEEDO = {
 };
 SPEEDO.init();
 SPEEDO.applyStyle();
+setTimeout(() => { if (SET.sensors && motionAnswer() === 'granted') startMotionSensors(false); }, 0);
 
 /* ============ Phone motion sensors: used to sharpen the speed reading ============ */
-const MSENSE = { avail: typeof DeviceMotionEvent !== 'undefined', on: false, mag: 0, still: 0, g: null, t: 0 };
+const MSENSE = { avail: typeof DeviceMotionEvent !== 'undefined', on: false, asked: false, mag: 0, still: 0, g: null, t: 0 };
 function onDeviceMotion(e) {
   const a = e.accelerationIncludingGravity || e.acceleration;
   if (!a || a.x == null) return;
@@ -3463,18 +3565,25 @@ function onDeviceMotion(e) {
   MSENSE.still = MSENSE.mag < 0.25 ? Math.min(60, MSENSE.still + 1) : 0;
   MSENSE.t = Date.now();
 }
+const MOTION_KEY = 'onemaps.motion';
+const motionAnswer = () => { try { return localStorage.getItem(MOTION_KEY); } catch (e) { return null; } };
+const setMotionAnswer = v => { try { localStorage.setItem(MOTION_KEY, v); } catch (e) {} };
 function startMotionSensors(gesture) {
   if (MSENSE.on || !MSENSE.avail || SET.sensors === false) return false;
-  const attach = () => { window.addEventListener('devicemotion', onDeviceMotion, { passive: true }); MSENSE.on = true; };
+  const attach = () => { window.addEventListener('devicemotion', onDeviceMotion, { passive: true }); MSENSE.on = true; setMotionAnswer('granted'); };
   const req = typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission;
-  if (typeof req === 'function') {                                                    // iOS asks, and only from a tap
-    if (!gesture) return false;
-    try { req.call(DeviceMotionEvent).then(st => { if (st === 'granted') attach(); }).catch(() => {}); } catch (e) {}
-    return true;
-  }
-  attach();
+  if (typeof req !== 'function') { attach(); return true; }
+  const answered = motionAnswer();
+  if (answered === 'granted') { attach(); return true; }    // you said yes once — never ask again
+  if (answered === 'denied') return false;                  // you said no — don't nag either
+  if (!gesture || MSENSE.asked) return false;               // iOS only allows the prompt from a tap, and once per load
+  MSENSE.asked = true;
+  try {
+    req.call(DeviceMotionEvent).then(st => { st === 'granted' ? attach() : setMotionAnswer('denied'); }).catch(() => {});
+  } catch (e) {}
   return true;
 }
+function forgetMotionAnswer() { try { localStorage.removeItem(MOTION_KEY); } catch (e) {} MSENSE.asked = false; }
 function stopMotionSensors() {
   if (!MSENSE.on) return;
   window.removeEventListener('devicemotion', onDeviceMotion);
@@ -3939,7 +4048,7 @@ async function reroute(p) {
   toast('Re-routing…');
   try {
     const url = `${ROUTER[NAV.mode]}/route/v1/driving/${p[0]},${p[1]};${S.to.coord[0]},${S.to.coord[1]}?overview=full&geometries=geojson&steps=true&alternatives=3`;
-    const j = await osrmFetch(url);
+    const j = await osrmFetch(url, null, [p, S.to.coord]);
     if (j.code === 'Ok' && j.routes.length) {
       const pick = pickRoute(j.routes);                     // steer around anything you've reported
       j.routes = [j.routes[pick.sel]];
@@ -4160,8 +4269,21 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '2.0.1';
+const APP_VERSION = '2.0.3';
 const CHANGELOG = [
+  { v: '2.0.3', items: [
+    'Adaptive ETA: if you arrive late to the same place twice, the app learns it and builds the extra time into every future trip there',
+    'It keeps adjusting with each trip, so the estimate gets closer rather than drifting high',
+    'Your scorecard tells you when a destination has been learnt, and by how much',
+    'School zones: 8:00–9:30 and 3:00–4:30 on school days now add 20% when there are schools on your route',
+    'The route tells you how many school zones are on the way, and whether the allowance is live right now'] },
+  { v: '2.0.2', items: [
+    'The motion permission is asked once and remembered — tapping the speedometer never asks again',
+    'Avoid tolls and motorways now routes with a router that can genuinely exclude them, and each route says exactly how much toll or motorway it still has to use',
+    'Every set of lights on your route is counted and shown — lights set back from the line or on the far side of a turn were being dropped',
+    'The route light count and the markers on the map are now always the same set',
+    'Cleaner look throughout: segmented tabs, round floating controls, frosted surfaces and roomier cards',
+    'Menu tidied — 3D view, Re-centre and Saved places were already on the map screen'] },
   { v: '2.0.1', items: [
     'Avoid tolls and Avoid motorways now really change the route and the ETA — the app reads what each alternative is made of and picks one that honours your choice, then tells you what it costs in time',
     'Route cards show a Toll or Motorway tag so you can see the difference at a glance',
@@ -4320,8 +4442,109 @@ async function liveTraffic(r, key) {
   samples.pts = pts;
   return buildTrafficFeats(r, samples, speeds.map(x => x && x.cur));
 }
+/* ============ School zones: 8:00–9:30 and 15:00–16:30 on school days ============ */
+const SCHOOL_WINDOWS = [[8 * 60, 9 * 60 + 30], [15 * 60, 16 * 60 + 30]];
+const SCHOOL_PENALTY = 1.2;
+function departureTime() {                                 // "Leave at" / "Arrive by" count too
+  const el = document.getElementById('departAt');
+  if (S.timeMode === 'at' && el && el.value) return new Date(el.value);
+  if (S.timeMode === 'by' && el && el.value) return new Date(el.value);
+  return new Date();
+}
+function inSchoolHours(when) {
+  const d = when || new Date();
+  const day = d.getDay();
+  if (day === 0 || day === 6) return false;                // no school zones at the weekend
+  const m = d.getHours() * 60 + d.getMinutes();
+  return SCHOOL_WINDOWS.some(([a, b]) => m >= a && m <= b);
+}
+const schoolQuery = area => `[out:json][timeout:25];(node["amenity"="school"]${area};way["amenity"="school"]${area};);out center 60;`;
+async function loadRouteSchools(r) {
+  if (!r || r.transit || !r.geometry || r._schools != null || r._schoolLoading) return;
+  if (r.distance > 400000) return;
+  r._schoolLoading = true;
+  let tol = 25, pts = simplifyLine(r.geometry.coordinates, tol);
+  while (pts.length > 200) { tol *= 1.7; pts = simplifyLine(r.geometry.coordinates, tol); }
+  const path = pts.map(c => c[1].toFixed(5) + ',' + c[0].toFixed(5)).join(',');
+  try {
+    const j = await overpass(schoolQuery(`(around:140,${path})`));
+    const seen = new Set(), list = [];
+    for (const el of j.elements || []) {
+      const c = el.type === 'node' ? [el.lon, el.lat] : el.center ? [el.center.lon, el.center.lat] : null;
+      if (!c) continue;
+      const pr = projectNear(c, r);
+      if (pr.d > 150) continue;
+      const k = (el.tags && el.tags.name) || sigKey(c);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      list.push({ c, name: (el.tags && el.tags.name) || 'School', a: pr.along });
+    }
+    list.sort((a, b) => a.a - b.a);
+    r._schoolList = list;
+    r._schools = list.length;
+  } catch (e) { r._schools = 0; }
+  r._schoolLoading = false;
+  if (S.routes.includes(r) && !NAV.on) renderRoutes();
+  else { updateSchoolInfo(); if (NAV.on) updateNavCard(NAV.lastAlong || 0); }
+}
+function schoolFactor(r) {
+  if (!r || !r._schools) return 1;
+  return inSchoolHours(departureTime()) ? SCHOOL_PENALTY : 1;
+}
+function schoolNote(r) {
+  if (!r || !r._schools) return '';
+  const nm = (r._schoolList && r._schoolList[0] && r._schoolList[0].name) || '';
+  const many = r._schools > 1 ? `${r._schools} school zones` : `a school zone${nm && nm !== 'School' ? ' at ' + nm : ''}`;
+  return inSchoolHours(departureTime())
+    ? `🏫 ${many} on your route in school hours — 20% added to the ETA.`
+    : `🏫 ${many} on your route (outside school hours right now).`;
+}
+function updateSchoolInfo() {
+  const el = document.getElementById('routeSchool');
+  if (el) el.textContent = schoolNote(S.routes[S.sel]);
+}
+
+/* ============ Adaptive ETA: this trip keeps running late, so plan for it ============ */
+const ETAFIT_KEY = 'onemaps.etafit', ETAFIT_MAX = 1.6;
+let ETAFIT = (() => { try { return JSON.parse(localStorage.getItem(ETAFIT_KEY) || '{}') || {}; } catch (e) { return {}; } })();
+const saveEtaFit = () => { try { localStorage.setItem(ETAFIT_KEY, JSON.stringify(ETAFIT)); } catch (e) {} };
+const destKeyOf = (c, mode) => c ? `${(mode || 'car')}:${c[1].toFixed(3)},${c[0].toFixed(3)}` : '';
+function etaFit(key) { const f = key && ETAFIT[key]; return f && f.late >= 2 && f.factor > 1.01 ? f : null; }
+function learnedFactor(r) {
+  const f = etaFit(destKeyOf(S.to && S.to.coord, S.mode));
+  return f ? Math.min(ETAFIT_MAX, f.factor) : 1;
+}
+/* after every real arrival: did we get there later than we promised? */
+function learnEta(card, key, name) {
+  if (!card || card.sim || card.status !== 'arrived' || !key || !(card.estDur > 60)) return null;
+  const ratio = Math.max(0.6, Math.min(ETAFIT_MAX, card.elapsed / card.estDur));
+  const f = ETAFIT[key] || { n: 0, late: 0, factor: 1, name: name || card.to };
+  f.n++;
+  f.name = name || f.name;
+  f.lastAt = Date.now();
+  if (ratio > 1.03) f.late++;                              // arrived after the ETA we showed at the start
+  if (f.late >= 2) {
+    // the estimate already carried the old correction, so fold the new ratio into it gently
+    const target = f.factor * ratio;
+    f.factor = Math.max(1, Math.min(ETAFIT_MAX, f.factor + (target - f.factor) * 0.5));
+  }
+  ETAFIT[key] = f;
+  saveEtaFit();
+  return f;
+}
+function learnedNote() {
+  const f = etaFit(destKeyOf(S.to && S.to.coord, S.mode));
+  if (!f) return '';
+  const pct = Math.round((Math.min(ETAFIT_MAX, f.factor) - 1) * 100);
+  return pct < 1 ? '' : `🧠 ${pct}% added — your last ${f.late} trips here ran over the estimate.`;
+}
+function updateLearnedInfo() {
+  const el = document.getElementById('routeLearn');
+  if (el) el.textContent = learnedNote();
+}
+
 const routeBase = r => (r && (r.duration || 0)) + ((r && r._delay) || 0);
-const routeDur = r => { const b = routeBase(r); return b * wxFactor(b); };
+const routeDur = r => { const b = routeBase(r); return b * wxFactor(b) * schoolFactor(r) * learnedFactor(r); };
 async function refreshTraffic(force) {
   const src = map.getSource('traffic'); if (!src) return;
   const r = activeRoute();
@@ -4828,7 +5051,9 @@ function tripsAll() { const l = loadTrips(); return l.length || !TRIP.mem ? l : 
 function updateTripCount() { const n = tripsAll().length; $('#drTripCount').textContent = n ? String(n) : ''; }
 function tripBegin(r) {
   TRIP.rec = { id: Date.now(), sim: !!NAV.sim, mode: NAV.mode, from: S.from ? S.from.title : 'Start', to: S.to ? S.to.title : 'Destination',
-    plannedDur: routeDur(r), plannedDist: NAV.total, startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
+    plannedDur: routeDur(r), plannedDist: NAV.total,
+    destKey: destKeyOf(S.to && S.to.coord, NAV.mode), destName: S.to ? S.to.title : '',
+    schools: r._schools || 0, schoolHours: inSchoolHours(new Date()), startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
     dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, userKeys: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false, redTime: 0, traffic: 0,
     path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0, spd: [], spdLast: null, recent: [] };
 }
@@ -5154,12 +5379,14 @@ function tripFinish(status) {
     reroutes: R.reroutes, simFactor: NAV.simFactor || 1,
     confirmed: R.confirmed, redTime: R.redTime || 0, traffic: R.traffic || 0,
     topAt: R.topAt, stopsList: R.stops.slice(0, 80), spd: R.spd.slice(0, 450),
+    destKey: R.destKey, destName: R.destName, schools: R.schools, schoolHours: R.schoolHours,
     lightsMap: [...new Set([...Object.keys(R.passed), ...Object.keys(R.red)])].map(k => {
       const [la, lo] = k.split(',').map(Number);
       return isFinite(la) && isFinite(lo) ? { c: [lo, la], red: !!R.red[k], user: !!R.userKeys[k] } : null;
     }).filter(Boolean),
     path: (() => { let tol = 5, pts = simplifyLine(R.path, tol); while (pts.length > 300) { tol *= 1.6; pts = simplifyLine(R.path, tol); } return pts.map(c => [+c[0].toFixed(6), +c[1].toFixed(6)]); })()
   };
+  card.fit = learnEta(card, R.destKey, R.destName);        // next time to this place, aim closer
   const list = tripsAll().filter(t => t.id !== card.id);
   list.unshift(card);
   saveTrips(list.slice(0, 200));
@@ -5200,6 +5427,8 @@ function showScore(t) {
       ${tile('Confirmed by you', t.confirmed || 0, 'red lights you confirmed')}
       ${tile('Stuck in traffic', t.traffic || 0, 'hold-ups you marked')}
     </div>
+    ${t.fit && t.fit.late >= 2 ? `<div class="score-note" style="border-top:0">🧠 You've arrived later than the estimate ${t.fit.late} times going here — future ETAs to ${esc(t.destName || t.to)} now include ${Math.round((Math.min(1.6, t.fit.factor) - 1) * 100)}% extra.</div>` : ''}
+    ${t.schools ? `<div class="score-note" style="border-top:0">🏫 ${t.schools} school zone${t.schools === 1 ? '' : 's'} on this route${t.schoolHours ? ' — you drove it in school hours, so 20% was already in your ETA.' : '.'}</div>` : ''}
     <div class="score-note">Red lights are estimated: any stop of 3 seconds or more at a set of traffic lights counts as a red light. Traffic light locations come from OpenStreetMap, so some may be missing.${t.sim ? ' This was a sped-up preview, so times and speeds are illustrative only.' : ''} Scorecards are kept on this device for 30 days.</div>
     <div class="score-foot"><button class="btn primary" id="scoreClose" style="flex:1;justify-content:center">Done</button><button class="btn ghost" id="scoreMap">🗺 Map highlights</button><button class="btn ghost" id="scoreHistory">History</button><button class="btn ghost" id="scoreDelete">Delete</button></div>`;
   $('#scoreModal').classList.add('show');
@@ -5410,14 +5639,15 @@ document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
 });
 if (isMobile()) setCollapsed(true);
-window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visibleSignals, projectNear, refreshSignalSource,
+window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visibleSignals, routeSignalHits, projectNear, refreshSignalSource, motionAnswer, startMotionSensors,
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
   tripSample, tripBegin, trackStop,
-  WX, loadWeather, wxRisk, wxFactor, wxInfo, wxIcon, windDir, renderWeatherPanel, renderWeatherApp, openWeatherApp, closeWeatherApp, wxEtaNote, routeBase,
+  WX, loadWeather, wxRisk, wxFactor, schoolFactor, inSchoolHours, schoolNote, loadRouteSchools, departureTime,
+  get ETAFIT() { return ETAFIT; }, learnEta, etaFit, learnedFactor, learnedNote, destKeyOf, saveEtaFit, wxInfo, wxIcon, windDir, renderWeatherPanel, renderWeatherApp, openWeatherApp, closeWeatherApp, wxEtaNote, routeBase,
   wxSpots, wxCur, wxGo, wxSetExtra, wxRemoveExtra, wxPickPlace, wxGeocode, sendWeatherToMaps, openWxSearch, closeWxSearch, wxSearchRun, wxLocalTime, wxExactHere,
   refreshTraffic, historyTraffic, buildSpeedHistory, historySpeed, routeDur, trafficNote, TRAF, avoidList, osrmFetch, routeOptsNote, renderAvoidOpts,
-  routeUses, routeBreaks, routeTags, openOptsSheet, closeOptsSheet, timeLine, avoidLine, fasterWarning, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
+  routeUses, routeBreaks, routeTags, openOptsSheet, closeOptsSheet, timeLine, avoidLine, fasterWarning, valhallaFetch, valhallaRoute, get USER_SIGNALS() { return USER_SIGNALS; }, showTripOnMap, nearIntersection, intersectionNear, segCross, RED, startRedTimer, stopRedTimer, updateRouteBanner, TRIP, tripsAll, showScore, resetView, map, S, FUEL, STOPS, decodePolyline, openFuel, NAV, SW, SET, MOTION, SPEEDO, SIG, WAKE, buildStyle, PAL, genTrees, genBridges, update3D, applyTheme };
 })();
 </script>
 </body>
