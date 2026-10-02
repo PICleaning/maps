@@ -334,6 +334,36 @@ h3{margin:0 0 10px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;c
 .sw-btn{flex:1;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--strong);display:grid;place-items:center}
 .sw-btn:hover{background:var(--hover)}
 
+/* track timer — pops out of the trip stopwatch */
+.track{width:196px;margin-top:-6px;transform-origin:top right;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);backdrop-filter:var(--blur);overflow:hidden;
+  opacity:0;transform:translateY(-14px) scale(.9);pointer-events:none;max-height:0;
+  transition:opacity .26s ease,transform .38s var(--ease),max-height .38s var(--ease),margin-top .38s var(--ease)}
+body.track-open .track{opacity:1;transform:none;pointer-events:auto;max-height:420px;margin-top:8px}
+.tk-top{display:flex;align-items:center;gap:7px;padding:9px 12px 6px;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tk-top .sp{flex:1}
+.tk-reset{border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:600;padding:2px 4px;border-radius:6px}
+.tk-reset:hover{background:var(--hover);color:var(--strong)}
+.tk-live{display:flex;align-items:baseline;gap:6px;padding:0 12px 6px}
+.tk-live b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:24px;font-weight:700;color:var(--strong);font-variant-numeric:tabular-nums}
+.tk-live span{font-size:11px;color:var(--muted)}
+.tk-live i{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--route)}
+.tk-g{display:flex;gap:4px;padding:0 12px 8px}
+.tk-g div{flex:1;text-align:center;border-radius:9px;background:var(--panel-2);border:1px solid var(--line);padding:5px 2px}
+.tk-g .k{font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tk-g .v{font-size:14px;font-weight:700;color:var(--strong);font-variant-numeric:tabular-nums;margin-top:1px}
+.tk-rows{border-top:1px solid var(--line)}
+.tk-row{display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:12px;border-bottom:1px solid var(--line)}
+.tk-row:last-child{border-bottom:0}
+.tk-row .lbl{color:var(--muted);flex:1}
+.tk-row .t{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;color:var(--strong);font-variant-numeric:tabular-nums}
+.tk-row.live{background:var(--route-soft)}
+.tk-row.live .lbl{color:var(--strong)}
+.tk-row .t.none{color:var(--muted);font-weight:500}
+.tk-foot{padding:7px 12px;font-size:10px;color:var(--muted);border-top:1px solid var(--line);line-height:1.4}
+.stopwatch{cursor:pointer}
+body.hide-track .track{display:none}
+
 /* bottom-left: speedometer + menu */
 .bl-stack{position:fixed;left:14px;bottom:18px;z-index:19;display:flex;flex-direction:column;align-items:flex-start;gap:10px;transition:bottom .36s var(--ease)}
 .speedo{width:112px;height:112px;border-radius:50%;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;cursor:pointer;padding:0;backdrop-filter:var(--blur)}
@@ -567,6 +597,28 @@ details.rt summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--str
 .av-item .sp{flex:1;min-width:0}
 .av-item small{display:block;color:var(--muted);font-size:11px}
 .av-x{border:0;background:transparent;color:var(--muted);width:28px;height:28px;border-radius:50%;flex:none}
+/* ---- offline maps ---- */
+.off-new{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.off-new>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.off-new b{color:var(--strong);font-size:14px}
+.off-new small{color:var(--muted);font-size:11.5px}
+.off-new .btn{flex:none;padding:9px 14px}
+.off-item{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.off-item:last-of-type{border-bottom:0}
+.off-item .sp{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.off-item b{color:var(--strong);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.off-item small{color:var(--muted);font-size:11.5px}
+.off-item .btn{padding:6px 11px;font-size:12px;flex:none}
+.off-job{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:9px}
+.off-bar{height:7px;border-radius:99px;background:var(--line);overflow:hidden}
+.off-bar i{display:block;height:100%;border-radius:99px;background:var(--route);transition:width .35s var(--ease)}
+.off-jt{color:var(--muted);font-size:12px}
+.off-job .btn{align-self:flex-start;padding:6px 12px;font-size:12px}
+.off-pill{display:none;align-items:center;gap:7px;align-self:flex-end;background:var(--panel);border:1px solid var(--line);color:var(--strong);
+  border-radius:99px;padding:7px 13px;font-size:12.5px;font-weight:650;box-shadow:var(--shadow);backdrop-filter:blur(14px);
+  animation:offIn .4s var(--ease) both}
+body.offline .off-pill{display:flex}
+@keyframes offIn{from{opacity:0;transform:translateY(-8px) scale(.94)}to{opacity:1;transform:none}}
 .av-x:hover{background:var(--hover);color:var(--strong)}
 .stop-prompt .bar{height:3px;border-radius:2px;background:var(--card-line);margin-top:10px;overflow:hidden}
 .stop-prompt .bar i{display:block;height:100%;width:100%;background:currentColor;opacity:.5}
@@ -948,6 +1000,7 @@ body.wx-open{overflow:hidden}
 
 <!-- top right -->
 <div class="tr-stack">
+  <div class="off-pill" id="offPill" aria-live="polite">No connection</div>
   <div class="stopwatch" id="stopwatch" aria-live="polite">
     <div class="red-pill" id="redPill" aria-live="polite"><i></i>Red light <b id="redPillTime">0:00</b></div>
     <div class="sw-top"><span class="sw-dot" id="swDot"></span>Trip stopwatch</div>
@@ -959,6 +1012,17 @@ body.wx-open{overflow:hidden}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
       </button>
     </div>
+  </div>
+  <div class="track" id="track" aria-live="polite">
+    <div class="tk-top"><span>Track timer</span><span class="sp"></span><button class="tk-reset" id="tkReset">Reset</button></div>
+    <div class="tk-live"><b id="tkSpeed">0</b><span>km/h</span><i id="tkState"></i></div>
+    <div class="tk-g">
+      <div><div class="k">Accel</div><div class="v" id="tkGa">0.00</div></div>
+      <div><div class="k">Brake</div><div class="v" id="tkGb">0.00</div></div>
+      <div><div class="k">Lateral</div><div class="v" id="tkGl">0.00</div></div>
+    </div>
+    <div class="tk-rows" id="tkRows"></div>
+    <div class="tk-foot" id="tkFoot">Best runs on this device · from GPS and your phone's sensors</div>
   </div>
   <div class="map-ctl">
     <button class="fab" id="btnRecentre" title="Re-centre on my location">
@@ -1007,6 +1071,7 @@ body.wx-open{overflow:hidden}
     <div class="dr-sep"></div>
     <button class="dr-item" data-go="australia"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Show all of Australia</button>
     <button class="dr-item" data-go="weather"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.3 11.2 3.9 3.9 0 0 0 7 19z"/><path d="M12 4.5V3"/></svg>Weather<span class="state" id="drWxState"></span></button>
+    <button class="dr-item" data-go="offline"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V8a2 2 0 0 0-1.1-1.8l-7-3.6a2 2 0 0 0-1.8 0l-7 3.6A2 2 0 0 0 3 8v8a2 2 0 0 0 1.1 1.8l7 3.6a2 2 0 0 0 1.8 0l3.1-1.6"/><path d="M3.3 7 12 11.5 20.7 7M12 21v-9.5"/></svg>Offline maps<span class="state" id="drOffState"></span></button>
     <button class="dr-item" data-go="trips"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21V4M4 4h11l-2 4 2 4H4"/><path d="M14 17h6M17 14v6"/></svg>Trip history<span class="state" id="drTripCount"></span></button>
     <button class="dr-item" data-go="resetview"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><circle cx="12" cy="12" r="2.5"/></svg>Reset view &amp; zoom</button>
     <div class="dr-spacer"></div>
@@ -1025,6 +1090,7 @@ body.wx-open{overflow:hidden}
     </div>
   </div>
   <div class="dr-view" id="drWeather"><div id="weatherBody"></div></div>
+  <div class="dr-view" id="drOffline"><div id="offlineBody"></div></div>
   <div class="dr-view" id="drWhatsNew"><div id="whatsNewBody"></div></div>
   <div class="dr-view" id="drTrips">
     <p class="hint" style="margin:4px 4px 12px">Scorecards from your trips in the last 30 days. They're saved on this device only.</p>
@@ -1263,7 +1329,7 @@ const PAL = {
 
 /* ================= Settings ================= */
 const SETTINGS_KEY = 'aumaps.settings';
-const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false, sensors: true, satellite: false, trafficOn: true, wxEta: true, speedoDigital: false, avoidToll: false, avoidMotorway: false };
+const SET = { route: 'green', theme: 'dark', showSpeedo: true, showStopwatch: true, traffic: true, poiLabels: true, roadLabels: true, keepAwake: true, autoLocate: true, fuelRadius: 20, terrain: false, sensors: true, satellite: false, trafficOn: true, wxEta: true, trackTimer: false, speedoDigital: false, avoidToll: false, avoidMotorway: false };
 try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (e) {}
 if (!ROUTE_COLORS[SET.route]) SET.route = 'green';
 if (!PAL[SET.theme]) SET.theme = 'dark';
@@ -1543,13 +1609,15 @@ function buildStyle(p) {
   return {
     version: 8,
     name: 'One Maps',
-    glyphs: GLYPHS,
+    glyphs: offlineReady() ? 'omf://{fontstack}/{range}.pbf' : GLYPHS,
     light: { anchor: 'viewport', color: '#ffffff', intensity: p.lightI, position: [1.2, 200, 35] },
     ...(SET.terrain ? { terrain: { source: 'dem', exaggeration: 1.4 } } : {}),
     sky: { ...p.sky, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.7, 'fog-ground-blend': 0.6, 'atmosphere-blend': 0.4 },
     sources: {
       sat: { type: 'raster', tiles: [SAT_TILES], tileSize: 256, maxzoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
-      omt: { type: 'vector', url: TILES, attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>' },
+      omt: { type: 'vector', ...(offlineReady()
+        ? { tiles: ['om://{z}/{x}/{y}'], minzoom: 0, maxzoom: 14 }
+        : { url: TILES }), attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>' },
       dem: { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14, attribution: 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank">AWS Terrain Tiles</a>' },
       fuel: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       fuelRadius: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
@@ -1566,6 +1634,444 @@ function buildStyle(p) {
     },
     layers
   };
+}
+
+/* ================= Offline maps ================= */
+const OFF_KEY = 'onemaps.offline', OFF_TPL_KEY = 'onemaps.tiletpl', OFF_MAX_TILES = 5000, OFF_AVG_TILE = 42000;
+const OFF = { regions: [], tpl: '', db: null, job: null, topUp: true };
+try { OFF.regions = JSON.parse(localStorage.getItem(OFF_KEY) || '[]') || []; } catch (e) { OFF.regions = []; }
+try { OFF.tpl = localStorage.getItem(OFF_TPL_KEY) || ''; } catch (e) {}
+const offlineReady = () => OFF.regions.length > 0;
+const saveRegions = () => { try { localStorage.setItem(OFF_KEY, JSON.stringify(OFF.regions)); } catch (e) {} };
+
+/* ---- a small IndexedDB for tiles and fonts ---- */
+function offDB() {
+  if (OFF.db) return OFF.db;
+  OFF.db = new Promise((res, rej) => {
+    const r = indexedDB.open('onemaps-offline', 1);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      if (!d.objectStoreNames.contains('tiles')) d.createObjectStore('tiles');
+      if (!d.objectStoreNames.contains('glyphs')) d.createObjectStore('glyphs');
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return OFF.db;
+}
+async function idbGet(store, key) {
+  try {
+    const db = await offDB();
+    return await new Promise(res => {
+      const q = db.transaction(store).objectStore(store).get(key);
+      q.onsuccess = () => res(q.result || null); q.onerror = () => res(null);
+    });
+  } catch (e) { return null; }
+}
+async function idbPut(store, key, val) {
+  try {
+    const db = await offDB();
+    return await new Promise(res => {
+      const tx = db.transaction(store, 'readwrite');
+      tx.objectStore(store).put(val, key);
+      tx.oncomplete = () => res(true); tx.onerror = () => res(false); tx.onabort = () => res(false);
+    });
+  } catch (e) { return false; }
+}
+async function idbClear(store) {
+  try { const db = await offDB(); return await new Promise(res => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).clear(); tx.oncomplete = () => res(true); tx.onerror = () => res(false); }); }
+  catch (e) { return false; }
+}
+async function idbCount(store) {
+  try { const db = await offDB(); return await new Promise(res => { const q = db.transaction(store).objectStore(store).count(); q.onsuccess = () => res(q.result || 0); q.onerror = () => res(0); }); }
+  catch (e) { return 0; }
+}
+
+/* ---- where the real tiles live ---- */
+async function tileTemplate() {
+  if (OFF.tpl) return OFF.tpl;
+  try {
+    const j = await (await fetch(TILES)).json();
+    if (j && j.tiles && j.tiles[0]) { OFF.tpl = j.tiles[0]; try { localStorage.setItem(OFF_TPL_KEY, OFF.tpl); } catch (e) {} }
+  } catch (e) {}
+  return OFF.tpl || 'https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf';
+}
+const tileUrl = (tpl, z, x, y) => String(tpl).replace('{z}', z).replace('{x}', x).replace('{y}', y);
+/* tiles and fonts are served from storage first, then the network */
+if (typeof maplibregl !== 'undefined' && maplibregl.addProtocol) {
+  maplibregl.addProtocol('om', async params => {
+    const m = String(params.url).match(/^om:\/\/(\d+)\/(\d+)\/(\d+)/);
+    if (!m) throw new Error('bad tile url');
+    const key = `${m[1]}/${m[2]}/${m[3]}`;
+    const hit = await idbGet('tiles', key);
+    if (hit) return { data: hit };
+    const tpl = await tileTemplate();
+    const r = await fetch(tileUrl(tpl, m[1], m[2], m[3]));
+    if (!r.ok) { if (r.status === 404 || r.status === 204) return { data: new ArrayBuffer(0) }; throw new Error('tile ' + r.status); }
+    const buf = await r.arrayBuffer();
+    if (OFF.topUp && inAnyRegion(+m[1], +m[2], +m[3])) idbPut('tiles', key, buf);   // keep saved areas fresh as you drive
+    return { data: buf };
+  });
+  maplibregl.addProtocol('omf', async params => {
+    const m = String(params.url).match(/^omf:\/\/(.+)\/([\d-]+)\.pbf$/);
+    if (!m) throw new Error('bad glyph url');
+    const stack = decodeURIComponent(m[1]), key = stack + '/' + m[2];
+    const hit = await idbGet('glyphs', key);
+    if (hit) return { data: hit };
+    const r = await fetch(GLYPHS.replace('{fontstack}', encodeURIComponent(stack)).replace('{range}', m[2]));
+    if (!r.ok) throw new Error('glyph ' + r.status);
+    const buf = await r.arrayBuffer();
+    idbPut('glyphs', key, buf);
+    return { data: buf };
+  });
+}
+
+/* ---- slippy tile maths ---- */
+const lon2x = (lon, z) => Math.floor((lon + 180) / 360 * Math.pow(2, z));
+const lat2y = (lat, z) => {
+  const r = Math.max(-85.05, Math.min(85.05, lat)) * Math.PI / 180;
+  return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z));
+};
+function tilesForBounds(b, minz, maxz) {
+  const out = [];
+  for (let z = minz; z <= maxz; z++) {
+    const lim = Math.pow(2, z) - 1;
+    const cl = v => Math.max(0, Math.min(lim, v));
+    const x0 = cl(lon2x(b[0], z)), x1 = cl(lon2x(b[2], z)), y0 = cl(lat2y(b[3], z)), y1 = cl(lat2y(b[1], z));
+    for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++)
+      for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) out.push([z, x, y]);
+  }
+  return out;
+}
+function inAnyRegion(z, x, y) {
+  for (const r of OFF.regions) {
+    if (z < r.minz || z > r.maxz) continue;
+    const x0 = lon2x(r.bounds[0], z), x1 = lon2x(r.bounds[2], z), y0 = lat2y(r.bounds[3], z), y1 = lat2y(r.bounds[1], z);
+    if (x >= Math.min(x0, x1) && x <= Math.max(x0, x1) && y >= Math.min(y0, y1) && y <= Math.max(y0, y1)) return true;
+  }
+  return false;
+}
+const viewBounds = () => { const b = map.getBounds(); return [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]; };
+const offMaxZoom = () => Math.min(14, Math.max(12, Math.round(map.getZoom()) + 2));
+/* a saved area is always at least a decent slab, so zooming right in still gives you somewhere to drive */
+const OFF_MIN_SPAN = 12000;
+function offBounds() {
+  const b = viewBounds(), lat = (b[1] + b[3]) / 2, kx = mLon(lat);
+  const padX = Math.max(0, (OFF_MIN_SPAN - (b[2] - b[0]) * kx) / 2) / kx;
+  const padY = Math.max(0, (OFF_MIN_SPAN - (b[3] - b[1]) * M_LAT) / 2) / M_LAT;
+  return [b[0] - padX, b[1] - padY, b[2] + padX, b[3] + padY];
+}
+const offSpan = b => { const lat = (b[1] + b[3]) / 2;
+  return `${Math.round((b[2] - b[0]) * mLon(lat) / 1000)} × ${Math.round((b[3] - b[1]) * M_LAT / 1000)} km`; };
+/* swap the vector source over without rebuilding the whole style (which would clear your route) */
+async function useOfflineTiles(on) {
+  try {
+    const src = map.getSource('omt');
+    if (!src || !src.setTiles) return;
+    src.setTiles(on ? ['om://{z}/{x}/{y}'] : [await tileTemplate()]);
+  } catch (e) {}
+}
+
+/* ---- downloading an area ---- */
+function fontStacks() {
+  const stacks = new Set();
+  for (const l of buildStyle(P()).layers) {
+    const f = l.layout && l.layout['text-font'];
+    if (Array.isArray(f)) stacks.add(f.join(','));
+  }
+  return [...stacks];
+}
+async function cacheGlyphs() {
+  const ranges = ['0-255', '256-511'];
+  for (const stack of fontStacks()) for (const range of ranges) {
+    const key = stack + '/' + range;
+    if (await idbGet('glyphs', key)) continue;
+    try {
+      const r = await fetch(GLYPHS.replace('{fontstack}', encodeURIComponent(stack)).replace('{range}', range));
+      if (r.ok) await idbPut('glyphs', key, await r.arrayBuffer());
+    } catch (e) {}
+  }
+}
+async function downloadRegion(name) {
+  if (OFF.job) return;
+  if (!navigator.onLine) { toast('You need a connection to save an area', 4000); return; }
+  const bounds = offBounds(), maxz = offMaxZoom();
+  const list = tilesForBounds(bounds, 0, maxz);
+  if (list.length > OFF_MAX_TILES) { toast(`That area needs ${list.length.toLocaleString()} tiles — zoom in a little and try again`, 5000); return; }
+  const tpl = await tileTemplate();
+  const job = OFF.job = { total: list.length + 1, done: 0, bytes: 0, cancel: false };
+  renderOfflineView();
+  let i = 0;
+  const worker = async () => {
+    while (i < list.length && !job.cancel) {
+      const [z, x, y] = list[i++];
+      const key = `${z}/${x}/${y}`;
+      try {
+        const have = await idbGet('tiles', key);
+        if (have) { job.bytes += have.byteLength || 0; }
+        else {
+          const r = await fetch(tileUrl(tpl, z, x, y));
+          if (r.ok) { const buf = await r.arrayBuffer(); await idbPut('tiles', key, buf); job.bytes += buf.byteLength; }
+        }
+      } catch (e) {}
+      job.done++;
+      if (job.done % 8 === 0) renderOfflineView();
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker(), worker(), worker()]);
+  if (!job.cancel) {
+    await cacheGlyphs();
+    job.done = job.total;
+    const first = !offlineReady();
+    OFF.regions.push({ id: Date.now(), name: name || 'Saved area', bounds, minz: 0, maxz, tiles: list.length, bytes: job.bytes, at: Date.now() });
+    saveRegions();
+    if (first) useOfflineTiles(true);                       // from now on the map can read from storage
+    toast(`${name || 'Area'} saved — the map here works without a connection`, 4500);
+  }
+  OFF.job = null;
+  updateOffBadge();
+  renderOfflineView();
+}
+async function deleteRegion(id) {
+  const gone = OFF.regions.find(r => r.id === id);
+  OFF.regions = OFF.regions.filter(r => r.id !== id);
+  saveRegions();
+  if (!offlineReady()) { useOfflineTiles(false); await idbClear('tiles'); await idbClear('glyphs'); }
+  updateOffBadge();
+  renderOfflineView();
+  toast(gone ? `${gone.name} removed` : 'Area removed');
+}
+
+/* ---- offline re-routing: a local A* over the roads in the tiles you have ---- */
+const OFF_SPEED = { motorway: 100, trunk: 85, primary: 60, secondary: 55, tertiary: 50, minor: 40, residential: 35, unclassified: 35, living_street: 20, service: 18 };
+const OFF_SEG_MAX = 9000, OFF_CELL = 150;
+function roadGraph(center, R) {
+  let feats = [];
+  try { feats = map.querySourceFeatures('omt', { sourceLayer: 'transportation' }); } catch (e) {}
+  const kx = mLon(center[1]);
+  const toM = c => [(c[0] - center[0]) * kx, (c[1] - center[1]) * M_LAT];
+  const toLL = (x, y) => [center[0] + x / kx, center[1] + y / M_LAT];
+  const segs = [];
+  for (const f of feats) {
+    if (segs.length > OFF_SEG_MAX) break;
+    const pr = f.properties || {};
+    const sp = OFF_SPEED[pr.class];
+    if (!sp || pr.brunnel === 'tunnel') continue;
+    const oneway = pr.oneway === 1 || pr.oneway === '1';
+    for (const line of linesOf(f.geometry)) for (let i = 0; i < line.length - 1; i++) {
+      const [ax, ay] = toM(line[i]), [bx, by] = toM(line[i + 1]);
+      if (Math.hypot(ax, ay) > R && Math.hypot(bx, by) > R) continue;
+      if (Math.hypot(bx - ax, by - ay) < 0.5) continue;
+      segs.push({ ax, ay, bx, by, sp, oneway, cuts: [] });
+    }
+  }
+  /* vector tiles don't always share a vertex where two roads meet, so find the crossings ourselves */
+  const grid = new Map();
+  segs.forEach((s, i) => {
+    const x0 = Math.floor(Math.min(s.ax, s.bx) / OFF_CELL), x1 = Math.floor(Math.max(s.ax, s.bx) / OFF_CELL);
+    const y0 = Math.floor(Math.min(s.ay, s.by) / OFF_CELL), y1 = Math.floor(Math.max(s.ay, s.by) / OFF_CELL);
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+      const k = x + ':' + y;
+      if (!grid.has(k)) grid.set(k, []);
+      grid.get(k).push(i);
+    }
+  });
+  const pairDone = new Set();
+  for (const list of grid.values()) {
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+      const ia = list[i], ib = list[j], pk = ia < ib ? ia + '|' + ib : ib + '|' + ia;
+      if (pairDone.has(pk)) continue;
+      pairDone.add(pk);
+      const a = segs[ia], b = segs[ib];
+      const den = (a.bx - a.ax) * (b.by - b.ay) - (a.by - a.ay) * (b.bx - b.ax);
+      if (!den) continue;
+      const t = ((b.ax - a.ax) * (b.by - b.ay) - (b.ay - a.ay) * (b.bx - b.ax)) / den;
+      const u = ((b.ax - a.ax) * (a.by - a.ay) - (b.ay - a.ay) * (a.bx - a.ax)) / den;
+      if (t <= 0.001 || t >= 0.999 || u <= 0.001 || u >= 0.999) continue;
+      a.cuts.push(t); b.cuts.push(u);
+    }
+  }
+  const nodes = new Map(), adj = new Map();
+  const nkey = (x, y) => Math.round(x / 3) + ',' + Math.round(y / 3);
+  const addNode = (x, y) => { const k = nkey(x, y); if (!nodes.has(k)) nodes.set(k, toLL(x, y)); return k; };
+  const link = (a, b, cost) => { if (!adj.has(a)) adj.set(a, []); adj.get(a).push({ to: b, cost }); };
+  for (const s of segs) {
+    const ts = [0].concat(s.cuts, [1]).sort((p, q) => p - q);
+    for (let i = 0; i < ts.length - 1; i++) {
+      const t0 = ts[i], t1 = ts[i + 1];
+      const x0 = s.ax + (s.bx - s.ax) * t0, y0 = s.ay + (s.by - s.ay) * t0;
+      const x1 = s.ax + (s.bx - s.ax) * t1, y1 = s.ay + (s.by - s.ay) * t1;
+      const len = Math.hypot(x1 - x0, y1 - y0);
+      if (len < 0.5) continue;
+      const ka = addNode(x0, y0), kb = addNode(x1, y1);
+      if (ka === kb) continue;
+      const cost = len / (s.sp / 3.6);
+      link(ka, kb, cost);
+      if (!s.oneway) link(kb, ka, cost);
+    }
+  }
+  return { nodes, adj };
+}
+function nearestNode(g, p) {
+  let best = null, bd = Infinity;
+  for (const [k, c] of g.nodes) { const d = geoDist(c, p); if (d < bd) { bd = d; best = k; } }
+  return bd < 120 ? best : null;
+}
+function aStar(g, start, goals) {
+  const goalSet = new Set(goals);
+  const target = g.nodes.get(goals[0]);
+  const h = k => { const c = g.nodes.get(k); return c && target ? geoDist(c, target) / 28 : 0; };
+  const gScore = new Map([[start, 0]]), came = new Map();
+  const open = [[h(start), start]];                          // a small binary heap
+  const push = (f, k) => { open.push([f, k]); let i = open.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (open[p][0] <= open[i][0]) break; const t = open[p]; open[p] = open[i]; open[i] = t; i = p; } };
+  const pop = () => { const top = open[0], last = open.pop(); if (open.length) { open[0] = last; let i = 0; for (;;) { const l = i * 2 + 1, r = l + 1; let m = i; if (l < open.length && open[l][0] < open[m][0]) m = l; if (r < open.length && open[r][0] < open[m][0]) m = r; if (m === i) break; const t = open[m]; open[m] = open[i]; open[i] = t; i = m; } } return top; };
+  const seen = new Set();
+  let steps = 0;
+  while (open.length && steps++ < 40000) {
+    const cur = pop()[1];
+    if (seen.has(cur)) continue;
+    seen.add(cur);
+    if (goalSet.has(cur)) {
+      const path = [g.nodes.get(cur)];
+      let k = cur;
+      while (came.has(k)) { k = came.get(k); path.unshift(g.nodes.get(k)); }
+      return { path, time: gScore.get(cur) || 0, at: cur };
+    }
+    for (const e of (g.adj.get(cur) || [])) {
+      const ng = (gScore.get(cur) || 0) + e.cost;
+      if (ng < (gScore.has(e.to) ? gScore.get(e.to) : Infinity)) {
+        gScore.set(e.to, ng); came.set(e.to, cur);
+        push(ng + h(e.to), e.to);
+      }
+    }
+  }
+  return null;
+}
+function localSteps(coords) {
+  const steps = [];
+  let runStart = 0;
+  for (let i = 1; i < coords.length - 1; i++) {
+    const b1 = bearingOf(coords[i - 1], coords[i]), b2 = bearingOf(coords[i], coords[i + 1]);
+    const turn = angDiff(b2, b1);
+    if (Math.abs(turn) < 35) continue;
+    const dist = geoDist(coords[runStart], coords[i]);
+    steps.push({ name: '', distance: dist, duration: dist / 11,
+      maneuver: { type: steps.length ? 'turn' : 'depart', modifier: turn > 0 ? 'right' : 'left', location: coords[runStart], bearing_after: b1 } });
+    runStart = i;
+  }
+  const tail = geoDist(coords[runStart], coords[coords.length - 1]);
+  steps.push({ name: '', distance: tail, duration: tail / 11,
+    maneuver: { type: steps.length ? 'continue' : 'depart', modifier: 'straight', location: coords[runStart], bearing_after: bearingOf(coords[runStart], coords[coords.length - 1]) } });
+  return steps;
+}
+/* when there's no signal, stitch a path from the roads we have back onto the planned route */
+function offlineReroute(p) {
+  if (!NAV.on || !NAV.coords || !NAV.coords.length) return false;
+  const g = roadGraph(p, 3000);
+  if (g.nodes.size < 20) return false;
+  const start = nearestNode(g, p);
+  if (!start) return false;
+  const pr = projectOnRoute(p);
+  const goals = [], goalAlong = [];
+  for (let d = Math.max(0, pr.along) + 150; d < Math.min(NAV.total, pr.along + 2500); d += 150) {
+    const c = pointAt(d).p, k = nearestNode(g, c);
+    if (k && goals.indexOf(k) < 0) { goals.push(k); goalAlong.push(d); }
+  }
+  if (!goals.length) return false;
+  const found = aStar(g, start, goals);
+  if (!found || found.path.length < 2) return false;
+  const joinAt = goalAlong[goals.indexOf(found.at)] || 0;
+  const rest = [];
+  for (let d = joinAt; d < NAV.total; d += 25) rest.push(pointAt(d).p);
+  rest.push(NAV.coords[NAV.coords.length - 1]);
+  const coords = found.path.concat(rest);
+  const restTime = NAV.route && NAV.total ? Math.max(0, routeBase(NAV.route) * (1 - joinAt / NAV.total)) : (NAV.total - joinAt) / 11;
+  const route = {
+    distance: cumOf(coords).pop(), duration: found.time + restTime,
+    geometry: { type: 'LineString', coordinates: coords },
+    legs: [{ steps: localSteps(found.path) }], _offline: true
+  };
+  S.routes = [route]; S.sel = 0;
+  if (TRIP.rec) TRIP.rec.reroutes++;
+  PROG.frac = 0;
+  drawRoutes(true);
+  prepNavRoute(route);
+  NAV.offCount = 0;
+  NAV.orig = { route, coords: NAV.coords.slice(), cum: NAV.cum.slice(), steps: NAV.steps, starts: NAV.starts, names: new Set() };
+  resetDetour();
+  MOTION.along = null; MOTION.v = 0;
+  toast('Re-routed from the map saved on this device', 4000);
+  return true;
+}
+
+/* ---- connection state ---- */
+function setOnlineState() {
+  const off = !navigator.onLine;
+  document.body.classList.toggle('offline', off);
+  const el = document.getElementById('offPill');
+  if (el) el.textContent = offlineReady() ? 'Offline · saved map' : 'No connection';
+  if (document.getElementById('drOffline') && $('#drOffline').classList.contains('on')) renderOfflineView();
+}
+function updateOffBadge() {
+  const el = document.getElementById('drOffState');
+  if (el) el.textContent = OFF.regions.length ? (OFF.regions.length === 1 ? '1 area' : OFF.regions.length + ' areas') : '';
+}
+window.addEventListener('online', () => { setOnlineState(); toast('Back online'); });
+window.addEventListener('offline', () => {
+  setOnlineState();
+  toast(offlineReady() ? 'No connection — using the map saved on this device' : 'No connection — save an area in the menu to keep the map working', 5500);
+});
+
+/* ---- the Offline maps screen ---- */
+async function renderOfflineView() {
+  const box = document.getElementById('offlineBody'); if (!box) return;
+  const job = OFF.job;
+  const mb = b => (b / 1048576).toFixed(b > 10485760 ? 0 : 1) + ' MB';
+  let est = '';
+  try { const e = await navigator.storage.estimate(); if (e && e.usage != null) est = `${mb(e.usage)} used of about ${mb(e.quota)} this browser allows.`; } catch (e) {}
+  let count = 0, maxz = 14, span = '';
+  try { const bb = offBounds(); maxz = offMaxZoom(); count = tilesForBounds(bb, 0, maxz).length; span = offSpan(bb); } catch (e) {}
+  const tooBig = count > OFF_MAX_TILES;
+  box.innerHTML = `
+    <p class="hint" style="margin:2px 4px 14px">Save the map for an area and One Maps keeps working with no signal — the map, your route, turn-by-turn and automatic re-routing. Live traffic, search and weather still need a connection.</p>
+    ${job ? `<div class="off-job"><div class="off-bar"><i style="width:${Math.round(job.done / job.total * 100)}%"></i></div>
+        <div class="off-jt">Saving ${job.done.toLocaleString()} of ${job.total.toLocaleString()} tiles · ${mb(job.bytes)}</div>
+        <button class="btn ghost" id="offCancel">Stop</button></div>`
+      : `<div class="off-new">
+          <div><b>Around this view</b><small>${count ? `${span} · ${count.toLocaleString()} tiles to zoom ${maxz} · roughly ${mb(count * OFF_AVG_TILE)}` : 'Move the map over the area you want'}</small></div>
+          <button class="btn primary" id="offSave"${tooBig ? ' disabled' : ''}>${tooBig ? 'Zoom in first' : 'Save this area'}</button>
+        </div>`}
+    <h3 style="margin-top:18px">Saved areas</h3>
+    ${OFF.regions.length ? OFF.regions.map(r => `<div class="off-item">
+        <span class="sp"><b>${esc(r.name)}</b><small>${offSpan(r.bounds)} · ${mb(r.bytes)} · saved ${new Date(r.at).toLocaleDateString()}</small></span>
+        <button class="btn ghost" data-off-go="${r.id}">Show</button>
+        <button class="av-x" data-off-del="${r.id}" aria-label="Remove ${esc(r.name)}">✕</button></div>`).join('')
+      : '<p class="hint" style="margin:0 4px">Nothing saved yet. Move the map over the area you drive, then save it.</p>'}
+    <p class="hint" style="margin:16px 4px 0;font-size:11.5px">${navigator.onLine ? 'You’re online.' : 'You’re offline right now.'} ${offlineReady() ? 'Saved areas are feeding the map, and tiles you drive over are refreshed whenever you have a connection.' : ''}</p>
+    <p class="hint" style="margin:6px 4px 0;font-size:11.5px">${esc(est)}</p>`;
+  const save = document.getElementById('offSave');
+  if (save) save.onclick = async () => {
+    save.disabled = true; save.textContent = 'Preparing…';
+    const guess = (await nameForView()) || 'Saved area';
+    downloadRegion(guess);
+  };
+  const cancel = document.getElementById('offCancel');
+  if (cancel) cancel.onclick = () => { if (OFF.job) OFF.job.cancel = true; toast('Stopped'); };
+  box.querySelectorAll('[data-off-del]').forEach(x => x.onclick = () => deleteRegion(+x.dataset.offDel));
+  box.querySelectorAll('[data-off-go]').forEach(x => x.onclick = () => {
+    const r = OFF.regions.find(v => v.id === +x.dataset.offGo); if (!r) return;
+    closeDrawer();
+    fitView([[r.bounds[0], r.bounds[1]], [r.bounds[2], r.bounds[3]]], { padding: panelPadding(40), duration: 1000 });
+  });
+}
+async function nameForView() {
+  if (!navigator.onLine) return '';
+  try {
+    const c = map.getCenter();
+    const pl = await reverse([c.lng, c.lat]);
+    if (pl) return (pl.props && (pl.props.city || pl.props.district || pl.props.county || pl.props.state)) || pl.title;
+  } catch (e) {}
+  return '';
 }
 
 /* ================= Map ================= */
@@ -1959,13 +2465,15 @@ function showDrawerView(v) {
   $('#drPlaces').classList.toggle('on', v === 'places');
   $('#drWhatsNew').classList.toggle('on', v === 'whatsnew');
   $('#drWeather').classList.toggle('on', v === 'weather');
+  $('#drOffline').classList.toggle('on', v === 'offline');
+  if (v === 'offline') renderOfflineView();
   if (v === 'places') renderPlacesView();
   if (v === 'whatsnew') renderWhatsNew();
   if (v === 'weather') { renderWeatherPanel(); loadWeather(); }
   $('#drBack').style.display = v !== 'main' ? 'grid' : 'none';
-  $('#drTitle').textContent = { settings: 'Settings', trips: 'Trip history', places: 'Saved places', whatsnew: "What's new", weather: 'Weather' }[v] || 'One Maps';
+  $('#drTitle').textContent = { settings: 'Settings', trips: 'Trip history', places: 'Saved places', whatsnew: "What's new", weather: 'Weather', offline: 'Offline maps' }[v] || 'One Maps';
   if (v === 'trips') renderTripList();
-  if (v === 'main') { updateTripCount(); updateWxBadge(); }
+  if (v === 'main') { updateTripCount(); updateWxBadge(); updateOffBadge(); }
 }
 $('#menuBtn').onclick = () => openDrawer();
 $('#drClose').onclick = closeDrawer;
@@ -1981,6 +2489,7 @@ drawer.addEventListener('click', e => {
   if (go === 'places') return showDrawerView('places');
   if (go === 'whatsnew') return showDrawerView('whatsnew');
   if (go === 'weather') return showDrawerView('weather');
+  if (go === 'offline') return showDrawerView('offline');
   if (go === 'resetview') { closeDrawer(); resetView(); return; }
   closeDrawer();
   if (go === 'search') { showTab('search'); $('#q').focus(); }
@@ -2011,7 +2520,8 @@ const TOGGLES = [
   { key: 'traffic', icon: '🚦', label: 'Traffic lights', desc: 'Show where traffic lights are, with alerts while driving' },
   { key: 'terrain', icon: '⛰️', label: '3D hills', desc: 'Raised landscape in 3D view. Uses more battery and can make the map slow on some phones' },
   { key: 'poiLabels', icon: '🏪', label: 'Shop & place names', desc: 'Names of stores, cafés, parks, airports and more' },
-  { key: 'roadLabels', icon: '🛣️', label: 'Street & suburb names', desc: 'Road, suburb, town and water names' }
+  { key: 'roadLabels', icon: '🛣️', label: 'Street & suburb names', desc: 'Road, suburb, town and water names' },
+  { key: 'trackTimer', icon: '🏁', label: 'Track timer', desc: 'Tap the trip stopwatch for sprint times (0–60, 0–100 and more) and the g-force you\'re pulling' }
 ];
 const WX_TOGGLES = [
   { key: 'wxEta', icon: '🌧️', label: 'Allow for the weather', desc: 'When it\'s wet, icy or stormy, add 20% to the ETA on any trip over 10 minutes' }
@@ -2048,12 +2558,14 @@ function flipToggle(el) {
   if (key === 'terrain') set3d(is3d, { animate: false });
   if (key === 'traffic' && SET.traffic) { loadSignalsInView(); if (S.routes[S.sel]) loadRouteSignals(S.routes[S.sel]); }
   if (key === 'traffic' || key === 'showSpeedo' || key === 'showStopwatch') updateSignalInfo();
+  if (key === 'trackTimer') applyTrackSetting();
 }
 const LABEL_GROUPS = {
   poiLabels: ['poi-label', 'airport-label', 'peak-label', 'stops-name', 'explore-label'],
   roadLabels: ['road-label', 'road-shield', 'housenumber', 'place-minor', 'place-village', 'place-town', 'place-city', 'place-state', 'water-name', 'waterway-name']
 };
 function applyDisplay() {
+  document.body.classList.toggle('hide-track', !SET.trackTimer);
   document.body.classList.toggle('hide-speedo', !SET.showSpeedo);
   document.body.classList.toggle('hide-stopwatch', !SET.showStopwatch);
   if (!map.getLayer('road-label')) return;
@@ -3676,6 +4188,108 @@ SW.render();
 $('#swPlay').onclick = () => SW.running ? SW.pause('Paused', 'wait') : SW.start(NAV.on ? 'On the way' : 'Running');
 $('#swReset').onclick = () => { SW.reset(NAV.on && !NAV.arrived ? 'Waiting for you to set off…' : 'Starts when you set off', NAV.on ? 'wait' : ''); if (NAV.on) NAV.anchor = NAV.pos; };
 
+/* ================= Track timer: sprint times and g-force ================= */
+const TRACK_KEY = 'onemaps.track';
+const TK_BANDS = [[0, 60], [60, 80], [80, 100], [100, 120], [0, 100]];
+const tkLabel = ([a, b]) => `${a}–${b}`;
+const TRACK = {
+  best: {}, arm: {}, last: null, g: { accel: 0, brake: 0, lat: 0 }, live: null,
+  peakA: 0, peakB: 0, peakL: 0, raf: 0, head: null
+};
+try { Object.assign(TRACK.best, JSON.parse(localStorage.getItem(TRACK_KEY) || '{}')); } catch (e) {}
+const saveTrack = () => { try { localStorage.setItem(TRACK_KEY, JSON.stringify(TRACK.best)); } catch (e) {} };
+function trackReset() {
+  TRACK.best = {}; TRACK.arm = {}; TRACK.peakA = TRACK.peakB = TRACK.peakL = 0;
+  TRACK.g = { accel: 0, brake: 0, lat: 0 };
+  saveTrack(); renderTrack();
+  toast('Track timer reset');
+}
+/* every speed reading feeds the bands and the g meters */
+function trackSample(kmh, t, headingDeg) {
+  if (!SET.trackTimer) return;
+  const prev = TRACK.last;
+  TRACK.last = { v: kmh, t };
+  if (!prev) return;
+  const dt = (t - prev.t) / 1000;
+  if (dt <= 0.05 || dt > 6) return;
+  const dv = (kmh - prev.v) / 3.6;                          // m/s
+  const aLong = dv / dt;
+  if (aLong > 0) TRACK.g.accel = Math.max(TRACK.g.accel * 0.82, aLong / 9.81);
+  else TRACK.g.brake = Math.max(TRACK.g.brake * 0.82, -aLong / 9.81);
+  if (headingDeg != null && TRACK.head != null && kmh > 8) {  // lateral g = speed × how fast you're turning
+    const yaw = Math.abs(angDiff(headingDeg, TRACK.head)) * Math.PI / 180 / dt;
+    TRACK.g.lat = Math.max(TRACK.g.lat * 0.82, (kmh / 3.6) * yaw / 9.81);
+  }
+  if (headingDeg != null) TRACK.head = headingDeg;
+  if (MSENSE.on && MSENSE.mag > 0) {                        // sanity-cap against what the phone actually felt
+    const cap = MSENSE.mag / 9.81 + 0.25;
+    TRACK.g.accel = Math.min(TRACK.g.accel, cap); TRACK.g.brake = Math.min(TRACK.g.brake, cap); TRACK.g.lat = Math.min(TRACK.g.lat, cap);
+  }
+  TRACK.peakA = Math.max(TRACK.peakA, TRACK.g.accel);
+  TRACK.peakB = Math.max(TRACK.peakB, TRACK.g.brake);
+  TRACK.peakL = Math.max(TRACK.peakL, TRACK.g.lat);
+  // band timing, with the crossing moment interpolated between the two readings
+  const cross = v => prev.v < v && kmh >= v ? prev.t + (t - prev.t) * ((v - prev.v) / (kmh - prev.v || 1)) : null;
+  TRACK.live = null;
+  for (const band of TK_BANDS) {
+    const [a, b] = band, key = tkLabel(band);
+    if (kmh < a - 2) { delete TRACK.arm[key]; continue; }    // dropped back below the start
+    const up = a === 0 ? (prev.v <= 1.5 && kmh > 1.5 ? prev.t + (t - prev.t) * ((1.5 - prev.v) / (kmh - prev.v || 1)) : null) : cross(a);
+    if (up != null && TRACK.arm[key] == null) TRACK.arm[key] = up;
+    if (TRACK.arm[key] != null) {
+      const done = cross(b);
+      if (done != null) {
+        const secs = (done - TRACK.arm[key]) / 1000;
+        if (secs > 0.4 && secs < 120 && (!TRACK.best[key] || secs < TRACK.best[key])) { TRACK.best[key] = secs; saveTrack(); toast(`🏁 New best ${key} km/h — ${secs.toFixed(2)} s`, 3500); }
+        delete TRACK.arm[key];
+      } else if (!TRACK.live && kmh >= a) TRACK.live = { key, since: TRACK.arm[key] };
+    }
+  }
+  if (document.body.classList.contains('track-open')) renderTrack(kmh);
+}
+function renderTrack(kmh) {
+  const rows = document.getElementById('tkRows'); if (!rows) return;
+  const v = kmh != null ? kmh : (SPEEDO.target || 0);
+  $('#tkSpeed').textContent = Math.round(v);
+  $('#tkGa').textContent = TRACK.peakA.toFixed(2);
+  $('#tkGb').textContent = TRACK.peakB.toFixed(2);
+  $('#tkGl').textContent = TRACK.peakL.toFixed(2);
+  const live = TRACK.live;
+  $('#tkState').textContent = live ? `${live.key} · ${((performance.now() - live.since) / 1000).toFixed(1)}s` : '';
+  rows.innerHTML = TK_BANDS.map(band => {
+    const key = tkLabel(band), best = TRACK.best[key];
+    const running = live && live.key === key;
+    return `<div class="tk-row${running ? ' live' : ''}"><span class="lbl">${key} km/h</span>
+      <span class="t${best ? '' : ' none'}">${best ? best.toFixed(2) + ' s' : '—'}</span></div>`;
+  }).join('');
+  $('#tkFoot').textContent = GPS.watch == null
+    ? 'Tap the speedometer to start GPS, then drive.'
+    : MSENSE.on ? 'GPS + motion sensors · best runs kept on this device' : 'GPS only · turn on Motion sensors in Settings for sharper g readings';
+}
+function toggleTrack(force) {
+  if (!SET.trackTimer) return;
+  const open = force != null ? force : !document.body.classList.contains('track-open');
+  document.body.classList.toggle('track-open', open);
+  if (open) { renderTrack(); if (!TRACK.raf) tickTrack(); }
+}
+function tickTrack() {
+  TRACK.raf = 0;
+  if (!document.body.classList.contains('track-open')) return;
+  renderTrack();
+  TRACK.raf = setTimeout(() => requestAnimationFrame(tickTrack), 250);
+}
+$('#stopwatch').addEventListener('click', e => {
+  if (e.target.closest('.sw-btn') || e.target.closest('#redPill')) return;
+  if (!SET.trackTimer) { toast('Turn on the Track timer in Settings to use this'); return; }
+  toggleTrack();
+});
+$('#tkReset').addEventListener('click', e => { e.stopPropagation(); trackReset(); });
+function applyTrackSetting() {
+  document.body.classList.toggle('hide-track', !SET.trackTimer);
+  if (!SET.trackTimer) document.body.classList.remove('track-open');
+  else renderTrack();
+}
+
 /* ================= Speedometer ================= */
 const SPEEDO = {
   max: 160, shown: 0, target: 0, raf: 0, state: 'off',
@@ -3877,6 +4491,7 @@ function onGpsFix(pos) {
     if (map.loaded()) go();
     else { let done = false; const once = () => { if (!done) { done = true; go(); } }; map.once('idle', once); setTimeout(once, 6000); }
   }
+  trackSample(v * 3.6, performance.now(), pos.coords.heading != null && !isNaN(pos.coords.heading) ? pos.coords.heading : (MOTION.head != null ? MOTION.head : null));
   const head = v > 1.5 ? pos.coords.heading : null;                    // heading is meaningless when you're stopped
   if (NAV.on && !NAV.sim) onPosition(c, head, v);
   else if (!NAV.on) feedFix(c, head, null, v);
@@ -4113,7 +4728,9 @@ function startNav(simulate) {
       }
       const { p } = pointAt(d);
       const stoppedNow = hold > 0 && moving === true ? false : hold > 0;
-      SPEEDO.set(moving && !stoppedNow ? real * 3.6 * (0.9 + Math.random() * 0.2) : 0);
+      const simKmh = moving && !stoppedNow ? real * 3.6 * (0.9 + Math.random() * 0.2) : 0;
+      SPEEDO.set(simKmh);
+      trackSample(simKmh, performance.now(), MOTION.head);
       onPosition(p, null, moving && !stoppedNow ? speed : 0);
       if (d >= NAV.total && t > 3) stopSim();
     }, 1000);
@@ -4221,6 +4838,10 @@ function onPosition(p, heading, speed) {
 }
 async function reroute(p) {
   NAV.rerouting = true;
+  if (!navigator.onLine && offlineReroute(p)) {               // no signal: stitch a way back from the map on this device
+    NAV.rerouting = false;
+    return;
+  }
   toast('Re-routing…');
   try {
     const url = `${ROUTER[NAV.mode]}/route/v1/driving/${p[0]},${p[1]};${S.to.coord[0]},${S.to.coord[1]}?overview=full&geometries=geojson&steps=true&alternatives=3`;
@@ -4236,7 +4857,7 @@ async function reroute(p) {
       resetDetour();                                        // the new route is the plan from here on
       MOTION.along = null; MOTION.v = 0; loadRouteSignals(j.routes[0]);
     }
-  } catch (e) { /* keep old route */ }
+  } catch (e) { if (!offlineReroute(p)) { /* keep the old route */ } }
   NAV.rerouting = false;
 }
 
@@ -4446,8 +5067,15 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '2.0.4';
+const APP_VERSION = '2.0.5';
 const CHANGELOG = [
+  { v: '2.0.5', items: [
+    'Offline maps: save the area you drive and the map, your route, turn-by-turn and automatic re-routing all keep working with no signal',
+    'Saved areas stay fresh on their own — tiles you drive over are refreshed quietly whenever you do have a connection',
+    'A pill appears top right when you lose connection so you always know what the app is working from',
+    'New Track timer that pops out of the trip stopwatch: quickest 0\u201360, 60\u201380, 80\u2013100, 100\u2013120 and 0\u2013100 km/h',
+    'The track timer also reads your acceleration, braking and cornering g from the phone\u2019s sensors and GPS',
+    'Tap the trip stopwatch to slide the track timer out, tap again to tuck it back in; turn it on in Settings'] },
   { v: '2.0.4', items: [
     'Search any shop or business and see whether it\'s open, when it closes and its hours for the week',
     'The weather allowance drops to 5% on trips over 40 minutes, where a downpour evens out',
@@ -5227,18 +5855,22 @@ function devData() {
       'Motion permission': motionAnswer() || 'not asked yet',
       'TomTom key': ttKey() ? 'set (not shown)' : 'not set',
       'Extra weather place': (wxSavedPlace() && wxSavedPlace().name) || 'none',
+      'Connection': navigator.onLine ? 'online' : 'offline',
+      'Offline map in use': offlineReady() ? 'yes' : 'no',
       'Time mode': S.timeMode || 'now'
     },
     places: { home: PLACES.home, work: PLACES.work, favs: PLACES.favs },
     signals: USER_SIGNALS.map(u => ({ lat: u.lat, lon: u.lon, confirmed: clock(u.created) })),
     avoid: activeAvoid().map(a => ({ road: a.name, reason: a.kind, until: clock(a.until) })),
+    offline: OFF.regions.map(r => ({ area: r.name, size: offSpan(r.bounds), tiles: r.tiles,
+      megabytes: (r.bytes / 1048576).toFixed(1), zoom: `0\u2013${r.maxz}`, saved: clock(r.at) })),
     etafit: Object.entries(ETAFIT).map(([k, f]) => ({ place: f.name || k, key: k, trips: f.n, late: f.late,
       adjustment: `${Math.round((Math.min(1.6, f.factor) - 1) * 100)}%`, lastTrip: clock(f.lastAt) })),
     trips: trips.map(t => ({ when: clock(t.startedAt), from: t.from, to: t.to, mode: t.mode, status: t.status,
       planned: fmtDur(t.estDur || 0), actual: SW.fmt(t.elapsed * 1000), km: (t.dist / 1000).toFixed(2),
       lights: t.lights, red: t.red, confirmed: t.confirmed, schools: t.schools || 0, top: t.top })),
     counts: { trips: trips.length, confirmedLights: USER_SIGNALS.length, avoidedRoads: activeAvoid().length,
-      learntPlaces: Object.keys(ETAFIT).length, speedSamples: trips.reduce((a, t) => a + ((t.spd && t.spd.length) || 0), 0) }
+      offlineAreas: OFF.regions.length, learntPlaces: Object.keys(ETAFIT).length, speedSamples: trips.reduce((a, t) => a + ((t.spd && t.spd.length) || 0), 0) }
   };
 }
 const devTable = rows => !rows || !rows.length ? '<p class="none">Nothing saved yet.</p>' :
@@ -5280,6 +5912,7 @@ async function buildDevReport() {
   <div class="kpi"><b>${d.counts.trips}</b><span>Trips kept</span></div>
   <div class="kpi"><b>${d.counts.confirmedLights}</b><span>Lights you confirmed</span></div>
   <div class="kpi"><b>${d.counts.avoidedRoads}</b><span>Roads avoided</span></div>
+  <div class="kpi"><b>${d.counts.offlineAreas}</b><span>Offline areas</span></div>
   <div class="kpi"><b>${d.counts.learntPlaces}</b><span>Places learnt</span></div>
   <div class="kpi"><b>${d.counts.speedSamples}</b><span>Speed samples</span></div>
   <div class="kpi"><b>${lines.length}</b><span>Lines of code</span></div>
@@ -5290,6 +5923,7 @@ async function buildDevReport() {
 ${d.places.favs && d.places.favs.length ? devTable(d.places.favs.map(f => ({ favourite: f.title, detail: f.sub || '', lat: f.coord[1].toFixed(5), lon: f.coord[0].toFixed(5) }))) : '<p class="none">No favourites saved.</p>'}
 <h2>Traffic lights you confirmed</h2>${devTable(d.signals)}
 <h2>Roads you reported</h2>${devTable(d.avoid)}
+<h2>Maps saved for offline use</h2>${devTable(d.offline)}
 <h2>Learnt ETAs</h2>${devTable(d.etafit)}
 <h2>Trip history</h2>${devTable(d.trips)}
 <h2>Source code</h2>
@@ -5958,6 +6592,8 @@ map.on('error', e => { if (SET.satellite && e && e.sourceId === 'sat' && ++satFa
 } });
 map.on('sourcedata', e => { if (e.sourceId === 'sat' && e.isSourceLoaded) satFails = 0; });
 addUserSignalsToMap();
+setOnlineState();
+updateOffBadge();
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
@@ -5966,7 +6602,8 @@ if (isMobile()) setCollapsed(true);
 window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visibleSignals, routeSignalHits, projectNear, refreshSignalSource, motionAnswer, startMotionSensors,
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
-  tripSample, tripBegin, trackStop, buildDevReport, downloadDevReport, devData, appSource, parseHours, hoursStatus, fetchPlaceInfo, renderPlaceInfo, streetLabel, wxPenaltyFor, treeStyle,
+  OFF, offlineReady, offlineReroute, downloadRegion, deleteRegion, renderOfflineView, tilesForBounds, inAnyRegion, roadGraph, aStar, nearestNode, setOnlineState, tileTemplate, viewBounds, idbGet, idbPut, idbCount,
+  tripSample, tripBegin, trackStop, TRACK, trackSample, trackReset, toggleTrack, renderTrack, TK_BANDS, buildDevReport, downloadDevReport, devData, appSource, parseHours, hoursStatus, fetchPlaceInfo, renderPlaceInfo, streetLabel, wxPenaltyFor, treeStyle,
   WX, loadWeather, wxRisk, wxFactor, schoolFactor, inSchoolHours, schoolNote, loadRouteSchools, departureTime,
   get ETAFIT() { return ETAFIT; }, learnEta, etaFit, learnedFactor, learnedNote, destKeyOf, saveEtaFit, wxInfo, wxIcon, windDir, renderWeatherPanel, renderWeatherApp, openWeatherApp, closeWeatherApp, wxEtaNote, routeBase,
   wxSpots, wxCur, wxGo, wxSetExtra, wxRemoveExtra, wxPickPlace, wxGeocode, sendWeatherToMaps, openWxSearch, closeWxSearch, wxSearchRun, wxLocalTime, wxExactHere,
