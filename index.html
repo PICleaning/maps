@@ -2,6 +2,9 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
+<link rel="dns-prefetch" href="https://tiles.openfreemap.org">
+<link rel="preconnect" href="https://photon.komoot.io" crossorigin>
 <meta name="viewport" id="vp" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>One Maps</title>
 <meta name="application-name" content="One Maps">
@@ -716,6 +719,28 @@ body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(100px + env(safe-area-
 .recentre{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:19;display:none;align-items:center;gap:8px;
   border:0;border-radius:24px;padding:12px 19px;background:var(--card);color:var(--card-ink);font-weight:600;box-shadow:var(--card-shadow);backdrop-filter:var(--blur)}
 .recentre.show{display:flex;animation:risein .3s var(--ease)}
+/* placing a light you just confirmed */
+.place-light{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,24px) scale(.96);z-index:64;
+  width:min(390px,calc(100vw - 28px));background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  backdrop-filter:var(--blur);padding:13px 14px 12px;opacity:0;pointer-events:none;
+  transition:opacity .3s var(--ease-in-out),transform .44s var(--ease-soft);will-change:transform,opacity}
+.place-light.show{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto}
+body.navigating .place-light{bottom:calc(128px + env(safe-area-inset-bottom))}
+@media (max-width:760px){.place-light{bottom:calc(64px + env(safe-area-inset-bottom))}}
+.pl-top{display:flex;align-items:center;gap:11px}
+.pl-ico{font-size:22px;flex:none;animation:plNudge 1.6s var(--ease-in-out) infinite}
+@keyframes plNudge{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
+.pl-txt{flex:1;min-width:0}
+.pl-txt b{display:block;font-size:14px;color:var(--strong)}
+.pl-txt small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.pl-top .btn{flex:none;padding:8px 15px}
+.pl-bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:11px}
+.pl-bar i{display:block;height:100%;width:100%;border-radius:99px;background:var(--route);transform-origin:left;
+  transition:transform .25s linear}
+.mk-light{width:38px;height:48px;cursor:grab;filter:drop-shadow(0 4px 9px rgba(0,0,0,.55));transition:transform .2s var(--ease-soft);touch-action:none}
+.mk-light:active{cursor:grabbing;transform:scale(1.12)}
+body.placing-light .mk-light{animation:plPulse 1.5s var(--ease-in-out) infinite}
+@keyframes plPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 @keyframes risein{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translateX(-50%)}}
 body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
 
@@ -917,6 +942,26 @@ body.wx-open{overflow:hidden}
 }
 </style>
 </head>
+<script>
+/* Start the clock on the two slow things — where you are, and the tile list — before anything else loads,
+   so by the time the splash lifts the map is already drawn on your street. */
+window.__boot = { fix: null, fixAt: 0, tiles: null, t0: Date.now() };
+try {
+  const last = JSON.parse(localStorage.getItem('onemaps.lastfix') || 'null');
+  if (last && Date.now() - last.t < 7 * 864e5) window.__boot.last = last;     // last week's position is a good first guess
+} catch (e) {}
+try {
+  if (navigator.geolocation) navigator.geolocation.getCurrentPosition(
+    p => { window.__boot.fix = [p.coords.longitude, p.coords.latitude]; window.__boot.acc = p.coords.accuracy;
+      window.__boot.fixAt = Date.now();
+      try { localStorage.setItem('onemaps.lastfix', JSON.stringify({ c: window.__boot.fix, t: Date.now() })); } catch (e) {}
+      if (window.__onBootFix) window.__onBootFix(window.__boot.fix); },
+    () => {}, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+} catch (e) {}
+try {
+  window.__boot.tiles = localStorage.getItem('onemaps.tiletpl') || null;       // known tile list: skip the round trip entirely
+} catch (e) {}
+</script>
 <body class="splashing">
 
 <div class="splash" id="splash" role="status" aria-label="One Maps is starting">
@@ -1061,7 +1106,6 @@ body.wx-open{overflow:hidden}
     <button class="fab" id="btnRecentre" title="Re-centre on my location">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg>
     </button>
-    <button class="fab on" id="btn3d" title="Toggle 3D">3D</button>
   </div>
 </div>
 
@@ -1212,6 +1256,12 @@ body.wx-open{overflow:hidden}
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg>
   Re-centre
 </button>
+<div class="place-light" id="placeLight" role="status">
+  <div class="pl-top"><span class="pl-ico">🚦</span>
+    <div class="pl-txt"><b>Drag the light where it really is</b><small id="plSub">Anywhere within 150 m</small></div>
+    <button class="btn primary" id="plDone">Done</button></div>
+  <div class="pl-bar"><i id="plBar"></i></div>
+</div>
 <div class="toast" id="toast"></div>
 <button class="zoomfix" id="zoomFix">↺ Reset zoom</button>
 <div class="stop-prompt" id="stopPrompt" role="alertdialog" aria-live="assertive">
@@ -1661,6 +1711,7 @@ function buildStyle(p) {
       sat: { type: 'raster', tiles: [SAT_TILES], tileSize: 256, maxzoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
       omt: { type: 'vector', ...(offlineReady()
         ? { tiles: ['om://{z}/{x}/{y}'], minzoom: 0, maxzoom: 14 }
+        : OFF.tpl ? { tiles: [OFF.tpl], minzoom: 0, maxzoom: 14 }   // we already know where the tiles are: start fetching now
         : { url: TILES }), attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>' },
       dem: { type: 'raster-dem', tiles: [DEM], encoding: 'terrarium', tileSize: 256, maxzoom: 14, attribution: 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank">AWS Terrain Tiles</a>' },
       fuel: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
@@ -1682,7 +1733,8 @@ function buildStyle(p) {
 
 /* ================= Offline maps ================= */
 const OFF_KEY = 'onemaps.offline', OFF_TPL_KEY = 'onemaps.tiletpl', OFF_MAX_TILES = 5000, OFF_AVG_TILE = 42000;
-const OFF = { regions: [], tpl: '', db: null, job: null, topUp: true };
+const OFF_FRESH_MS = 30 * 864e5;                            // a saved tile older than a month gets quietly replaced
+const OFF = { regions: [], tpl: '', db: null, job: null, topUp: true, fresh: new Set() };
 try { OFF.regions = JSON.parse(localStorage.getItem(OFF_KEY) || '[]') || []; } catch (e) { OFF.regions = []; }
 try { OFF.tpl = localStorage.getItem(OFF_TPL_KEY) || ''; } catch (e) {}
 const offlineReady = () => OFF.regions.length > 0;
@@ -1741,6 +1793,17 @@ async function tileTemplate() {
   return OFF.tpl || 'https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf';
 }
 const tileUrl = (tpl, z, x, y) => String(tpl).replace('{z}', z).replace('{x}', x).replace('{y}', y);
+const tileBuf = v => v && v.buf ? v.buf : v;                // older saves held the bytes on their own
+const tileAge = v => v && v.at ? Date.now() - v.at : Infinity;
+/* fetch a newer copy of a tile behind your back, so roads that changed since you saved the area turn up */
+async function freshenTile(tpl, z, x, y, key) {
+  if (OFF.fresh.has(key) || !navigator.onLine) return;
+  OFF.fresh.add(key);
+  try {
+    const r = await fetch(tileUrl(tpl, z, x, y), { cache: 'no-cache' });
+    if (r.ok) await idbPut('tiles', key, { buf: await r.arrayBuffer(), at: Date.now() });
+  } catch (e) {}
+}
 /* tiles and fonts are served from storage first, then the network */
 if (typeof maplibregl !== 'undefined' && maplibregl.addProtocol) {
   maplibregl.addProtocol('om', async params => {
@@ -1748,12 +1811,15 @@ if (typeof maplibregl !== 'undefined' && maplibregl.addProtocol) {
     if (!m) throw new Error('bad tile url');
     const key = `${m[1]}/${m[2]}/${m[3]}`;
     const hit = await idbGet('tiles', key);
-    if (hit) return { data: hit };
-    const tpl = await tileTemplate();
-    const r = await fetch(tileUrl(tpl, m[1], m[2], m[3]));
+    const tplNow = OFF.tpl || await tileTemplate();
+    if (hit) {
+      if (tileAge(hit) > OFF_FRESH_MS) freshenTile(tplNow, m[1], m[2], m[3], key);  // serve now, update for next time
+      return { data: tileBuf(hit) };
+    }
+    const r = await fetch(tileUrl(tplNow, m[1], m[2], m[3]));
     if (!r.ok) { if (r.status === 404 || r.status === 204) return { data: new ArrayBuffer(0) }; throw new Error('tile ' + r.status); }
     const buf = await r.arrayBuffer();
-    if (OFF.topUp && inAnyRegion(+m[1], +m[2], +m[3])) idbPut('tiles', key, buf);   // keep saved areas fresh as you drive
+    if (OFF.topUp && inAnyRegion(+m[1], +m[2], +m[3])) idbPut('tiles', key, { buf, at: Date.now() });   // saved areas stay current as you drive
     return { data: buf };
   });
   maplibregl.addProtocol('omf', async params => {
@@ -1836,14 +1902,14 @@ async function cacheGlyphs() {
     } catch (e) {}
   }
 }
-async function downloadRegion(name) {
+async function downloadRegion(name, redo) {
   if (OFF.job) return;
   if (!navigator.onLine) { toast('You need a connection to save an area', 4000); return; }
-  const bounds = offBounds(), maxz = offMaxZoom();
+  const bounds = redo ? redo.bounds : offBounds(), maxz = redo ? redo.maxz : offMaxZoom();
   const list = tilesForBounds(bounds, 0, maxz);
   if (list.length > OFF_MAX_TILES) { toast(`That area needs ${list.length.toLocaleString()} tiles — zoom in a little and try again`, 5000); return; }
   const tpl = await tileTemplate();
-  const job = OFF.job = { total: list.length + 1, done: 0, bytes: 0, cancel: false };
+  const job = OFF.job = { total: list.length + 1, done: 0, bytes: 0, cancel: false, force: !!redo };
   renderOfflineView();
   let i = 0;
   const worker = async () => {
@@ -1851,11 +1917,12 @@ async function downloadRegion(name) {
       const [z, x, y] = list[i++];
       const key = `${z}/${x}/${y}`;
       try {
-        const have = await idbGet('tiles', key);
-        if (have) { job.bytes += have.byteLength || 0; }
+        const have = job.force ? null : await idbGet('tiles', key);
+        if (have && tileAge(have) <= OFF_FRESH_MS) { job.bytes += (tileBuf(have).byteLength || 0); }
         else {
-          const r = await fetch(tileUrl(tpl, z, x, y));
-          if (r.ok) { const buf = await r.arrayBuffer(); await idbPut('tiles', key, buf); job.bytes += buf.byteLength; }
+          const r = await fetch(tileUrl(tpl, z, x, y), { cache: job.force ? 'no-cache' : 'default' });
+          if (r.ok) { const buf = await r.arrayBuffer(); await idbPut('tiles', key, { buf, at: Date.now() }); job.bytes += buf.byteLength; }
+          else if (have) job.bytes += (tileBuf(have).byteLength || 0);
         }
       } catch (e) {}
       job.done++;
@@ -1867,10 +1934,15 @@ async function downloadRegion(name) {
     await cacheGlyphs();
     job.done = job.total;
     const first = !offlineReady();
-    OFF.regions.push({ id: Date.now(), name: name || 'Saved area', bounds, minz: 0, maxz, tiles: list.length, bytes: job.bytes, at: Date.now() });
+    if (redo) {
+      Object.assign(redo, { tiles: list.length, bytes: job.bytes, at: Date.now() });
+      toast(`${redo.name} updated with the latest roads`, 4500);
+    } else {
+      OFF.regions.push({ id: Date.now(), name: name || 'Saved area', bounds, minz: 0, maxz, tiles: list.length, bytes: job.bytes, at: Date.now() });
+      toast(`${name || 'Area'} saved — the map here works without a connection`, 4500);
+    }
     saveRegions();
     if (first) useOfflineTiles(true);                       // from now on the map can read from storage
-    toast(`${name || 'Area'} saved — the map here works without a connection`, 4500);
   }
   OFF.job = null;
   updateOffBadge();
@@ -2049,6 +2121,24 @@ function offlineReroute(p) {
 }
 
 /* ---- connection state ---- */
+/* when you come back online, quietly bring stale saved areas up to date in the background */
+async function freshenSavedAreas() {
+  if (!navigator.onLine || !offlineReady() || OFF.job) return;
+  const stale = OFF.regions.filter(r => Date.now() - r.at > OFF_FRESH_MS);
+  if (!stale.length) return;
+  const tpl = await tileTemplate();
+  for (const r of stale) {
+    const list = tilesForBounds(r.bounds, Math.max(10, r.maxz - 3), r.maxz).slice(0, 400);
+    for (const [z, x, y] of list) {
+      const key = `${z}/${x}/${y}`;
+      const have = await idbGet('tiles', key);
+      if (have && tileAge(have) > OFF_FRESH_MS) await freshenTile(tpl, z, x, y, key);
+    }
+    r.at = Date.now();
+  }
+  saveRegions();
+  renderOfflineView();
+}
 function setOnlineState() {
   const off = !navigator.onLine;
   document.body.classList.toggle('offline', off);
@@ -2060,7 +2150,7 @@ function updateOffBadge() {
   const el = document.getElementById('drOffState');
   if (el) el.textContent = OFF.regions.length ? (OFF.regions.length === 1 ? '1 area' : OFF.regions.length + ' areas') : '';
 }
-window.addEventListener('online', () => { setOnlineState(); toast('Back online'); });
+window.addEventListener('online', () => { setOnlineState(); toast('Back online'); setTimeout(freshenSavedAreas, 4000); });
 window.addEventListener('offline', () => {
   setOnlineState();
   toast(offlineReady() ? 'No connection — using the map saved on this device' : 'No connection — save an area in the menu to keep the map working', 5500);
@@ -2087,8 +2177,9 @@ async function renderOfflineView() {
         </div>`}
     <h3 style="margin-top:18px">Saved areas</h3>
     ${OFF.regions.length ? OFF.regions.map(r => `<div class="off-item">
-        <span class="sp"><b>${esc(r.name)}</b><small>${offSpan(r.bounds)} · ${mb(r.bytes)} · saved ${new Date(r.at).toLocaleDateString()}</small></span>
+        <span class="sp"><b>${esc(r.name)}</b><small>${offSpan(r.bounds)} · ${mb(r.bytes)} · ${regionAge(r)}</small></span>
         <button class="btn ghost" data-off-go="${r.id}">Show</button>
+        <button class="btn ghost" data-off-fresh="${r.id}"${navigator.onLine ? '' : ' disabled'}>Update</button>
         <button class="av-x" data-off-del="${r.id}" aria-label="Remove ${esc(r.name)}">✕</button></div>`).join('')
       : '<p class="hint" style="margin:0 4px">Nothing saved yet. Move the map over the area you drive, then save it.</p>'}
     <p class="hint" style="margin:16px 4px 0;font-size:11.5px">${navigator.onLine ? 'You’re online.' : 'You’re offline right now.'} ${offlineReady() ? 'Saved areas are feeding the map, and tiles you drive over are refreshed whenever you have a connection.' : ''}</p>
@@ -2102,12 +2193,21 @@ async function renderOfflineView() {
   const cancel = document.getElementById('offCancel');
   if (cancel) cancel.onclick = () => { if (OFF.job) OFF.job.cancel = true; toast('Stopped'); };
   box.querySelectorAll('[data-off-del]').forEach(x => x.onclick = () => deleteRegion(+x.dataset.offDel));
+  box.querySelectorAll('[data-off-fresh]').forEach(x => x.onclick = () => {
+    const r = OFF.regions.find(v => v.id === +x.dataset.offFresh); if (!r) return;
+    downloadRegion(r.name, r);
+  });
   box.querySelectorAll('[data-off-go]').forEach(x => x.onclick = () => {
     const r = OFF.regions.find(v => v.id === +x.dataset.offGo); if (!r) return;
     closeDrawer();
     fitView([[r.bounds[0], r.bounds[1]], [r.bounds[2], r.bounds[3]]], { padding: panelPadding(40), duration: 1000 });
   });
 }
+const regionAge = r => {
+  const d = Math.floor((Date.now() - r.at) / 864e5);
+  return d < 1 ? 'saved today' : d === 1 ? 'saved yesterday'
+    : d < 30 ? `saved ${d} days ago` : `${Math.round(d / 30)} month${d < 45 ? '' : 's'} old — worth updating`;
+};
 async function nameForView() {
   if (!navigator.onLine) return '';
   try {
@@ -2119,23 +2219,46 @@ async function nameForView() {
 }
 
 /* ================= Map ================= */
+const BOOT = window.__boot || {};
+/* start where you were, not in the middle of Melbourne — the right tiles then load while the splash is still up */
+const startAt = (BOOT.fix && inAus(BOOT.fix) && BOOT.fix) || (BOOT.last && inAus(BOOT.last.c) && BOOT.last.c) || MELBOURNE;
 const map = new maplibregl.Map({
   container: 'map',
   style: buildStyle(P()),
-  center: MELBOURNE,
+  center: startAt,
   zoom: 15.6,
-  pitch: 58,
-  bearing: -20,
+  pitch: 0,                                                 // straight down by default — your fingers do the tilting
+  bearing: 0,
   maxPitch: 78,
   minZoom: 3,
   maxZoom: 19,
   maxBounds: MAX_BOUNDS,
-  attributionControl: false
+  attributionControl: false,
+  maxParallelImageRequests: 48,                             // three times the usual, so the map fills in far sooner
+  refreshExpiredTiles: true,
+  fadeDuration: 120,
+  pitchWithRotate: true,
+  dragRotate: true,
+  touchPitch: true,
+  touchZoomRotate: true,
+  cooperativeGestures: false
 });
+let USER_MOVED = false;                                     // you took the wheel: nothing re-centres on you after this
+map.touchZoomRotate.enable();                               // pinch to zoom, twist to rotate
+map.touchZoomRotate.enableRotation();
+map.touchPitch.enable();                                    // two fingers up and down to tilt into 3D
+map.dragRotate.enable();
 map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 map.addControl(new maplibregl.FullscreenControl(), 'bottom-right');
 map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
 map.on('error', e => { if (e && e.error) console.warn('[map]', e.error.message || e.error); });
+/* remember where the tiles actually live, so the next launch starts fetching them immediately */
+map.on('sourcedata', e => {
+  if (e.sourceId !== 'omt' || OFF.tpl) return;
+  const src = map.getSource('omt');
+  const t = src && src.tiles && src.tiles[0];
+  if (t && !/^om:\/\//.test(t)) { OFF.tpl = t; try { localStorage.setItem(OFF_TPL_KEY, t); } catch (err) {} }
+});
 
 /* ================= Theme & route colour ================= */
 function applyUiColors() {
@@ -2196,16 +2319,18 @@ function applyTheme() {
 applyUiColors();
 
 /* 3D toggle */
-let is3d = true;
+let is3d = false;                                           // true whenever the map is actually tilted
+map.on('pitch', () => { is3d = map.getPitch() > 10; });
+map.on('pitchend', () => { is3d = map.getPitch() > 10; });
 function set3d(on, { animate = true } = {}) {
   is3d = on;
-  $('#btn3d').classList.toggle('on', on);
+  const b3d = document.getElementById('btn3d'); if (b3d) b3d.classList.toggle('on', on);
   const st3d = document.getElementById('dr3dState'); if (st3d) st3d.textContent = on ? 'On' : 'Off';
   const wantTerrain = on && SET.terrain, hasTerrain = !!map.getTerrain();
   if (wantTerrain !== hasTerrain) { try { map.stop(); map.setTerrain(wantTerrain ? { source: 'dem', exaggeration: 1.4 } : null); } catch (e) { console.warn(e); } }
   if (animate) map.easeTo({ pitch: on ? 60 : 0, bearing: on ? (map.getBearing() || -20) : 0, zoom: on ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 950, easing: EASE_CAM });
 }
-$('#btn3d').onclick = () => set3d(!is3d);
+
 map.on('load', () => { applyRouteColor(); addSignalIcon(); refreshSignalSource(); applyDisplay(); loadSignalsInView(); });
 map.on('styleimagemissing', e => { if (e.id === 'tlight') addSignalIcon(); });
 
@@ -2947,7 +3072,7 @@ function showPlace(p, { fly = true } = {}) {
     if (p.extent && p.extent.length === 4 && (p.key === 'place' || p.key === 'boundary')) {
       fitView([[p.extent[0], p.extent[3]], [p.extent[2], p.extent[1]]], { padding: panelPadding(), maxZoom: 16, duration: 1400 });
     } else {
-      map.flyTo({ center: p.coord, zoom: Math.max(map.getZoom(), p.key === 'highway' ? 16 : 17), padding: panelPadding(), duration: 1400, essential: true });
+      map.flyTo({ center: p.coord, zoom: Math.max(map.getZoom(), p.key === 'highway' ? 16 : 17), padding: panelPadding(), duration: 1400, essential: true, easing: EASE_CAM });
     }
   }
   $('#placeCard').innerHTML = `<div class="card">
@@ -3704,11 +3829,89 @@ function nearestSignal(p) {
 // Remembers a traffic light you confirmed (kept on this device until you remove it in Settings)
 function confirmUserSignal(p) {
   const near = nearestSignal(p);
-  if (near.d < 40) return near.c;                          // there's already a light on this junction
+  if (near.d < 40) return { c: near.c, u: null };           // there's already a light on this junction
   const u = { id: Date.now(), lat: +p[1].toFixed(6), lon: +p[0].toFixed(6), created: Date.now() };
   USER_SIGNALS.push(u); saveUserSignals(); addUserSignalsToMap();
-  return [u.lon, u.lat];
+  return { c: [u.lon, u.lat], u };
 }
+/* ---- after you confirm a light the map didn't know about, you get 20 seconds to put it exactly right ---- */
+const PLACE_SECS = 20, PLACE_RANGE = 150;
+const PLACING = { on: false, u: null, home: null, marker: null, until: 0, raf: 0, onCommit: null };
+function lightMarkerEl() {
+  const el = document.createElement('div');
+  el.className = 'mk-light';
+  el.innerHTML = `<svg viewBox="0 0 30 38" width="38" height="48" aria-hidden="true">
+    <path d="M15 37C15 37 4 23 4 14a11 11 0 0 1 22 0c0 9-11 23-11 23z" fill="var(--route)" stroke="var(--route-dark)" stroke-width="1.5"/>
+    <rect x="10" y="5" width="10" height="17" rx="3" fill="#15171a"/>
+    <circle cx="15" cy="9.5" r="2.4" fill="#ff4d4f"/><circle cx="15" cy="14" r="2.4" fill="#ffc53d"/><circle cx="15" cy="18.5" r="2.4" fill="#52c41a"/></svg>`;
+  return el;
+}
+function beginPlacingLight(u, onCommit) {
+  if (PLACING.on) commitPlacedLight();
+  PLACING.on = true; PLACING.u = u; PLACING.home = [u.lon, u.lat]; PLACING.onCommit = onCommit || null;
+  PLACING.until = performance.now() + PLACE_SECS * 1000;
+  document.body.classList.add('placing-light');
+  const m = PLACING.marker = new maplibregl.Marker({ element: lightMarkerEl(), draggable: true, anchor: 'bottom' })
+    .setLngLat([u.lon, u.lat]).addTo(map);
+  m.on('drag', () => {
+    const c = m.getLngLat(), p = [c.lng, c.lat];
+    const d = geoDist(PLACING.home, p);
+    if (d > PLACE_RANGE) {                                  // keep it on this intersection, not the next suburb
+      const f = PLACE_RANGE / d;
+      m.setLngLat([PLACING.home[0] + (p[0] - PLACING.home[0]) * f, PLACING.home[1] + (p[1] - PLACING.home[1]) * f]);
+    }
+    PLACING.until = Math.max(PLACING.until, performance.now() + 6000);   // still moving it? you get a little longer
+    const sub = document.getElementById('plSub');
+    if (sub) sub.textContent = `${Math.round(Math.min(d, PLACE_RANGE))} m from where you stopped`;
+  });
+  m.on('dragend', () => { const c = m.getLngLat(); livePlace([c.lng, c.lat]); });
+  $('#placeLight').classList.add('show');
+  const sub = document.getElementById('plSub');
+  if (sub) sub.textContent = 'Drag it anywhere within 150 m';
+  /* bring it into view, close enough to place it accurately, without yanking the camera around */
+  try {
+    map.easeTo({ center: [u.lon, u.lat], zoom: Math.max(map.getZoom(), 17.2), pitch: 0,
+      padding: NAV.on ? navPadding() : panelPadding(120), duration: 800, essential: true, easing: EASE_CAM });
+  } catch (e) {}
+  const tick = () => {
+    if (!PLACING.on) return;
+    const left = PLACING.until - performance.now();
+    const bar = document.getElementById('plBar');
+    if (bar) bar.style.transform = `scaleX(${Math.max(0, Math.min(1, left / (PLACE_SECS * 1000)))})`;
+    if (left <= 0) { commitPlacedLight(); return; }
+    PLACING.raf = setTimeout(tick, 250);
+  };
+  tick();
+}
+/* move the saved light as you drag, so the map underneath always shows where it will land */
+function livePlace(p) {
+  const u = PLACING.u; if (!u) return;
+  u.lon = +p[0].toFixed(6); u.lat = +p[1].toFixed(6);
+  const f = SIG.feats.get('u' + u.id);
+  if (f) f.geometry.coordinates = [u.lon, u.lat];
+  refreshSignalSource();
+}
+function commitPlacedLight() {
+  if (!PLACING.on) return;
+  const u = PLACING.u, moved = u ? geoDist(PLACING.home, [u.lon, u.lat]) : 0;
+  PLACING.on = false;
+  clearTimeout(PLACING.raf); PLACING.raf = 0;
+  document.body.classList.remove('placing-light');
+  $('#placeLight').classList.remove('show');
+  if (PLACING.marker) { PLACING.marker.remove(); PLACING.marker = null; }
+  if (u) {
+    saveUserSignals();
+    const f = SIG.feats.get('u' + u.id);
+    if (f) f.geometry.coordinates = [u.lon, u.lat];
+    refreshSignalSource();
+    if (PLACING.onCommit) PLACING.onCommit([u.lon, u.lat], moved);
+    toast(moved > 5 ? `Light saved ${Math.round(moved)} m from where you stopped — that's where it stays`
+                    : 'Light saved — that\'s where it stays', 3500);
+  }
+  PLACING.u = null; PLACING.home = null; PLACING.onCommit = null;
+}
+$('#plDone').onclick = commitPlacedLight;
+
 function renderUserSignalSetting() {
   const box = document.getElementById('optUserSignals'); if (!box) return;
   const n = USER_SIGNALS.length;
@@ -4604,7 +4807,7 @@ function onGpsFix(pos) {
     GPS.centreOnFix = false;
     const go = () => {
       if (USER_MOVED || NAV.on || S.routes.length || S.place || FUEL.active || !inAus(c)) return;
-      map.easeTo({ center: c, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200, essential: true });
+      map.easeTo({ center: c, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200, essential: true, easing: EASE_CAM });
     };
     if (map.loaded()) go();
     else { let done = false; const once = () => { if (!done) { done = true; go(); } }; map.once('idle', once); setTimeout(once, 6000); }
@@ -4731,7 +4934,7 @@ function followCamera(duration = 1000) {
 function recentre() {
   if (NAV.on) { followCamera(900); return; }
   if (MOTION.pos && GPS.watch != null) {
-    map.flyTo({ center: MOTION.pos, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1200 });
+    map.flyTo({ center: MOTION.pos, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1200, easing: EASE_CAM });
     return;
   }
   if (!navigator.geolocation) return fallbackRecentre();
@@ -4740,14 +4943,14 @@ function recentre() {
     const c = [pos.coords.longitude, pos.coords.latitude];
     if (!inAus(c)) { toast('Your location is outside Australia'); return fallbackRecentre(); }
     myLoc = c; feedFix(c, pos.coords.heading, null, 0);
-    map.flyTo({ center: c, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1400 });
+    map.flyTo({ center: c, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1400, easing: EASE_CAM });
   }, () => { toast('Location unavailable — centring on your route'); fallbackRecentre(); }, { enableHighAccuracy: true, timeout: 10000 });
 }
 function fallbackRecentre() {
   const r = S.routes[S.sel];
   if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); fitView(b, { padding: panelPadding(70), duration: 1200, maxZoom: 16.5 }); }
   else if (S.place) map.flyTo({ center: S.place.coord, zoom: 16.5, padding: panelPadding(), duration: 1200 });
-  else map.flyTo({ center: MELBOURNE, zoom: 15.6, pitch: is3d ? 58 : 0, duration: 1200 });
+  else map.flyTo({ center: MELBOURNE, zoom: 15.6, pitch: is3d ? 58 : 0, duration: 1200, easing: EASE_CAM });
 }
 $('#btnRecentre').onclick = recentre;
 $('#recentrePill').onclick = recentre;
@@ -5239,8 +5442,18 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '2.0.6';
+const APP_VERSION = '2.1.0';
 const CHANGELOG = [
+  { v: '2.1.0', items: [
+    'The map now loads behind the splash screen \u2014 by the time it lifts you\u2019re already looking at your own street',
+    'It opens where you were last, asks for your location before anything else loads, and pulls tiles three times harder',
+    'Flat, straight-down view by default: pinch to zoom, twist to rotate, two fingers up and down to tilt into 3D',
+    'The 3D button is gone \u2014 the view is yours to move with your fingers, and navigation still tilts on its own',
+    'Confirm a traffic light the map doesn\u2019t know about and you get 20 seconds to drag it exactly where it stands',
+    'Keep dragging and the clock extends; tap Done to finish early. Once it\u2019s set, it\u2019s set for good',
+    'Saved offline areas now track their age, refresh stale roads in the background, and have an Update button',
+    'Search still takes a place name, an address or coordinates \u2014 whichever you have to hand',
+    'Smoother panels, markers and transitions throughout'] },
   { v: '2.0.6', items: [
     'Name your saved places whatever you like \u2014 a favourite dropped on your location is no longer stuck as a set of numbers',
     'Rename any favourite at any time from Saved places',
@@ -5994,12 +6207,19 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') wxGo(WX.idx + 1, 'left');
   if (e.key === 'ArrowLeft') wxGo(WX.idx - 1, 'right');
 });
-/* splash: two seconds while the map, settings and forecast come up behind it */
+/* splash: two seconds, by which time the map behind it is drawn and sitting on your location */
 {
   const sp = document.getElementById('splash'), logo = document.getElementById('splashLogo');
   const brand = document.querySelector('.brand img');
   if (logo && brand) logo.src = brand.src;
   const MIN = 2000, MAX = 3500, t0 = performance.now();
+  /* a fix that lands while the splash is up moves the map with no animation — it's already there when you see it */
+  window.__onBootFix = c => {
+    if (!inAus(c) || USER_MOVED || NAV.on || S.routes.length || S.place) return;
+    myLoc = c;
+    if (document.body.classList.contains('splashing')) { map.jumpTo({ center: c, zoom: 16 }); GPS.centreOnFix = false; }
+  };
+  if (BOOT.fix && Date.now() - BOOT.fixAt < 60000) window.__onBootFix(BOOT.fix);
   let done = false;
   const finish = () => {
     if (done) return; done = true;
@@ -6466,20 +6686,37 @@ $('#stopYes').onclick = () => {
   const R = TRIP.rec, cs = promptStop;
   hideStopPrompt();
   if (!R || !cs) return;
-  const c = confirmUserSignal(cs.ix || cs.c);                 // the light goes on the junction ahead, not where you stopped
+  const res = confirmUserSignal(cs.ix || cs.c);               // the light goes on the junction ahead, not where you stopped
+  const c = res.c;
   cs.kind = 'confirmed';
-  const k = sigKey(c);
+  let k = sigKey(c);
   R.red[k] = 1; R.userKeys[k] = 1; R.confirmed++;
-  if (NAV.coords) {                                           // count it on this trip too
-    const a = projectOnRoute(c).along;
+  const countOnRoute = cc => {
+    if (!NAV.coords) return;
+    const a = projectOnRoute(cc).along;
     if (!(NAV.signals || []).some(x => Math.abs(x - a) < 30)) {
       const idx = (NAV.signals || []).findIndex(x => x > a);
       const at = idx < 0 ? NAV.signals.length : idx;
-      NAV.signals.splice(at, 0, a); (NAV.sigKeys = NAV.sigKeys || []).splice(at, 0, k);
+      NAV.signals.splice(at, 0, a); (NAV.sigKeys = NAV.sigKeys || []).splice(at, 0, sigKey(cc));
     }
-  }
+  };
+  countOnRoute(c);
   startRedTimer('confirmed', cs.t0);
-  toast(cs.ix && geoDist(cs.c, cs.ix) > 35 ? 'Thanks — light saved on the junction ahead' : 'Thanks — traffic light saved to your map');
+  if (res.u) {                                                // brand new light: 20 seconds to put it exactly right
+    beginPlacingLight(res.u, (fin, moved) => {
+      if (moved <= 5) return;
+      const nk = sigKey(fin);                                 // it ended up elsewhere — move it on this trip's tally too
+      if (nk !== k) {
+        delete R.red[k]; delete R.userKeys[k];
+        R.red[nk] = 1; R.userKeys[nk] = 1;
+        if (NAV.sigKeys) { const i = NAV.sigKeys.indexOf(k); if (i >= 0) { NAV.signals.splice(i, 1); NAV.sigKeys.splice(i, 1); } }
+        countOnRoute(fin);
+        k = nk;
+      }
+    });
+  } else {
+    toast(cs.ix && geoDist(cs.c, cs.ix) > 35 ? 'Thanks — light saved on the junction ahead' : 'Thanks — traffic light saved to your map');
+  }
 };
 $('#stopNo').onclick = () => {
   const R = TRIP.rec, cs = promptStop;
@@ -6499,6 +6736,7 @@ $('#stopTraffic').onclick = () => {                            // held up by tra
 function tripFinish(status) {
   const R = TRIP.rec; if (!R || !R.startedAt || R.done) return null;
   R.done = true;
+  commitPlacedLight();                                      // lock in a light you were still positioning
   hideStopPrompt(); stopRedTimer();
   if (R.curStop) { const dur = (performance.now() - R.curStop.t0) / 1000; if (dur >= STOP_SECS) R.stops.push({ c: R.curStop.c, dur: Math.round(dur), kind: R.curStop.kind, at: Date.now() }); R.curStop = null; }
   if (status === 'arrived') { const tail = Math.max(0, NAV.total - R.lastAlong); if (tail < 60) R.dist += NAV.sim ? tail : 0; }
@@ -6699,7 +6937,6 @@ updateTripCount();
 }
 
 /* ================= Auto-locate & view reset ================= */
-let USER_MOVED = false;
 {
   const cc = map.getCanvasContainer();
   ['pointerdown', 'wheel', 'touchstart'].forEach(ev => cc.addEventListener(ev, () => { USER_MOVED = true; }, { passive: true }));
@@ -6708,7 +6945,7 @@ function autoLocate() {
   if (!navigator.geolocation) return;
   GPS.centreOnFix = true;
   if (GPS.watch == null) startGPS(false);
-  else if (myLoc) { GPS.centreOnFix = false; map.easeTo({ center: myLoc, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200 }); }
+  else if (myLoc) { GPS.centreOnFix = false; map.easeTo({ center: myLoc, zoom: 16, pitch: is3d ? 58 : 0, duration: 1200, easing: EASE_CAM }); }
 }
 // Resets both the browser's page zoom (pinch / input-focus zoom on phones) and the map camera
 function resetPageZoom() {
@@ -6726,7 +6963,7 @@ function resetView() {
   if (NAV.on) { map.setPadding(navPadding()); followCamera(700); return; }
   map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   const c = myLoc && inAus(myLoc) ? myLoc : [map.getCenter().lng, map.getCenter().lat];
-  map.flyTo({ center: c, zoom: 15.5, pitch: is3d ? 55 : 0, bearing: 0, duration: 900 });
+  map.flyTo({ center: c, zoom: 15.5, pitch: map.getPitch(), bearing: map.getBearing(), duration: 900, easing: EASE_CAM });
   toast('View reset');
 }
 $('#zoomFix').onclick = resetView;
@@ -6820,6 +7057,7 @@ window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visib
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
   OFF, offlineReady, offlineReroute, downloadRegion, deleteRegion, renderOfflineView, tilesForBounds, inAnyRegion, roadGraph, aStar, nearestNode, setOnlineState, tileTemplate, viewBounds, idbGet, idbPut, idbCount,
+  beginPlacingLight, commitPlacedLight, PLACING, PLACE_SECS, PLACE_RANGE, confirmUserSignal, freshenSavedAreas, regionAge, tileAge, tileBuf, OFF_FRESH_MS, set3d, get is3d() { return is3d; },
   parseCoords, looksLikeCoords, coordPlace, setPick, savePick, renamePlace, setSaved, renderQuick, renderPlacesView, PLACE_EDIT, MAX_FAVS, trackCard, trackScoreHtml, trackHeadline, followZoom,
   tripSample, tripBegin, trackStop, TRACK, trackSample, trackReset, toggleTrack, renderTrack, TK_BANDS, buildDevReport, downloadDevReport, devData, appSource, parseHours, hoursStatus, fetchPlaceInfo, renderPlaceInfo, streetLabel, wxPenaltyFor, treeStyle,
   WX, loadWeather, wxRisk, wxFactor, schoolFactor, inSchoolHours, schoolNote, loadRouteSchools, departureTime,
