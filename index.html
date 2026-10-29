@@ -45,6 +45,12 @@
   --route-ink:#06210f;
   --route-soft:rgba(34,197,94,.14);
   --amber:#f5b942;
+  --nav-surface:rgba(28,29,32,.93);
+  --sheet:rgba(32,33,36,.94);
+  --sheet-ink:#ffffff;
+  --sheet-sub:rgba(255,255,255,.55);
+  --sheet-line:rgba(255,255,255,.12);
+  --sheet-chip:rgba(255,255,255,.22);
   --ease:cubic-bezier(.22,.9,.28,1);
   --ease-soft:cubic-bezier(.16,1,.3,1);
   --ease-in-out:cubic-bezier(.4,0,.2,1);
@@ -91,6 +97,11 @@
   --banner-btn:rgba(0,0,0,.05);
   --banner-btn-on:rgba(0,0,0,.1);
   --card:rgba(255,255,255,.97);
+  --sheet:rgba(255,255,255,.96);
+  --sheet-ink:#1c1d1f;
+  --sheet-sub:rgba(0,0,0,.5);
+  --sheet-line:rgba(0,0,0,.1);
+  --sheet-chip:rgba(0,0,0,.18);
   --card-ink:#1c1d1f;
   --card-sub:rgba(0,0,0,.045);
   --card-chip:rgba(0,0,0,.06);
@@ -679,43 +690,84 @@ body.route-ready .search{display:none}
 .rb-t{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rb-s{display:block;font-size:12px;color:var(--banner-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* navigation: Apple-style instruction banner on top, ETA banner across the bottom */
+/* ================= navigation chrome ================= */
 body.navigating .banner{display:none}
 body.navigating #map{top:0}
-.navcard{position:fixed;top:0;left:0;right:0;z-index:21;
-  background:var(--card);color:var(--card-ink);border-radius:0 0 22px 22px;box-shadow:var(--card-shadow);display:none;overflow:hidden;backdrop-filter:var(--blur);
-  padding-top:env(safe-area-inset-top)}
-body.navigating .navcard{display:block;animation:drop .35s ease}
-@keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
-.nav-main{display:flex;gap:14px;align-items:center;padding:14px 18px}
-.nav-arr{width:46px;height:46px;border-radius:12px;background:var(--card-chip);display:grid;place-items:center;flex:none;color:inherit}
-.nav-arr svg{width:28px;height:28px}
-.nav-dist{font-size:24px;font-weight:700;line-height:1.15}
-.nav-txt{font-size:15px;line-height:1.3;opacity:.95}
-.nav-sig{font-size:13px;font-weight:600;background:var(--card-chip);border-radius:12px;padding:4px 9px;white-space:nowrap;flex:none}
+/* the instruction card floats clear of the edges and stays dark in every theme, the way a windscreen display would */
+.navcard{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:50%;transform:translateX(-50%) translateY(-18px);
+  width:min(540px,calc(100vw - 20px));z-index:21;background:var(--nav-surface);color:#fff;border-radius:26px;
+  box-shadow:0 16px 42px rgba(0,0,0,.4),0 2px 0 rgba(255,255,255,.07) inset;display:none;overflow:hidden;
+  backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+  opacity:0;transition:opacity .34s var(--ease-in-out),transform .5s var(--ease-soft);will-change:transform,opacity}
+body.navigating .navcard{display:block}
+body.navigating .navcard.in{opacity:1;transform:translateX(-50%) translateY(0)}
+.nav-main{display:flex;gap:14px;align-items:center;padding:15px 18px 15px 15px}
+.nav-arr{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;flex:none;color:#fff}
+.nav-arr svg{width:30px;height:30px}
+.nav-dist{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.nav-txt{font-size:15.5px;line-height:1.32;color:rgba(255,255,255,.82);margin-top:1px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nav-sig{font-size:12.5px;font-weight:700;background:rgba(255,255,255,.14);color:#fff;border-radius:13px;padding:5px 10px;white-space:nowrap;flex:none}
 .nav-sig:empty{display:none}
-.nav-then{display:flex;gap:8px;align-items:center;padding:8px 18px;background:var(--card-sub);font-size:13px;
+.nav-then{display:flex;gap:9px;align-items:center;padding:10px 18px 11px;background:rgba(255,255,255,.07);
+  border-top:1px solid rgba(255,255,255,.1);font-size:13.5px;color:rgba(255,255,255,.88);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav-then span{opacity:.7;text-transform:uppercase;letter-spacing:.6px;font-size:11px;font-weight:700}
-.eta-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:21;width:min(720px,100%);display:none;align-items:center;gap:12px;
-  background:var(--card);color:var(--card-ink);border-radius:24px 24px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.28);backdrop-filter:var(--blur);
-  padding:14px 18px calc(14px + env(safe-area-inset-bottom))}
-body.navigating .eta-bar{display:flex;animation:rise .35s ease}
-@keyframes rise{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
-.eta-cols{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:space-around;gap:8px}
+.nav-then span{color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.7px;font-size:11px;font-weight:700}
+.nav-grip{width:36px;height:4px;border-radius:99px;background:rgba(255,255,255,.22);margin:0 auto 8px}
+
+/* round glass controls down the right-hand side while you drive */
+.nav-fabs{display:none;flex-direction:column;gap:10px;align-items:flex-end}
+body.navigating .nav-fabs{display:flex;animation:fabIn .45s var(--ease-soft) both}
+body.navigating .map-ctl .fab{background:var(--sheet);color:var(--sheet-ink);width:50px;height:50px;
+  box-shadow:0 6px 18px rgba(0,0,0,.26);backdrop-filter:blur(22px) saturate(160%)}
+@keyframes fabIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.nav-fab{width:50px;height:50px;border-radius:50%;border:0;background:var(--sheet);color:var(--sheet-ink);
+  box-shadow:0 6px 18px rgba(0,0,0,.26);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);display:grid;place-items:center;
+  transition:transform .22s var(--ease-soft),background .2s var(--ease-in-out)}
+.nav-fab:active{transform:scale(.9)}
+.nav-fab.on{background:var(--route);color:var(--route-ink)}
+.nav-fab svg{width:22px;height:22px}
+
+/* the ETA sheet: a grabber, three plain columns, one quiet action */
+.eta-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(20px);z-index:21;width:min(560px,100%);display:none;
+  flex-direction:column;background:var(--sheet);color:var(--sheet-ink);border-radius:26px 26px 0 0;
+  box-shadow:0 -10px 34px rgba(0,0,0,.34);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+  padding:8px 18px calc(8px + env(safe-area-inset-bottom));opacity:0;
+  transition:opacity .34s var(--ease-in-out),transform .5s var(--ease-soft);will-change:transform,opacity}
+body.navigating .eta-bar{display:flex}
+body.navigating .eta-bar.in{opacity:1;transform:translateX(-50%) translateY(0)}
+.eta-grip{width:38px;height:5px;border-radius:99px;background:var(--sheet-chip);margin:0 auto 9px;flex:none}
+.eta-cols{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 4px}
 .eta-col{text-align:center;min-width:0;flex:1 1 0}
-.eta-v{font-size:23px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
-.eta-v.big{font-size:31px;color:var(--route)}
-:root[data-theme="light"] .eta-v.big{color:#fff}
-:root[data-theme="classic"] .eta-v.big{color:var(--route-dark)}
-.eta-v small{font-size:14px;font-weight:600;opacity:.8;margin-left:2px}
-.eta-k{font-size:11px;letter-spacing:.8px;text-transform:uppercase;opacity:.75;margin-top:3px}
-.nav-exit{border:0;border-radius:20px;padding:11px 18px;background:#ef4444;color:#fff;font-weight:700;font-size:14px;flex:none}
-body.navigating .tr-stack{top:calc(104px + env(safe-area-inset-top))}
-body.navigating .bl-stack{bottom:calc(112px + env(safe-area-inset-bottom))}
-body.navigating .stop-prompt{bottom:calc(132px + env(safe-area-inset-bottom))}
-body.navigating .toast{bottom:calc(122px + env(safe-area-inset-bottom))}
-body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(100px + env(safe-area-inset-bottom))}
+.eta-v{font-size:28px;font-weight:700;line-height:1.05;letter-spacing:-.6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.eta-v small{font-size:15px;font-weight:600;color:var(--sheet-sub);margin-left:1px;letter-spacing:0}
+.eta-k{font-size:13px;color:var(--sheet-sub);margin-top:1px;font-weight:500}
+.eta-act{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding-top:7px;border-top:1px solid var(--sheet-line)}
+.nav-exit{border:0;border-radius:18px;padding:9px 20px;background:transparent;color:#ff453a;font-weight:650;font-size:15.5px;
+  transition:background .2s var(--ease-in-out)}
+.nav-exit:hover{background:rgba(255,69,58,.12)}
+
+/* how your road compares with the planned one */
+.reroute-chip{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 10px);transform:translate(-50%,-14px) scale(.96);z-index:23;
+  display:flex;align-items:center;gap:9px;max-width:min(520px,calc(100vw - 24px));
+  background:var(--nav-surface);color:#fff;border-radius:22px;padding:11px 16px;font-size:14px;font-weight:600;
+  box-shadow:0 14px 34px rgba(0,0,0,.4);backdrop-filter:blur(22px) saturate(160%);opacity:0;pointer-events:none;
+  transition:opacity .3s var(--ease-in-out),transform .46s var(--ease-soft)}
+.reroute-chip.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.reroute-chip .rr-dot{width:9px;height:9px;border-radius:50%;background:var(--route);flex:none;animation:rrPulse 1s ease-in-out infinite}
+.reroute-chip.done .rr-dot{animation:none}
+.reroute-chip small{display:block;font-weight:500;color:rgba(255,255,255,.7);font-size:12px;margin-top:1px}
+@keyframes rrPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.75)}}
+body.navigating .tr-stack{top:calc(148px + env(safe-area-inset-top))}
+body.navigating .stopwatch{background:var(--sheet);color:var(--sheet-ink);border-color:transparent;min-width:0;width:auto;
+  box-shadow:0 6px 18px rgba(0,0,0,.26);backdrop-filter:blur(22px) saturate(160%);padding:9px 15px;border-radius:22px;text-align:center}
+body.navigating .stopwatch .sw-top{font-size:9.5px;letter-spacing:.7px;opacity:.6}
+body.navigating .stopwatch .sw-time{font-size:22px;letter-spacing:.5px;margin-top:1px}
+body.navigating .stopwatch .sw-status,body.navigating .stopwatch .sw-btns{display:none}
+body.navigating .bl-stack{bottom:calc(146px + env(safe-area-inset-bottom))}
+body.navigating .stop-prompt{bottom:calc(160px + env(safe-area-inset-bottom))}
+body.navigating .toast{bottom:calc(152px + env(safe-area-inset-bottom))}
+body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(138px + env(safe-area-inset-bottom))}
 .recentre{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:19;display:none;align-items:center;gap:8px;
   border:0;border-radius:24px;padding:12px 19px;background:var(--card);color:var(--card-ink);font-weight:600;box-shadow:var(--card-shadow);backdrop-filter:var(--blur)}
 .recentre.show{display:flex;animation:risein .3s var(--ease)}
@@ -742,7 +794,7 @@ body.navigating .place-light{bottom:calc(128px + env(safe-area-inset-bottom))}
 body.placing-light .mk-light{animation:plPulse 1.5s var(--ease-in-out) infinite}
 @keyframes plPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 @keyframes risein{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translateX(-50%)}}
-body.navigating .recentre{bottom:calc(124px + env(safe-area-inset-bottom))}
+body.navigating .recentre{bottom:calc(156px + env(safe-area-inset-bottom))}
 
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#111214;color:#fff;border:1px solid #3c3f45;
   padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
@@ -914,31 +966,36 @@ body.wx-open{overflow:hidden}
   .maplibregl-ctrl-zoom-in,.maplibregl-ctrl-zoom-out,.maplibregl-ctrl-scale,.maplibregl-ctrl-group:has(.maplibregl-ctrl-fullscreen){display:none!important}
   .menu-btn{width:44px;height:44px}
   .stopwatch{min-width:0;padding:8px 10px}
+  body.navigating .stopwatch{padding:7px 12px}
+  body.navigating .stopwatch .sw-time{font-size:18px;letter-spacing:0}
   .sw-time{font-size:21px}
   .sw-status{max-width:128px;font-size:11px}
   .sw-btn{height:26px}
   .nav-main{padding:10px 12px;gap:10px}
-  .nav-arr{width:38px;height:38px}
-  .nav-dist{font-size:20px}
-  .nav-txt{font-size:13px}
-  .nav-then{padding:6px 12px;font-size:12px}
+  .nav-arr{width:46px;height:46px}
+  .nav-arr svg{width:26px;height:26px}
+  .nav-dist{font-size:23px}
+  .nav-txt{font-size:14px}
+  .nav-then{padding:9px 14px;font-size:12.5px}
+  .nav-fab{width:46px;height:46px}
+  .nav-fab svg{width:20px;height:20px}
   .route-banner{height:40px;padding:0 5px 0 10px;gap:8px}
   .rb-s{font-size:11px}
   .rb-go{padding:0 13px;height:31px;font-size:13px}
   .rb-go span{display:inline}
-  .eta-bar{padding:12px 12px calc(12px + env(safe-area-inset-bottom));gap:8px}
-  .eta-v{font-size:18px}
-  .eta-v.big{font-size:25px}
-  .eta-v small{font-size:12px}
+  .eta-bar{padding:8px 14px calc(8px + env(safe-area-inset-bottom))}
+  .eta-v{font-size:24px}
+  .eta-v small{font-size:13px}
+  .eta-k{font-size:12px}
   .eta-k{font-size:10px}
   .nav-exit{padding:10px 14px;font-size:13px}
   .recentre{bottom:calc(48vh + 16px);left:auto;right:64px;transform:none}
   body.sheet-down .recentre{bottom:70px}
   body.navigating .tr-stack{top:calc(100px + env(safe-area-inset-top))}
-  body.navigating .bl-stack{bottom:calc(112px + env(safe-area-inset-bottom))}
-  body.navigating .recentre{bottom:calc(120px + env(safe-area-inset-bottom));right:14px}
-  body.navigating .stop-prompt{bottom:calc(128px + env(safe-area-inset-bottom))}
-  body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(96px + env(safe-area-inset-bottom))}
+  body.navigating .bl-stack{bottom:calc(142px + env(safe-area-inset-bottom))}
+  body.navigating .recentre{bottom:calc(150px + env(safe-area-inset-bottom));right:14px}
+  body.navigating .stop-prompt{bottom:calc(156px + env(safe-area-inset-bottom))}
+  body.navigating .maplibregl-ctrl-bottom-right{bottom:calc(132px + env(safe-area-inset-bottom))}
 }
 </style>
 </head>
@@ -1102,6 +1159,17 @@ try {
     <div class="tk-rows" id="tkRows"></div>
     <div class="tk-foot" id="tkFoot">Best runs on this device · from GPS and your phone's sensors</div>
   </div>
+  <div class="nav-fabs">
+    <button class="nav-fab" id="navOverview" title="See the whole route" aria-label="See the whole route">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="5.5" r="2.5"/><path d="M8 18.5h5a3.5 3.5 0 0 0 0-7h-2a3.5 3.5 0 0 1 0-7h5"/></svg>
+    </button>
+    <button class="nav-fab" id="navLights" title="Traffic lights on the route" aria-label="Traffic lights on the route">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="15" rx="4"/><path d="M12 17v5M8 6H5m14 0h-3M8 11H5m14 0h-3"/><circle cx="12" cy="6" r="1.2" fill="currentColor"/><circle cx="12" cy="13" r="1.2" fill="currentColor"/></svg>
+    </button>
+    <button class="nav-fab" id="navReport" title="Report the road ahead" aria-label="Report the road ahead">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17.2v.1"/></svg>
+    </button>
+  </div>
   <div class="map-ctl">
     <button class="fab" id="btnRecentre" title="Re-centre on my location">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg>
@@ -1244,13 +1312,22 @@ try {
   </div>
   <div class="nav-then" id="navThen" hidden></div>
 </div>
+<div class="stop-prompt" id="reportSheet" role="alertdialog" aria-label="Report the road ahead">
+  <h4>Report the road ahead</h4>
+  <p id="reportWhere">Tell One Maps what you can see.</p>
+  <div class="row2"><button class="yes" id="repLight">🚦 Traffic light here</button><button class="no jam" id="repJam">Heavy traffic</button>
+    <button class="no traffic" id="repClosed">Road blocked</button></div>
+  <div class="btns" style="margin-top:4px"><button class="btn ghost" id="repCancel" style="width:100%;justify-content:center">Cancel</button></div>
+</div>
+<div class="reroute-chip" id="rrChip" role="status"><span class="rr-dot"></span><span id="rrTxt"></span></div>
 <div class="eta-bar" id="etaBar" aria-live="polite">
+  <div class="eta-grip"></div>
   <div class="eta-cols">
     <div class="eta-col"><div class="eta-v" id="etaArrive">—</div><div class="eta-k">arrival</div></div>
-    <div class="eta-col"><div class="eta-v big" id="etaMin">—</div><div class="eta-k" id="etaMinK">min</div></div>
+    <div class="eta-col"><div class="eta-v" id="etaMin">—</div><div class="eta-k" id="etaMinK">min</div></div>
     <div class="eta-col"><div class="eta-v" id="etaKm">—</div><div class="eta-k">remaining</div></div>
   </div>
-  <button class="nav-exit" id="navExit">End</button>
+  <div class="eta-act"><button class="nav-exit" id="navExit">End route</button></div>
 </div>
 <button class="recentre" id="recentrePill">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z"/></svg>
@@ -5009,6 +5086,9 @@ function startNav(simulate) {
   resetMotion();
   SW.reset('Waiting for you to set off…', 'wait');
   document.body.classList.add('navigating');
+  requestAnimationFrame(() => { $('#navcard').classList.add('in'); $('#etaBar').classList.add('in'); });
+  $('#navLights').classList.toggle('on', !!SET.traffic);
+  overviewOn = false; $('#navOverview').classList.remove('on');
   setTimeout(updateGoBtn, 0);
   setCollapsed(true);
   if (!is3d) set3d(true, { animate: false });
@@ -5074,6 +5154,8 @@ function exitNav() {
   if (SW.running) SW.pause('Trip ended · ' + SW.fmt(SW.elapsed()), 'done');
   else if (!SW.started) SW.reset();
   NAV.on = false;
+  hideRerouteChip();
+  $('#navcard').classList.remove('in'); $('#etaBar').classList.remove('in');
   document.body.classList.remove('navigating');
   setFollowing(false);
   PROG.frac = 0; setProgress(0, true);
@@ -5085,6 +5167,63 @@ function exitNav() {
   setTimeout(updateGoBtn, 0);
 }
 $('#navExit').onclick = exitNav;
+/* see the whole route, then tap again to drop back behind the car */
+let overviewOn = false;
+function toggleOverview(force) {
+  const want = force != null ? force : !overviewOn;
+  overviewOn = want;
+  $('#navOverview').classList.toggle('on', want);
+  if (!want) { map.setPadding(navPadding()); followCamera(800); return; }
+  setFollowing(false);
+  const r = NAV.route; if (!r || !r.geometry) return;
+  const cs = r.geometry.coordinates;
+  let a = 180, b = 90, c = -180, d = -90;
+  for (const [x, y] of cs) { if (x < a) a = x; if (y < b) b = y; if (x > c) c = x; if (y > d) d = y; }
+  map.stop();
+  map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });  // drop the driving offset or the route can't be made to fit
+  const box = map.getContainer();                            // leave room for the card and the sheet, but never more than the canvas
+  const pv = Math.min(150, Math.round(box.clientHeight * 0.17)), pb = Math.min(190, Math.round(box.clientHeight * 0.2));
+  const px = Math.min(50, Math.round(box.clientWidth * 0.1));
+  map.easeTo({ pitch: 0, bearing: 0, duration: 420, easing: EASE_CAM });
+  setTimeout(() => { if (overviewOn) fitView([[a, b], [c, d]], { padding: { top: pv, bottom: pb, left: px, right: px }, bearing: 0, pitch: 0, duration: 900 }); }, 440);
+}
+$('#navOverview').onclick = () => toggleOverview();
+$('#navLights').onclick = () => {
+  SET.traffic = !SET.traffic; saveSettings();
+  $('#navLights').classList.toggle('on', SET.traffic);
+  applyDisplay(); renderToggles();
+  if (SET.traffic) { loadSignalsInView(); if (NAV.route) loadRouteSignals(NAV.route); }
+  updateNavCard(NAV.lastAlong || 0);
+  toast(SET.traffic ? 'Traffic lights shown on your route' : 'Traffic lights hidden');
+};
+function hideReport() { $('#reportSheet').classList.remove('show'); }
+$('#navReport').onclick = () => {
+  const p = NAV.pos || MOTION.pos;
+  if (!p) { toast('Waiting for your location'); return; }
+  const road = roadNameAt(p);
+  $('#reportWhere').textContent = road ? `You're on ${road}. What can you see?` : 'Tell One Maps what you can see here.';
+  $('#reportSheet').classList.add('show');
+};
+$('#repCancel').onclick = hideReport;
+$('#repLight').onclick = () => {
+  hideReport();
+  const p = NAV.pos || MOTION.pos; if (!p) return;
+  const res = confirmUserSignal(nextIntersection(p) || p);
+  if (res.u) beginPlacingLight(res.u);
+  else toast('There\'s already a light saved at that junction');
+};
+$('#repJam').onclick = () => { hideReport(); reportRoad('traffic'); };
+$('#repClosed').onclick = () => { hideReport(); reportRoad('closed'); };
+function reportRoad(kind) {
+  const p = NAV.pos || MOTION.pos; if (!p) return;
+  const nm = roadNameAt(p) || 'this road';
+  addAvoid(nm, p, kind);
+  if (TRIP.rec) TRIP.rec.traffic = (TRIP.rec.traffic || 0) + (kind === 'traffic' ? 1 : 0);
+  toast(kind === 'closed' ? `${nm} marked as blocked \u2014 it'll be kept off your routes` : `${nm} marked as heavy traffic`, 4000);
+  if (NAV.pos) reroute(NAV.pos);
+}
+/* the camera going back to following means the overview is over */
+map.on('dragstart', () => { if (overviewOn && NAV.on) { overviewOn = false; $('#navOverview').classList.remove('on'); } });
 
 function setEtaBar(remT, remD) {
   $('#etaArrive').textContent = new Date(Date.now() + Math.max(0, remT) * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -5157,30 +5296,101 @@ function onPosition(p, heading, speed) {
     if (NAV.offCount >= 3 && !NAV.rerouting) reroute(p);
   }
 }
-async function reroute(p) {
-  NAV.rerouting = true;
-  if (!navigator.onLine && offlineReroute(p)) {               // no signal: stitch a way back from the map on this device
-    NAV.rerouting = false;
-    return;
-  }
-  toast('Re-routing…');
-  try {
-    const url = `${ROUTER[NAV.mode]}/route/v1/driving/${p[0]},${p[1]};${S.to.coord[0]},${S.to.coord[1]}?overview=full&geometries=geojson&steps=true&alternatives=3`;
-    const j = await osrmFetch(url, null, [p, S.to.coord]);
-    if (j.code === 'Ok' && j.routes.length) {
-      const pick = pickRoute(j.routes);                     // steer around anything you've reported
-      j.routes = [j.routes[pick.sel]];
-      S.routes = [j.routes[0]]; S.sel = 0; S.avoid = pick;
-      if (TRIP.rec) TRIP.rec.reroutes++;
-      PROG.frac = 0; drawRoutes(true); prepNavRoute(j.routes[0]); NAV.offCount = 0;
-      NAV.orig = { route: j.routes[0], coords: NAV.coords.slice(), cum: NAV.cum.slice(), steps: NAV.steps, starts: NAV.starts,
-        names: new Set(NAV.steps.map(st => (st.name || '').toLowerCase()).filter(Boolean)) };
-      resetDetour();                                        // the new route is the plan from here on
-      MOTION.along = null; MOTION.v = 0; loadRouteSignals(j.routes[0]);
-    }
-  } catch (e) { if (!offlineReroute(p)) { /* keep the old route */ } }
-  NAV.rerouting = false;
+/* ---- rerouting ----
+   You took a different road. Rather than nagging you back onto the plan, time both ways from where
+   you actually are and keep whichever is quicker. The whole comparison is capped at three seconds. */
+const REROUTE_BUDGET = 3000, REROUTE_TIE = 45;              // within 45 s either way is a tie, so nothing changes
+function showRerouteChip(txt, sub, done) {
+  const chip = $('#rrChip');
+  $('#rrTxt').innerHTML = `${esc(txt)}${sub ? `<small>${esc(sub)}</small>` : ''}`;
+  chip.classList.toggle('done', !!done);
+  chip.classList.add('show');
+  clearTimeout(showRerouteChip._t);
+  if (done) showRerouteChip._t = setTimeout(hideRerouteChip, 5000);
 }
+function hideRerouteChip() { $('#rrChip').classList.remove('show'); }
+const routeUrlFor = (a, b, mode) =>
+  `${ROUTER[mode]}/route/v1/driving/${a[0]},${a[1]};${b[0]},${b[1]}?overview=full&geometries=geojson&steps=true&alternatives=3`;
+const settle = pr => pr.then(v => v, () => null);
+/* where you would rejoin the plan: far enough ahead to be worth driving to, close enough to be the same trip */
+function rejoinPoint(p) {
+  const plan = NAV.orig && NAV.orig.route ? NAV.orig : null;
+  if (!plan || !plan.cum || !plan.cum.length) return null;
+  const total = plan.cum[plan.cum.length - 1];
+  const pr = projectOn(p, plan.coords, plan.cum);
+  const at = Math.min(total - 5, pr.along + Math.max(400, Math.min(2500, geoDist(p, plan.coords[0]) * 0.1 + 600)));
+  if (at <= pr.along + 50 || at >= total) return null;
+  let lo = 0, hi = plan.cum.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (plan.cum[mid] <= at) lo = mid; else hi = mid; }
+  return { c: plan.coords[lo].slice(), along: plan.cum[lo], total, plan };
+}
+/* a leg back to the plan, with the rest of the planned line stitched on the end */
+function spliceOntoPlan(leg, join) {
+  const rest = join.plan.coords.slice(join.plan.coords.findIndex((c, i) => join.plan.cum[i] >= join.along));
+  const coords = leg.geometry.coordinates.concat(rest.length ? rest : [join.plan.coords[join.plan.coords.length - 1]]);
+  const planLeft = routeBase(join.plan.route) * Math.max(0, 1 - join.along / (join.total || 1));
+  const legSteps = (leg.legs && leg.legs[0] && leg.legs[0].steps ? leg.legs[0].steps : []).filter(st => st.maneuver && st.maneuver.type !== 'arrive');
+  const planSteps = (join.plan.steps || []).filter((st, i) => (join.plan.starts || [])[i] >= join.along);
+  return { distance: cumOf(coords).pop(), duration: leg.duration + planLeft,
+    geometry: { type: 'LineString', coordinates: coords },
+    legs: [{ steps: legSteps.concat(planSteps.length ? planSteps : [{ name: '', distance: 0, duration: 0, maneuver: { type: 'arrive', location: coords[coords.length - 1] } }]) }],
+    _backOnPlan: true };
+}
+function adoptRoute(r, { avoid = null } = {}) {
+  S.routes = [r]; S.sel = 0; if (avoid) S.avoid = avoid;
+  if (TRIP.rec) TRIP.rec.reroutes++;
+  PROG.frac = 0;
+  drawRoutes(true);
+  prepNavRoute(r);
+  NAV.offCount = 0;
+  NAV.orig = { route: r, coords: NAV.coords.slice(), cum: NAV.cum.slice(), steps: NAV.steps, starts: NAV.starts,
+    names: new Set(NAV.steps.map(st => (st.name || '').toLowerCase()).filter(Boolean)) };
+  resetDetour();
+  MOTION.along = null; MOTION.v = 0;
+  loadRouteSignals(r);
+}
+async function reroute(p) {
+  if (NAV.rerouting) return;
+  NAV.rerouting = true;
+  const t0 = performance.now();
+  const finish = () => { NAV.rerouting = false; };
+  if (!navigator.onLine) {                                   // no signal: stitch a way back from the map on this device
+    if (offlineReroute(p)) { showRerouteChip('Re-routed offline', 'From the map saved on this device', true); return finish(); }
+  }
+  showRerouteChip('Comparing your road with the planned route…');
+  const ctrl = new AbortController();
+  const cap = setTimeout(() => ctrl.abort(), REROUTE_BUDGET - 200);
+  const join = rejoinPoint(p);
+  const yourWay = settle(osrmFetch(routeUrlFor(p, S.to.coord, NAV.mode), ctrl.signal, [p, S.to.coord]));
+  const backOn = join ? settle(osrmFetch(routeUrlFor(p, join.c, NAV.mode), ctrl.signal, [p, join.c])) : Promise.resolve(null);
+  const [ja, jb] = await Promise.all([yourWay, backOn]);     // both at once: the budget is one request, not two
+  clearTimeout(cap);
+  const okA = ja && ja.code === 'Ok' && ja.routes && ja.routes.length;
+  const okB = jb && jb.code === 'Ok' && jb.routes && jb.routes.length && join;
+  if (!okA && !okB) {                                        // nothing came back in time
+    if (!offlineReroute(p)) showRerouteChip('Couldn\'t reach the router', 'Carrying on with the route you have', true);
+    else showRerouteChip('Re-routed from the map on this device', null, true);
+    return finish();
+  }
+  let pickA = null, aDur = Infinity, bRoute = null, bDur = Infinity;
+  if (okA) { pickA = pickRoute(ja.routes); aDur = routeDur(ja.routes[pickA.sel]); }
+  if (okB) { bRoute = spliceOntoPlan(jb.routes[pickRoute(jb.routes).sel], join); bDur = routeDur(bRoute); }
+  const took = Math.round(performance.now() - t0);
+  const gap = Math.round(Math.abs(aDur - bDur));
+  const takeYours = !okB || aDur <= bDur + REROUTE_TIE;
+  if (takeYours && okA) {
+    adoptRoute(ja.routes[pickA.sel], { avoid: pickA });
+    showRerouteChip(okB && gap >= REROUTE_TIE ? `Your way is ${fmtSecs(gap)} quicker` : 'Staying on the road you\'re on',
+      okB ? `${fmtDur(aDur)} this way \u00b7 ${fmtDur(bDur)} back via the planned route` : `${fmtDur(aDur)} to go`, true);
+  } else {
+    adoptRoute(bRoute);
+    showRerouteChip(`Back on the planned route saves ${fmtSecs(gap)}`,
+      `${fmtDur(bDur)} that way \u00b7 ${fmtDur(aDur)} carrying on where you are`, true);
+  }
+  REROUTE_LAST = { took, aDur, bDur, chose: takeYours ? 'yours' : 'plan', compared: !!(okA && okB) };
+  finish();
+}
+let REROUTE_LAST = null;
 
 function clearRoute() {
   if (NAV.on) exitNav();
@@ -5442,8 +5652,16 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.1.1';
 const CHANGELOG = [
+  { v: '2.1.1', items: [
+    'A properly finished navigation screen: the instruction card floats clear of the edges, stays dark against the map and carries a round manoeuvre glyph',
+    'Round glass controls down the right while you drive \u2014 whole-route view, traffic lights on or off, and report the road ahead',
+    'The ETA sheet is cleaner: a grabber, three plain columns for arrival, time and distance, and one quiet End route',
+    'Take a different road and One Maps no longer drags you back \u2014 it times your way against the planned way and keeps whichever is quicker',
+    'Both routes are costed at once and the whole comparison is capped at three seconds, so the answer lands before the next turn',
+    'It tells you what it chose and by how much, rather than silently redrawing the line',
+    'Report a light, heavy traffic or a blocked road from the driving screen, and the route updates around it'] },
   { v: '2.1.0', items: [
     'The map now loads behind the splash screen \u2014 by the time it lifts you\u2019re already looking at your own street',
     'It opens where you were last, asks for your location before anything else loads, and pulls tiles three times harder',
@@ -7057,6 +7275,7 @@ window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visib
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
   OFF, offlineReady, offlineReroute, downloadRegion, deleteRegion, renderOfflineView, tilesForBounds, inAnyRegion, roadGraph, aStar, nearestNode, setOnlineState, tileTemplate, viewBounds, idbGet, idbPut, idbCount,
+  startNav, exitNav, drawRoutes, prepNavRoute, setEtaBar, updateNavCard, rejoinPoint, spliceOntoPlan, adoptRoute, reroute, showRerouteChip, hideRerouteChip, toggleOverview, reportRoad, REROUTE_BUDGET, REROUTE_TIE, get rerouteLast() { return REROUTE_LAST; },
   beginPlacingLight, commitPlacedLight, PLACING, PLACE_SECS, PLACE_RANGE, confirmUserSignal, freshenSavedAreas, regionAge, tileAge, tileBuf, OFF_FRESH_MS, set3d, get is3d() { return is3d; },
   parseCoords, looksLikeCoords, coordPlace, setPick, savePick, renamePlace, setSaved, renderQuick, renderPlacesView, PLACE_EDIT, MAX_FAVS, trackCard, trackScoreHtml, trackHeadline, followZoom,
   tripSample, tripBegin, trackStop, TRACK, trackSample, trackReset, toggleTrack, renderTrack, TK_BANDS, buildDevReport, downloadDevReport, devData, appSource, parseHours, hoursStatus, fetchPlaceInfo, renderPlaceInfo, streetLabel, wxPenaltyFor, treeStyle,
