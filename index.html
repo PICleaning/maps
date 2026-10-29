@@ -701,19 +701,36 @@ body.navigating #map{top:0}
   opacity:0;transition:opacity .34s var(--ease-in-out),transform .5s var(--ease-soft);will-change:transform,opacity}
 body.navigating .navcard{display:block}
 body.navigating .navcard.in{opacity:1;transform:translateX(-50%) translateY(0)}
-.nav-main{display:flex;gap:14px;align-items:center;padding:15px 18px 15px 15px}
-.nav-arr{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;flex:none;color:#fff}
-.nav-arr svg{width:30px;height:30px}
-.nav-dist{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.nav-main{display:flex;gap:14px;align-items:center;padding:15px 18px 15px 15px;transition:gap .4s var(--ease-soft),padding .4s var(--ease-soft)}
+.nav-arr{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;flex:none;color:#fff;
+  transition:width .4s var(--ease-soft),height .4s var(--ease-soft)}
+.nav-arr svg{width:30px;height:30px;transition:width .4s var(--ease-soft),height .4s var(--ease-soft)}
+.nav-lines{min-width:0;flex:1;display:flex;flex-direction:column;transition:flex-direction .2s}
+.nav-dist{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.4px;font-variant-numeric:tabular-nums;
+  transition:font-size .4s var(--ease-soft)}
 .nav-txt{font-size:15.5px;line-height:1.32;color:rgba(255,255,255,.82);margin-top:1px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  transition:font-size .4s var(--ease-soft)}
 .nav-sig{font-size:12.5px;font-weight:700;background:rgba(255,255,255,.14);color:#fff;border-radius:13px;padding:5px 10px;white-space:nowrap;flex:none}
 .nav-sig:empty{display:none}
 .nav-then{display:flex;gap:9px;align-items:center;padding:10px 18px 11px;background:rgba(255,255,255,.07);
   border-top:1px solid rgba(255,255,255,.1);font-size:13.5px;color:rgba(255,255,255,.88);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-height:46px;opacity:1;transition:max-height .42s var(--ease-soft),opacity .26s var(--ease-in-out),padding .42s var(--ease-soft)}
 .nav-then span{color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.7px;font-size:11px;font-weight:700}
-.nav-grip{width:36px;height:4px;border-radius:99px;background:rgba(255,255,255,.22);margin:0 auto 8px}
+
+/* the small bar you see for most of a trip: one line, just the turn and how far off it is */
+.navcard{max-width:min(540px,calc(100vw - 20px));transition:opacity .34s var(--ease-in-out),transform .5s var(--ease-soft),
+  max-width .46s var(--ease-soft),border-radius .4s var(--ease-soft)}
+.navcard.compact{max-width:min(380px,calc(100vw - 20px));border-radius:30px}
+.navcard.compact .nav-main{padding:8px 16px 8px 8px;gap:10px}
+.navcard.compact .nav-arr{width:38px;height:38px}
+.navcard.compact .nav-arr svg{width:22px;height:22px}
+.navcard.compact .nav-lines{flex-direction:row;align-items:baseline;gap:9px}
+.navcard.compact .nav-dist{font-size:17.5px;line-height:1.25;flex:none}
+.navcard.compact .nav-txt{font-size:14px;margin-top:0;-webkit-line-clamp:1;white-space:nowrap;text-overflow:ellipsis;min-width:0}
+.navcard.compact .nav-then{max-height:0;opacity:0;padding-top:0;padding-bottom:0;border-top-color:transparent}
+.navcard.compact .nav-sig{font-size:11.5px;padding:3px 8px}
 
 /* round glass controls down the right-hand side while you drive */
 .nav-fabs{display:none;flex-direction:column;gap:10px;align-items:flex-end}
@@ -977,6 +994,11 @@ body.wx-open{overflow:hidden}
   .nav-dist{font-size:23px}
   .nav-txt{font-size:14px}
   .nav-then{padding:9px 14px;font-size:12.5px}
+  .navcard.compact .nav-main{padding:7px 13px 7px 7px}
+  .navcard.compact .nav-arr{width:34px;height:34px}
+  .navcard.compact .nav-arr svg{width:20px;height:20px}
+  .navcard.compact .nav-dist{font-size:16px}
+  .navcard.compact .nav-txt{font-size:13px}
   .nav-fab{width:46px;height:46px}
   .nav-fab svg{width:20px;height:20px}
   .route-banner{height:40px;padding:0 5px 0 10px;gap:8px}
@@ -1304,7 +1326,7 @@ try {
 <div class="navcard" id="navcard">
   <div class="nav-main">
     <div class="nav-arr" id="navArr"></div>
-    <div style="min-width:0;flex:1">
+    <div class="nav-lines">
       <div class="nav-dist" id="navDist">—</div>
       <div class="nav-txt" id="navTxt">Waiting for GPS…</div>
     </div>
@@ -5093,6 +5115,8 @@ function startNav(simulate) {
   setCollapsed(true);
   if (!is3d) set3d(true, { animate: false });
   PROG.frac = 0; setProgress(0, true);
+  NAVUI.fast = false; NAVUI.big = false;                    // every trip starts on the slim bar
+  $('#navcard').classList.add('compact');
   updateNavCard(0);
   $('#navTxt').textContent = simulate ? 'Preview drive starting…' : 'Waiting for GPS…';
   const h0 = routeHeading(0);
@@ -5233,6 +5257,30 @@ function setEtaBar(remT, remD) {
   const d = fmtDist(Math.max(0, remD)).split(' ');
   $('#etaKm').innerHTML = `${d[0]}<small>${d[1]}</small>`;
 }
+/* The banner stays a slim bar until the turn is close enough to matter. How close depends on how fast
+   you're going: under 71 km/h that's the last 500 m, at 71 and above it's the last 2 km, because at
+   highway speed 500 m is only a few seconds' warning. Small margins either side stop it flickering. */
+const NAV_NEAR_SLOW = 500, NAV_NEAR_FAST = 2000, NAV_FAST_KMH = 71, NAV_BACK_KMH = 68, NAV_NEAR_HYST = 120;
+const NAVUI = { fast: false, big: false };
+function navKmh() {
+  const f = MOTION.fix;
+  if (f && f.speed != null) return (f.speed * 3.6) / (NAV.simFactor || 1);
+  return SPEEDO.target || 0;
+}
+function navNearRange(kmh) {
+  if (kmh >= NAV_FAST_KMH) NAVUI.fast = true;
+  else if (kmh < NAV_BACK_KMH) NAVUI.fast = false;
+  return NAVUI.fast ? NAV_NEAR_FAST : NAV_NEAR_SLOW;
+}
+function setNavCardSize(dist, force) {
+  const kmh = navKmh(), range = navNearRange(kmh);
+  // once it's open it stays open a little longer than it took to open, so a wobble in speed doesn't flap it
+  const want = force != null ? force : (NAVUI.big ? dist <= range + NAV_NEAR_HYST : dist <= range);
+  if (want === NAVUI.big) return;
+  NAVUI.big = want;
+  $('#navcard').classList.toggle('compact', !want);
+  $('#navThen').setAttribute('aria-hidden', String(!want));   // collapsed means gone, for a screen reader too
+}
 function updateNavCard(along) {
   const r = NAV.route, rem = Math.max(0, NAV.total - along);
   const remT = routeDur(r) * (rem / (NAV.total || 1));
@@ -5248,6 +5296,7 @@ function updateNavCard(along) {
   const then = $('#navThen'), nx = NAV.steps[k + 1];
   if (nx) { then.hidden = false; then.innerHTML = `<span>Then</span>${esc(instruction(nx, k + 1 === NAV.steps.length - 1))}`; }
   else then.hidden = true;
+  setNavCardSize(Math.max(0, NAV.starts[k] - along));
 }
 
 function onPosition(p, heading, speed) {
@@ -5283,6 +5332,7 @@ function onPosition(p, heading, speed) {
     $('#navDist').textContent = 'You have arrived';
     $('#navTxt').textContent = (S.to ? S.to.title : 'Destination') + ' · trip time ' + SW.fmt(SW.elapsed());
     $('#navThen').hidden = true; $('#navSig').textContent = '';
+    setNavCardSize(0, true);
     setEtaBar(0, 0);
     toast('Arrived! Trip time ' + SW.fmt(SW.elapsed()), 5000);
     const card = tripFinish('arrived');
@@ -5655,6 +5705,7 @@ function exploreSelect(x) {
 const APP_VERSION = '2.1.1';
 const CHANGELOG = [
   { v: '2.1.1', items: [
+    'The turn banner rides as a slim bar and only opens up when the turn is close: the last 500 m under 71 km/h, the last 2 km at 71 and above',
     'A properly finished navigation screen: the instruction card floats clear of the edges, stays dark against the map and carries a round manoeuvre glyph',
     'Round glass controls down the right while you drive \u2014 whole-route view, traffic lights on or off, and report the road ahead',
     'The ETA sheet is cleaner: a grabber, three plain columns for arrival, time and distance, and one quiet End route',
@@ -7275,6 +7326,7 @@ window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visib
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
   OFF, offlineReady, offlineReroute, downloadRegion, deleteRegion, renderOfflineView, tilesForBounds, inAnyRegion, roadGraph, aStar, nearestNode, setOnlineState, tileTemplate, viewBounds, idbGet, idbPut, idbCount,
+  setNavCardSize, navNearRange, navKmh, NAVUI, NAV_NEAR_SLOW, NAV_NEAR_FAST, NAV_FAST_KMH,
   startNav, exitNav, drawRoutes, prepNavRoute, setEtaBar, updateNavCard, rejoinPoint, spliceOntoPlan, adoptRoute, reroute, showRerouteChip, hideRerouteChip, toggleOverview, reportRoad, REROUTE_BUDGET, REROUTE_TIE, get rerouteLast() { return REROUTE_LAST; },
   beginPlacingLight, commitPlacedLight, PLACING, PLACE_SECS, PLACE_RANGE, confirmUserSignal, freshenSavedAreas, regionAge, tileAge, tileBuf, OFF_FRESH_MS, set3d, get is3d() { return is3d; },
   parseCoords, looksLikeCoords, coordPlace, setPick, savePick, renamePlace, setSaved, renderQuick, renderPlacesView, PLACE_EDIT, MAX_FAVS, trackCard, trackScoreHtml, trackHeadline, followZoom,
