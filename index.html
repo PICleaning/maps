@@ -45,6 +45,10 @@
   --route-ink:#06210f;
   --route-soft:rgba(34,197,94,.14);
   --amber:#f5b942;
+  --warn-soft:rgba(255,179,64,.12);
+  --warn-line:rgba(255,179,64,.35);
+  --pop:.46s;
+  --spring:cubic-bezier(.34,1.46,.44,1);
   --nav-surface:rgba(28,29,32,.93);
   --sheet:rgba(32,33,36,.94);
   --sheet-ink:#ffffff;
@@ -124,7 +128,29 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 button,.opt,.tg-row,.route-card,.ro-opt,.dr-item,.tab,.mode,.trip-item,.step{transition:background .2s var(--ease-in-out),color .2s var(--ease-in-out),border-color .2s var(--ease-in-out),box-shadow .22s var(--ease-in-out),transform .22s var(--ease-soft)}
-button:active,.dr-item:active,.trip-item:active,.qbtn:active,.place-row .btn:active{transform:scale(.975)}
+button:active,.dr-item:active,.trip-item:active,.qbtn:active,.place-row .btn:active{transform:scale(.97)}
+/* lists arrive in sequence rather than all at once — enough to read as deliberate, not enough to wait for */
+@keyframes listIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.routes .route-card,.trip-item,.place-row,.off-item,.steps .step,.ac.open .ac-item,.wx-day,.tiles .tile{
+  animation:listIn .38s var(--ease-soft) both}
+.routes .route-card:nth-child(2),.trip-item:nth-child(2),.place-row:nth-child(2),.off-item:nth-child(2),
+.steps .step:nth-child(2),.ac.open .ac-item:nth-child(2),.wx-day:nth-child(2),.tiles .tile:nth-child(2){animation-delay:.035s}
+.routes .route-card:nth-child(3),.trip-item:nth-child(3),.place-row:nth-child(3),.off-item:nth-child(3),
+.steps .step:nth-child(3),.ac.open .ac-item:nth-child(3),.wx-day:nth-child(3),.tiles .tile:nth-child(3){animation-delay:.07s}
+.routes .route-card:nth-child(n+4),.trip-item:nth-child(n+4),.place-row:nth-child(n+4),.off-item:nth-child(n+4),
+.steps .step:nth-child(n+4),.ac.open .ac-item:nth-child(n+4),.wx-day:nth-child(n+4),.tiles .tile:nth-child(n+4){animation-delay:.1s}
+/* a card you can press should say so under the finger */
+.route-card,.trip-item,.place-row,.qbtn,.off-item{will-change:transform}
+.route-card:hover,.trip-item:hover{transform:translateY(-1px)}
+.btn{transition:background .2s var(--ease-in-out),border-color .2s var(--ease-in-out),color .2s var(--ease-in-out),transform .22s var(--spring),box-shadow .22s var(--ease-in-out)}
+.btn.primary:hover{box-shadow:0 5px 16px var(--route-soft)}
+.btn:active{transform:scale(.96)}
+.fab,.nav-fab,.menu-btn,.icon-btn{transition:transform .24s var(--spring),background .2s var(--ease-in-out),color .2s var(--ease-in-out),box-shadow .22s var(--ease-in-out)}
+.fab:active,.menu-btn:active,.icon-btn:active{transform:scale(.9)}
+/* inputs settle rather than snap */
+input,select,textarea{transition:border-color .22s var(--ease-in-out),box-shadow .22s var(--ease-in-out),background .22s var(--ease-in-out)}
+/* the toast gets the same spring as everything else */
+.toast{transition:opacity .26s var(--ease-in-out),transform .4s var(--spring)}
 .qbtn,.place-row,.off-item,.ts-row,.tk-row{transition:background .2s var(--ease-in-out),border-color .2s var(--ease-in-out),transform .22s var(--ease-soft)}
 button:active,.opt:active,.tg-row:active,.route-card:active,.ro-opt:active,.mode:active{transform:scale(.985)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
@@ -536,10 +562,10 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .newdot{margin-left:auto;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;background:#ef4444;color:#fff}
 
 /* stop prompt, red-light chip, trip highlights */
-.stop-prompt{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);z-index:66;width:min(380px,calc(100vw - 24px));opacity:0;pointer-events:none;
-  background:var(--card);color:var(--card-ink);border-radius:20px;box-shadow:var(--card-shadow);padding:15px 17px;backdrop-filter:var(--blur);
-  transition:opacity .28s ease,transform .32s cubic-bezier(.22,.9,.28,1)}
-.stop-prompt.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.stop-prompt{position:fixed;left:50%;bottom:36px;transform:translate(-50%,22px) scale(.97);z-index:66;width:min(380px,calc(100vw - 24px));opacity:0;pointer-events:none;
+  background:var(--card);color:var(--card-ink);border-radius:22px;box-shadow:var(--card-shadow);padding:15px 17px;backdrop-filter:var(--blur);
+  transition:opacity .28s var(--ease-in-out),transform .46s var(--spring);will-change:transform,opacity}
+.stop-prompt.show{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto}
 .stop-prompt h4{margin:0 0 4px;font-size:17px}
 .stop-prompt p{margin:0 0 12px;font-size:13px;opacity:.85}
 .stop-prompt .row2{display:flex;gap:8px;flex-wrap:wrap}
@@ -552,6 +578,15 @@ details.inview summary{cursor:pointer;font-size:12px;letter-spacing:.8px;text-tr
 .stop-prompt .small{font-size:12px;opacity:.8;margin:10px 0 0}
 .av-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);margin-bottom:8px;font-size:13px}
 .av-item b{color:var(--strong)}
+/* a heads-up built from your own traffic reports */
+.jam-note{display:flex;gap:11px;align-items:flex-start;margin-top:10px;padding:12px 13px;border-radius:15px;
+  background:var(--warn-soft);border:1px solid var(--warn-line);animation:peIn .34s var(--ease-soft) both}
+.jam-note .ji{font-size:18px;line-height:1.2;flex:none}
+.jam-note .jt{flex:1;min-width:0}
+.jam-note b{display:block;color:var(--strong);font-size:13.5px}
+.jam-note small{display:block;color:var(--muted);font-size:12px;margin-top:2px;line-height:1.45}
+.jam-note .btns{margin-top:10px}
+.jam-note .btn{padding:7px 13px;font-size:12.5px}
 .dev-group{border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
 .dev-head{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:8px 4px;text-align:left}
 .dev-head:hover{color:var(--strong)}
@@ -701,16 +736,17 @@ body.navigating #map{top:0}
   opacity:0;transition:opacity .34s var(--ease-in-out),transform .5s var(--ease-soft);will-change:transform,opacity}
 body.navigating .navcard{display:block}
 body.navigating .navcard.in{opacity:1;transform:translateX(-50%) translateY(0)}
-.nav-main{display:flex;gap:14px;align-items:center;padding:15px 18px 15px 15px;transition:gap .4s var(--ease-soft),padding .4s var(--ease-soft)}
+.nav-main{display:flex;gap:14px;align-items:center;padding:15px 18px 15px 15px;
+  transition:gap var(--pop) var(--spring),padding var(--pop) var(--spring)}
 .nav-arr{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;flex:none;color:#fff;
-  transition:width .4s var(--ease-soft),height .4s var(--ease-soft)}
-.nav-arr svg{width:30px;height:30px;transition:width .4s var(--ease-soft),height .4s var(--ease-soft)}
-.nav-lines{min-width:0;flex:1;display:flex;flex-direction:column;transition:flex-direction .2s}
+  transition:width var(--pop) var(--spring),height var(--pop) var(--spring),background .3s var(--ease-in-out)}
+.nav-arr svg{width:30px;height:30px;transition:width var(--pop) var(--spring),height var(--pop) var(--spring)}
+.nav-lines{min-width:0;flex:1;display:flex;flex-direction:column}
 .nav-dist{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.4px;font-variant-numeric:tabular-nums;
-  transition:font-size .4s var(--ease-soft)}
+  transition:font-size var(--pop) var(--spring)}
 .nav-txt{font-size:15.5px;line-height:1.32;color:rgba(255,255,255,.82);margin-top:1px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  transition:font-size .4s var(--ease-soft)}
+  transition:font-size var(--pop) var(--spring)}
 .nav-sig{font-size:12.5px;font-weight:700;background:rgba(255,255,255,.14);color:#fff;border-radius:13px;padding:5px 10px;white-space:nowrap;flex:none}
 .nav-sig:empty{display:none}
 .nav-then{display:flex;gap:9px;align-items:center;padding:10px 18px 11px;background:rgba(255,255,255,.07);
@@ -719,10 +755,25 @@ body.navigating .navcard.in{opacity:1;transform:translateX(-50%) translateY(0)}
   max-height:46px;opacity:1;transition:max-height .42s var(--ease-soft),opacity .26s var(--ease-in-out),padding .42s var(--ease-soft)}
 .nav-then span{color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.7px;font-size:11px;font-weight:700}
 
-/* the small bar you see for most of a trip: one line, just the turn and how far off it is */
-.navcard{max-width:min(540px,calc(100vw - 20px));transition:opacity .34s var(--ease-in-out),transform .5s var(--ease-soft),
-  max-width .46s var(--ease-soft),border-radius .4s var(--ease-soft)}
+/* The small bar you see for most of a trip. Growing it is a pop, not a resize: the card is anchored to
+   its own top edge so the bar stays put and the rest unfolds downwards out of it, with a touch of
+   overshoot on the way out and a softer settle on the way back in. */
+.navcard{max-width:min(540px,calc(100vw - 20px));transform-origin:50% 0;
+  transition:opacity .34s var(--ease-in-out),transform .5s var(--ease-soft),
+  max-width var(--pop) var(--spring),border-radius var(--pop) var(--spring)}
+body.navigating .navcard.in{animation:navPop var(--pop) var(--spring) both}
+body.navigating .navcard.in.compact{animation:navTuck .42s var(--ease-soft) both}
 .navcard.compact{max-width:min(380px,calc(100vw - 20px));border-radius:30px}
+@keyframes navPop{
+  0%{transform:translateX(-50%) scaleY(.82) scaleX(.97)}
+  58%{transform:translateX(-50%) scaleY(1.035) scaleX(1.006)}
+  100%{transform:translateX(-50%) scale(1)}}
+@keyframes navTuck{
+  0%{transform:translateX(-50%) scaleY(1.1) scaleX(1.01)}
+  100%{transform:translateX(-50%) scale(1)}}
+/* the contents fall in behind the frame rather than appearing with it */
+.navcard .nav-dist,.navcard .nav-txt{transition:font-size var(--pop) var(--spring),opacity .3s var(--ease-in-out)}
+.navcard.swap .nav-dist,.navcard.swap .nav-txt{opacity:.35}
 .navcard.compact .nav-main{padding:8px 16px 8px 8px;gap:10px}
 .navcard.compact .nav-arr{width:38px;height:38px}
 .navcard.compact .nav-arr svg{width:22px;height:22px}
@@ -803,6 +854,19 @@ body.navigating .place-light{bottom:calc(128px + env(safe-area-inset-bottom))}
 .pl-txt b{display:block;font-size:14px;color:var(--strong)}
 .pl-txt small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
 .pl-top .btn{flex:none;padding:8px 15px}
+.pl-pad{display:flex;align-items:center;gap:14px;margin-top:12px}
+.pl-dpad{position:relative;width:102px;height:68px;flex:none}
+.pl-nudge{position:absolute;border:1px solid var(--line);background:var(--panel-2);color:var(--strong);
+  width:32px;height:30px;border-radius:9px;font-size:10px;line-height:1;display:grid;place-items:center;
+  transition:background .16s var(--ease-in-out),transform .16s var(--ease-soft)}
+.pl-nudge:active{background:var(--route);color:var(--route-ink);transform:scale(.9)}
+.pl-nudge.up{left:35px;top:0}
+.pl-nudge.down{left:35px;bottom:0}
+.pl-nudge.left{left:0;top:19px}
+.pl-nudge.right{right:0;top:19px}
+.pl-hub{position:absolute;left:35px;top:19px;width:32px;height:30px;display:grid;place-items:center;
+  font-size:10.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.pl-pad .btn{flex:1;justify-content:center;padding:9px 10px;font-size:12.5px}
 .pl-bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:11px}
 .pl-bar i{display:block;height:100%;width:100%;border-radius:99px;background:var(--route);transform-origin:left;
   transition:transform .25s linear}
@@ -1301,6 +1365,10 @@ try {
       <div id="optUserSignals"></div>
     </div>
     <div class="set-group">
+      <h3>Traffic you've reported</h3>
+      <div id="optJams"></div>
+    </div>
+    <div class="set-group">
       <h3>Roads you're avoiding</h3>
       <div id="optAvoid"></div>
     </div>
@@ -1334,6 +1402,12 @@ try {
   </div>
   <div class="nav-then" id="navThen" hidden></div>
 </div>
+<div class="stop-prompt" id="resumeTrip" role="alertdialog" aria-label="Unfinished trip">
+  <h4>📍 You had a trip running</h4>
+  <p id="resumeTxt"></p>
+  <div class="row2"><button class="yes" id="resumeGo">Pick it back up</button><button class="no jam" id="resumeSave">Save the scorecard</button>
+    <button class="no traffic" id="resumeDrop">Discard</button></div>
+</div>
 <div class="stop-prompt" id="reportSheet" role="alertdialog" aria-label="Report the road ahead">
   <h4>Report the road ahead</h4>
   <p id="reportWhere">Tell One Maps what you can see.</p>
@@ -1357,8 +1431,18 @@ try {
 </button>
 <div class="place-light" id="placeLight" role="status">
   <div class="pl-top"><span class="pl-ico">🚦</span>
-    <div class="pl-txt"><b>Drag the light where it really is</b><small id="plSub">Anywhere within 150 m</small></div>
+    <div class="pl-txt"><b>Put the light where it really is</b><small id="plSub">Drag it, or nudge it with the arrows</small></div>
     <button class="btn primary" id="plDone">Done</button></div>
+  <div class="pl-pad">
+    <div class="pl-dpad">
+      <button class="pl-nudge up" data-nudge="0,1" aria-label="Move north">▲</button>
+      <button class="pl-nudge left" data-nudge="-1,0" aria-label="Move west">◀</button>
+      <button class="pl-nudge right" data-nudge="1,0" aria-label="Move east">▶</button>
+      <button class="pl-nudge down" data-nudge="0,-1" aria-label="Move south">▼</button>
+      <span class="pl-hub" id="plStep">4m</span>
+    </div>
+    <button class="btn ghost" id="plBack">↺ Back to the start</button>
+  </div>
   <div class="pl-bar"><i id="plBar"></i></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -2201,8 +2285,9 @@ function offlineReroute(p) {
   rest.push(NAV.coords[NAV.coords.length - 1]);
   const coords = found.path.concat(rest);
   const restTime = NAV.route && NAV.total ? Math.max(0, routeBase(NAV.route) * (1 - joinAt / NAV.total)) : (NAV.total - joinAt) / 11;
+  const offDist = cumOf(coords).pop();
   const route = {
-    distance: cumOf(coords).pop(), duration: found.time + restTime,
+    distance: offDist, duration: saneDur(offDist, found.time + restTime, navMode()), _mode: navMode(),
     geometry: { type: 'LineString', coordinates: coords },
     legs: [{ steps: localSteps(found.path) }], _offline: true
   };
@@ -2810,7 +2895,13 @@ function renderToggles() {
   renderRealtimeSetting();
   $('#optDevice').innerHTML = toggleRow({ key: 'keepAwake', icon: '📱', label: 'Keep screen awake' }, wakeStatusText(), 'wakeDesc') +
     toggleRow({ key: 'autoLocate', icon: '📍', label: 'Find my location on start' }, 'Centre the map on you when the app opens') +
-    toggleRow(SENSOR_TOGGLE, SENSOR_TOGGLE.desc);
+    toggleRow(SENSOR_TOGGLE, SENSOR_TOGGLE.desc) +
+    `<p class="hint" style="margin:12px 4px 0">\u23f1 <b>While the app is in the background.</b> One Maps keeps counting your trip when you
+      switch to another app, and saves it to this device every few seconds, so a phone that drops the app mid-journey
+      doesn't lose it \u2014 you'll be offered it back next time you open One Maps. What no web app can do is read the
+      GPS once the browser has stopped it, which phones do to save battery. Any stretch handled that way is measured
+      in a straight line and labelled on your scorecard rather than quietly counted. Add One Maps to your home screen
+      and leave <b>Keep screen awake</b> on for the most complete tracking.</p>`;
 }
 function flipToggle(el) {
   const key = el.dataset.toggle;
@@ -3791,6 +3882,7 @@ function renderRoutes() {
     <div class="hint" id="routeSig" style="margin-top:2px"></div>
     <div class="hint" id="routeAvoid" style="margin-top:2px"></div>
     <div class="hint" id="routeTraffic" style="margin-top:2px"></div>
+    <div id="routeJam"></div>
     <div class="hint" id="routeOpts" style="margin-top:2px"></div>
     <div class="hint" id="routeWx" style="margin-top:2px"></div>
     <div class="hint" id="routeSchool" style="margin-top:2px"></div>
@@ -3816,6 +3908,7 @@ function renderRoutes() {
     map.flyTo({ center: s.maneuver.location, zoom: 17, bearing: is3d ? s.maneuver.bearing_after || 0 : 0, pitch: is3d ? 60 : 0, padding: panelPadding(), duration: 1100 });
   });
   updateAvoidInfo();
+  updateJamInfo();
   updateTrafficInfo();
   updateRouteOptsInfo();
   updateWeatherInfo();
@@ -3827,6 +3920,47 @@ function renderRoutes() {
   updateSignalInfo();
   loadRouteSignals(r);
   loadRouteSchools(r);
+}
+
+/* ---- warn before you set off, and offer a way round ---- */
+const JAMUI = { avoiding: false };
+function updateJamInfo() {
+  const box = document.getElementById('routeJam'); if (!box) return;
+  const r = S.routes[S.sel];
+  const w = r && !r.transit ? jamWarning(r, departureTime()) : null;
+  if (!w) { box.innerHTML = ''; JAMUI.avoiding = false; return; }
+  box.innerHTML = `<div class="jam-note"><span class="ji">\ud83d\ude97</span><div class="jt">
+      <b>Might encounter heavy traffic on your route</b>
+      <small>About ${esc(fmtSecs(w.secs))} around ${esc(w.where)} at this time of day, going on what you've reported before. It's your own history, not a live feed \u2014 the road may well be clear today.</small>
+      <div class="btns"><button class="btn primary" id="jamAlt">Find another way</button>
+        <button class="btn ghost" id="jamKeep">Keep this route</button></div>
+    </div></div>`;
+  document.getElementById('jamKeep').onclick = () => { box.innerHTML = ''; toast('Sticking with this route'); };
+  document.getElementById('jamAlt').onclick = () => findJamFreeRoute(w);
+}
+/* route again with every reported jam on the list, so the router has to go round them */
+async function findJamFreeRoute(w) {
+  const btn = document.getElementById('jamAlt');
+  if (btn) { btn.disabled = true; btn.textContent = 'Looking\u2026'; }
+  const added = [];
+  for (const c of w.spots) {                                // temporary entries, cleared again below
+    const a = addAvoid(c.road || 'Reported traffic', [c.lon, c.lat], 'traffic');
+    a._temp = true; added.push(a.id);
+  }
+  saveAvoid();
+  try {
+    JAMUI.avoiding = true;
+    await route();
+    const r = S.routes[S.sel];
+    const left = r ? jamDelay(r, departureTime()) : { secs: 0 };
+    if (left.secs < JAM_MIN_DELAY) toast('Found a way round the traffic you\'ve reported', 4500);
+    else toast('Every route goes past at least one of those spots \u2014 showing the quickest', 5000);
+  } catch (e) {
+    toast('Couldn\'t work out another route just now', 4000);
+  }
+  AVOID = activeAvoid().filter(a => !added.includes(a.id));  // the detour list is yours, not ours to pad
+  saveAvoid();
+  if (btn) { btn.disabled = false; btn.textContent = 'Find another way'; }
 }
 
 /* ================= Traffic lights (OpenStreetMap via Overpass) ================= */
@@ -3935,7 +4069,7 @@ function confirmUserSignal(p) {
 }
 /* ---- after you confirm a light the map didn't know about, you get 20 seconds to put it exactly right ---- */
 const PLACE_SECS = 20, PLACE_RANGE = 150;
-const PLACING = { on: false, u: null, home: null, marker: null, until: 0, raf: 0, onCommit: null };
+const PLACING = { on: false, u: null, home: null, marker: null, until: 0, raf: 0, onCommit: null, wasFollowing: null, stopHold: null };
 function lightMarkerEl() {
   const el = document.createElement('div');
   el.className = 'mk-light';
@@ -3949,6 +4083,8 @@ function beginPlacingLight(u, onCommit) {
   if (PLACING.on) commitPlacedLight();
   PLACING.on = true; PLACING.u = u; PLACING.home = [u.lon, u.lat]; PLACING.onCommit = onCommit || null;
   PLACING.until = performance.now() + PLACE_SECS * 1000;
+  PLACING.wasFollowing = NAV.on ? NAV.follow : null;
+  if (NAV.on) setFollowing(false);                          // the camera has to hold still or you're dragging against it
   document.body.classList.add('placing-light');
   const m = PLACING.marker = new maplibregl.Marker({ element: lightMarkerEl(), draggable: true, anchor: 'bottom' })
     .setLngLat([u.lon, u.lat]).addTo(map);
@@ -3966,7 +4102,9 @@ function beginPlacingLight(u, onCommit) {
   m.on('dragend', () => { const c = m.getLngLat(); livePlace([c.lng, c.lat]); });
   $('#placeLight').classList.add('show');
   const sub = document.getElementById('plSub');
-  if (sub) sub.textContent = 'Drag it anywhere within 150 m';
+  if (sub) sub.textContent = 'Drag it, or nudge it with the arrows';
+  if (PLACING.stopHold) PLACING.stopHold();
+  $('#plStep').textContent = '4m';
   /* bring it into view, close enough to place it accurately, without yanking the camera around */
   try {
     map.easeTo({ center: [u.lon, u.lat], zoom: Math.max(map.getZoom(), 17.2), pitch: 0,
@@ -3998,6 +4136,8 @@ function commitPlacedLight() {
   document.body.classList.remove('placing-light');
   $('#placeLight').classList.remove('show');
   if (PLACING.marker) { PLACING.marker.remove(); PLACING.marker = null; }
+  if (NAV.on && PLACING.wasFollowing !== false && PLACING.wasFollowing != null) followCamera(700);
+  PLACING.wasFollowing = null;
   if (u) {
     saveUserSignals();
     const f = SIG.feats.get('u' + u.id);
@@ -4009,6 +4149,45 @@ function commitPlacedLight() {
   }
   PLACING.u = null; PLACING.home = null; PLACING.onCommit = null;
 }
+/* the arrows, for when a thumb on a moving map isn't precise enough */
+function nudgeLight(ex, ny, metres) {
+  const u = PLACING.u, m = PLACING.marker; if (!u || !m) return;
+  const kx = mLon(u.lat);
+  let lon = u.lon + (ex * metres) / kx, lat = u.lat + (ny * metres) / M_LAT;
+  const d = geoDist(PLACING.home, [lon, lat]);
+  if (d > PLACE_RANGE) {                                    // same leash as dragging
+    const f = PLACE_RANGE / d;
+    lon = PLACING.home[0] + (lon - PLACING.home[0]) * f;
+    lat = PLACING.home[1] + (lat - PLACING.home[1]) * f;
+  }
+  m.setLngLat([lon, lat]);
+  livePlace([lon, lat]);
+  PLACING.until = Math.max(PLACING.until, performance.now() + 6000);
+  const sub = $('#plSub');
+  if (sub) sub.textContent = `${Math.round(geoDist(PLACING.home, [lon, lat]))} m from where you stopped`;
+}
+{
+  let hold = 0, step = 4, dir = null;
+  const stop = () => { clearInterval(hold); hold = 0; step = 4; dir = null; $('#plStep').textContent = '4m'; };
+  const go = () => { if (dir) { nudgeLight(dir[0], dir[1], step); step = Math.min(25, step * 1.35); $('#plStep').textContent = Math.round(step) + 'm'; } };
+  $('#placeLight').addEventListener('pointerdown', e => {
+    const btn = e.target.closest('[data-nudge]'); if (!btn) return;
+    e.preventDefault();
+    dir = btn.dataset.nudge.split(',').map(Number);
+    go();
+    clearInterval(hold);
+    hold = setInterval(go, 140);                            // hold one down and it picks up speed
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => window.addEventListener(ev, stop));
+  PLACING.stopHold = stop;
+}
+$('#plBack').onclick = () => {
+  const m = PLACING.marker; if (!m || !PLACING.home) return;
+  m.setLngLat(PLACING.home.slice());
+  livePlace(PLACING.home.slice());
+  $('#plSub').textContent = 'Back where you stopped';
+  PLACING.until = Math.max(PLACING.until, performance.now() + 6000);
+};
 $('#plDone').onclick = commitPlacedLight;
 
 function renderUserSignalSetting() {
@@ -4016,6 +4195,77 @@ function renderUserSignalSetting() {
   const n = USER_SIGNALS.length;
   box.innerHTML = `<p class="hint" style="margin:0 4px">${n ? `You've confirmed <b>${n}</b> traffic light${n === 1 ? ' that wasn\'t' : 's that weren\'t'} on the map. They're kept on this device for good and used on every trip.` : 'When you confirm that you stopped at a light the map doesn\'t know about, it\'s saved here and used on every future trip.'}</p>`;
 }
+/* ================= Traffic you've reported =================
+   Every "stuck in traffic" is filed with where, which day and what time. Jams keep office hours, so a
+   report only counts against a later trip on the same kind of day, within an hour either side of when
+   you hit it. Once the same stretch and window has cost you five minutes or more, the next trip that
+   way is warned before you set off and offered a way around it. This is your own history, not a live
+   feed, so it tells you what happened before — not what is happening now. */
+const JAM_KEY = 'onemaps.jams', JAM_KEEP_DAYS = 120, JAM_WINDOW_MIN = 60, JAM_MIN_DELAY = 300, JAM_NEAR = 180;
+let JAMS = (() => { try { const l = JSON.parse(localStorage.getItem(JAM_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } })();
+const jamsLive = () => JAMS.filter(j => Date.now() - j.at < JAM_KEEP_DAYS * 86400000);
+function saveJams() { JAMS = jamsLive().slice(-400); try { localStorage.setItem(JAM_KEY, JSON.stringify(JAMS)); } catch (e) {} renderJamSetting(); }
+const minuteOfDay = d => d.getHours() * 60 + d.getMinutes();
+const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
+/* a 24-hour clock wraps, so compare both ways round */
+const minsApart = (a, b) => { const d = Math.abs(a - b); return Math.min(d, 1440 - d); };
+function logJam(c, { road, secs = 0, destKey = '', destName = '' } = {}) {
+  const now = new Date();
+  const j = { id: Date.now(), lat: +c[1].toFixed(5), lon: +c[0].toFixed(5), road: road || '', at: Date.now(),
+    dow: now.getDay(), wknd: isWeekend(now), min: minuteOfDay(now), secs: Math.round(secs), destKey, destName };
+  JAMS.push(j); saveJams();
+  return j;
+}
+/* the jams on this route that match when you'd actually be driving it */
+function jamsOnRoute(r, when) {
+  if (!r || !r.geometry) return [];
+  const t = when instanceof Date ? when : new Date();
+  const mod = minuteOfDay(t), wknd = isWeekend(t);
+  const out = [];
+  for (const j of jamsLive()) {
+    if (j.wknd !== wknd) continue;                          // a Tuesday jam says nothing about a Sunday
+    if (minsApart(j.min, mod) > JAM_WINDOW_MIN) continue;
+    if (projectNear([j.lon, j.lat], r).d > JAM_NEAR) continue;
+    out.push(j);
+  }
+  return out;
+}
+/* several reports at the same corner are one jam, and its cost is the worst you've recorded there */
+function jamClusters(list) {
+  const cl = [];
+  for (const j of list) {
+    const near = cl.find(c => geoDist([c.lon, c.lat], [j.lon, j.lat]) < 250);
+    if (near) { near.n++; near.secs = Math.max(near.secs, j.secs); near.road = near.road || j.road; }
+    else cl.push({ lon: j.lon, lat: j.lat, road: j.road, n: 1, secs: j.secs });
+  }
+  return cl;
+}
+function jamDelay(r, when) {
+  const cl = jamClusters(jamsOnRoute(r, when));
+  // a spot you've been caught at more than once is worth more than a one-off
+  const secs = cl.reduce((a, c) => a + Math.max(c.secs, c.n > 1 ? 180 : 0) * Math.min(1.5, 0.75 + c.n * 0.25), 0);
+  return { secs: Math.round(secs), spots: cl };
+}
+function jamWarning(r, when) {
+  const d = jamDelay(r, when);
+  if (d.secs < JAM_MIN_DELAY) return null;
+  const named = d.spots.filter(c => c.road).map(c => c.road);
+  const where = named.length ? named.slice(0, 2).join(' and ') + (named.length > 2 ? ` and ${named.length - 2} more` : '') : `${d.spots.length} spot${d.spots.length === 1 ? '' : 's'} on this route`;
+  return { secs: d.secs, spots: d.spots, where,
+    text: `Might encounter heavy traffic on your route \u2014 about ${fmtSecs(d.secs)} around ${where} at this time of day, from your own reports.` };
+}
+function renderJamSetting() {
+  const box = document.getElementById('optJams'); if (!box) return;
+  const list = jamsLive();
+  if (!list.length) { box.innerHTML = `<p class="hint" style="margin:0 4px">When you tell One Maps you're stuck in traffic, it's filed here with the day and time. Enough reports on the same stretch and you'll be warned before a later trip that way.</p>`; return; }
+  const cl = jamClusters(list).sort((a, b) => b.n - a.n).slice(0, 12);
+  box.innerHTML = `<p class="hint" style="margin:0 4px 10px">${list.length} report${list.length === 1 ? '' : 's'} over the last ${JAM_KEEP_DAYS} days. They only count against a trip on the same kind of day, within an hour of the same time.</p>` +
+    cl.map(c => `<div class="av-item"><span class="sp"><b>${esc(c.road || 'Unnamed road')}</b><small>${c.n} report${c.n === 1 ? '' : 's'}${c.secs ? ` \u00b7 worst ${fmtSecs(c.secs)}` : ''}</small></span></div>`).join('') +
+    `<button class="btn ghost" id="jamClear" style="margin-top:8px">Clear traffic history</button>`;
+  const btn = document.getElementById('jamClear');
+  if (btn) btn.onclick = () => { JAMS = []; saveJams(); toast('Traffic history cleared'); };
+}
+
 /* ============ Real-time data: optional TomTom key for live traffic ============ */
 const TTKEY = 'onemaps.ttkey';
 const ttKey = () => { try { return localStorage.getItem(TTKEY) || ''; } catch (e) { return ''; } };
@@ -4899,6 +5149,7 @@ function onGpsFix(pos) {
   let v = fuseSpeed(z, sigma, dt);
   if (v < 0.7 || (MSENSE.on && MSENSE.still > 5 && v < 2.5)) v = 0;     // standing still
   GPS.last = { c, t, acc }; GPS.acc = acc; GPS.errs = 0;
+  if (document.hidden) BG.fixesWhileHidden++;               // the browser is still feeding us: keep counting the trip
   SPEEDO.set(v * 3.6);
   SPEEDO.setQuality(acc);
   myLoc = c;
@@ -5033,7 +5284,7 @@ function followCamera(duration = 1000) {
 function recentre() {
   if (NAV.on) { followCamera(900); return; }
   if (MOTION.pos && GPS.watch != null) {
-    map.flyTo({ center: MOTION.pos, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1200, easing: EASE_CAM });
+    map.flyTo({ center: MOTION.pos, zoom: 16.5, pitch: map.getPitch(), padding: panelPadding(), duration: 1200, easing: EASE_CAM });
     return;
   }
   if (!navigator.geolocation) return fallbackRecentre();
@@ -5042,14 +5293,14 @@ function recentre() {
     const c = [pos.coords.longitude, pos.coords.latitude];
     if (!inAus(c)) { toast('Your location is outside Australia'); return fallbackRecentre(); }
     myLoc = c; feedFix(c, pos.coords.heading, null, 0);
-    map.flyTo({ center: c, zoom: 16.5, pitch: is3d ? 58 : 0, padding: panelPadding(), duration: 1400, easing: EASE_CAM });
+    map.flyTo({ center: c, zoom: 16.5, pitch: map.getPitch(), padding: panelPadding(), duration: 1400, easing: EASE_CAM });
   }, () => { toast('Location unavailable — centring on your route'); fallbackRecentre(); }, { enableHighAccuracy: true, timeout: 10000 });
 }
 function fallbackRecentre() {
   const r = S.routes[S.sel];
-  if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); fitView(b, { padding: panelPadding(70), duration: 1200, maxZoom: 16.5 }); }
-  else if (S.place) map.flyTo({ center: S.place.coord, zoom: 16.5, padding: panelPadding(), duration: 1200 });
-  else map.flyTo({ center: MELBOURNE, zoom: 15.6, pitch: is3d ? 58 : 0, duration: 1200, easing: EASE_CAM });
+  if (r) { const b = new maplibregl.LngLatBounds(); r.geometry.coordinates.forEach(c => b.extend(c)); fitView(b, { padding: panelPadding(70), duration: 1200, maxZoom: 16.5, pitch: 0, bearing: 0 }); }
+  else if (S.place) map.flyTo({ center: S.place.coord, zoom: 16.5, pitch: 0, bearing: 0, padding: panelPadding(), duration: 1200, easing: EASE_CAM });
+  else map.flyTo({ center: MELBOURNE, zoom: 15.6, pitch: 0, bearing: 0, duration: 1200, easing: EASE_CAM });
 }
 $('#btnRecentre').onclick = recentre;
 $('#recentrePill').onclick = recentre;
@@ -5096,7 +5347,7 @@ function startNav(simulate) {
   const r = S.routes[S.sel]; if (!r) return;
   stopSim();
   popup?.remove();
-  Object.assign(NAV, { on: true, sim: simulate, simFactor: 1, mode: S.mode, pos: null, anchor: null, arrived: false, offCount: 0, rerouting: false });
+  Object.assign(NAV, { on: true, sim: simulate, simFactor: 1, mode: S.mode, pos: null, anchor: null, arrived: false, offCount: 0, rerouting: false, ignored: 0 });
   prepNavRoute(r);
   NAV.orig = { route: r, coords: NAV.coords.slice(), cum: NAV.cum.slice(), steps: NAV.steps, starts: NAV.starts,
     names: new Set(NAV.steps.map(st => (st.name || '').toLowerCase()).filter(Boolean)) };
@@ -5186,7 +5437,8 @@ function exitNav() {
   if (meMarker && GPS.watch == null) { meMarker.remove(); meMarker = null; resetMotion(); }
   map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   setCollapsed(false);
-  map.easeTo({ pitch: is3d ? 55 : 0, zoom: Math.min(map.getZoom(), 16), duration: 900, easing: EASE_CAM });
+  // the trip is over, so the map goes back to the flat bird's-eye it opens on; your fingers tilt it again
+  map.easeTo({ pitch: 0, bearing: 0, zoom: Math.min(map.getZoom(), 16), duration: 900, easing: EASE_CAM });
   setTimeout(fallbackRecentre, 50);
   setTimeout(updateGoBtn, 0);
 }
@@ -5250,6 +5502,7 @@ function reportRoad(kind) {
 map.on('dragstart', () => { if (overviewOn && NAV.on) { overviewOn = false; $('#navOverview').classList.remove('on'); } });
 
 function setEtaBar(remT, remD) {
+  remT = saneDur(remD, remT, navMode());                    // last guard: what's left still has to be drivable
   $('#etaArrive').textContent = new Date(Date.now() + Math.max(0, remT) * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const mins = Math.max(0, Math.round(remT / 60));
   if (mins >= 60) { $('#etaMin').innerHTML = `${Math.floor(mins / 60)}<small>hr</small> ${mins % 60}`; $('#etaMinK').textContent = 'min'; }
@@ -5261,7 +5514,7 @@ function setEtaBar(remT, remD) {
    you're going: under 71 km/h that's the last 500 m, at 71 and above it's the last 2 km, because at
    highway speed 500 m is only a few seconds' warning. Small margins either side stop it flickering. */
 const NAV_NEAR_SLOW = 500, NAV_NEAR_FAST = 2000, NAV_FAST_KMH = 71, NAV_BACK_KMH = 68, NAV_NEAR_HYST = 120;
-const NAVUI = { fast: false, big: false };
+const NAVUI = { fast: false, big: false, swapT: 0 };
 function navKmh() {
   const f = MOTION.fix;
   if (f && f.speed != null) return (f.speed * 3.6) / (NAV.simFactor || 1);
@@ -5278,7 +5531,13 @@ function setNavCardSize(dist, force) {
   const want = force != null ? force : (NAVUI.big ? dist <= range + NAV_NEAR_HYST : dist <= range);
   if (want === NAVUI.big) return;
   NAVUI.big = want;
-  $('#navcard').classList.toggle('compact', !want);
+  const card = $('#navcard');
+  card.classList.remove('swap');
+  void card.offsetWidth;                                    // restart the pop rather than letting it carry on mid-flight
+  card.classList.toggle('compact', !want);
+  card.classList.add('swap');
+  clearTimeout(NAVUI.swapT);
+  NAVUI.swapT = setTimeout(() => card.classList.remove('swap'), 160);
   $('#navThen').setAttribute('aria-hidden', String(!want));   // collapsed means gone, for a screen reader too
 }
 function updateNavCard(along) {
@@ -5350,6 +5609,7 @@ function onPosition(p, heading, speed) {
    You took a different road. Rather than nagging you back onto the plan, time both ways from where
    you actually are and keep whichever is quicker. The whole comparison is capped at three seconds. */
 const REROUTE_BUDGET = 3000, REROUTE_TIE = 45;              // within 45 s either way is a tie, so nothing changes
+const REROUTE_GIVE_UP = 2;                                  // turn away from the planned route twice and it is dropped
 function showRerouteChip(txt, sub, done) {
   const chip = $('#rrChip');
   $('#rrTxt').innerHTML = `${esc(txt)}${sub ? `<small>${esc(sub)}</small>` : ''}`;
@@ -5381,7 +5641,8 @@ function spliceOntoPlan(leg, join) {
   const planLeft = routeBase(join.plan.route) * Math.max(0, 1 - join.along / (join.total || 1));
   const legSteps = (leg.legs && leg.legs[0] && leg.legs[0].steps ? leg.legs[0].steps : []).filter(st => st.maneuver && st.maneuver.type !== 'arrive');
   const planSteps = (join.plan.steps || []).filter((st, i) => (join.plan.starts || [])[i] >= join.along);
-  return { distance: cumOf(coords).pop(), duration: leg.duration + planLeft,
+  const dist = cumOf(coords).pop();
+  return { distance: dist, duration: saneDur(dist, leg.duration + planLeft, navMode()), _mode: navMode(),
     geometry: { type: 'LineString', coordinates: coords },
     legs: [{ steps: legSteps.concat(planSteps.length ? planSteps : [{ name: '', distance: 0, duration: 0, maneuver: { type: 'arrive', location: coords[coords.length - 1] } }]) }],
     _backOnPlan: true };
@@ -5399,7 +5660,7 @@ function adoptRoute(r, { avoid = null } = {}) {
   MOTION.along = null; MOTION.v = 0;
   loadRouteSignals(r);
 }
-async function reroute(p) {
+async function reroute(p, heading) {
   if (NAV.rerouting) return;
   NAV.rerouting = true;
   const t0 = performance.now();
@@ -5407,11 +5668,18 @@ async function reroute(p) {
   if (!navigator.onLine) {                                   // no signal: stitch a way back from the map on this device
     if (offlineReroute(p)) { showRerouteChip('Re-routed offline', 'From the map saved on this device', true); return finish(); }
   }
-  showRerouteChip('Comparing your road with the planned route…');
+  /* You've now turned off the planned route this many times. After the second, stop arguing: take the
+     way you're pointed and build a fresh route from there, without costing the old plan at all. */
+  NAV.ignored = (NAV.ignored || 0) + 1;
+  const dropPlan = NAV.ignored > REROUTE_GIVE_UP;
+  const h = heading != null ? heading : (MOTION.head != null ? MOTION.head : null);
+  // a point a little way along your heading, so the router starts you off the way you're actually pointing
+  const from = dropPlan && h != null && navKmh() > 8 ? offsetBy(p, h, 60) : p;
+  showRerouteChip(dropPlan ? 'Going your way \u2014 building a new route\u2026' : 'Comparing your road with the planned route\u2026');
   const ctrl = new AbortController();
   const cap = setTimeout(() => ctrl.abort(), REROUTE_BUDGET - 200);
-  const join = rejoinPoint(p);
-  const yourWay = settle(osrmFetch(routeUrlFor(p, S.to.coord, NAV.mode), ctrl.signal, [p, S.to.coord]));
+  const join = dropPlan ? null : rejoinPoint(p);
+  const yourWay = settle(osrmFetch(routeUrlFor(from, S.to.coord, NAV.mode), ctrl.signal, [from, S.to.coord]));
   const backOn = join ? settle(osrmFetch(routeUrlFor(p, join.c, NAV.mode), ctrl.signal, [p, join.c])) : Promise.resolve(null);
   const [ja, jb] = await Promise.all([yourWay, backOn]);     // both at once: the budget is one request, not two
   clearTimeout(cap);
@@ -5430,14 +5698,17 @@ async function reroute(p) {
   const takeYours = !okB || aDur <= bDur + REROUTE_TIE;
   if (takeYours && okA) {
     adoptRoute(ja.routes[pickA.sel], { avoid: pickA });
-    showRerouteChip(okB && gap >= REROUTE_TIE ? `Your way is ${fmtSecs(gap)} quicker` : 'Staying on the road you\'re on',
-      okB ? `${fmtDur(aDur)} this way \u00b7 ${fmtDur(bDur)} back via the planned route` : `${fmtDur(aDur)} to go`, true);
+    if (dropPlan) NAV.ignored = 0;                           // the new route is the plan; the count starts again
+    showRerouteChip(dropPlan ? 'Route rebuilt the way you\'re heading' :
+        (okB && gap >= REROUTE_TIE ? `Your way is ${fmtSecs(gap)} quicker` : 'Staying on the road you\'re on'),
+      dropPlan ? `You've turned off the old one twice, so it's gone \u00b7 ${fmtDur(aDur)} to go`
+               : okB ? `${fmtDur(aDur)} this way \u00b7 ${fmtDur(bDur)} back via the planned route` : `${fmtDur(aDur)} to go`, true);
   } else {
     adoptRoute(bRoute);
     showRerouteChip(`Back on the planned route saves ${fmtSecs(gap)}`,
       `${fmtDur(bDur)} that way \u00b7 ${fmtDur(aDur)} carrying on where you are`, true);
   }
-  REROUTE_LAST = { took, aDur, bDur, chose: takeYours ? 'yours' : 'plan', compared: !!(okA && okB) };
+  REROUTE_LAST = { took, aDur, bDur, chose: takeYours ? 'yours' : 'plan', compared: !!(okA && okB), ignored: NAV.ignored, droppedPlan: dropPlan };
   finish();
 }
 let REROUTE_LAST = null;
@@ -5702,8 +5973,23 @@ function exploreSelect(x) {
 }
 
 /* ================= What's new ================= */
-const APP_VERSION = '2.1.1';
+const APP_VERSION = '2.1.3';
 const CHANGELOG = [
+  { v: '2.1.3', items: [
+    'The turn banner now grows out of the small bar and folds back into it, anchored to its top edge with a little overshoot',
+    'ETAs are checked against the distance \u2014 no more 3 km in a minute; every route is held to a speed the mode can actually average',
+    'Turn off the planned route twice and One Maps drops it for good, building a fresh route from the way you\u2019re pointed',
+    'Every "stuck in traffic" is filed with the road, the day and the time',
+    'Plan the same way again at the same sort of time and you\u2019re told before you set off, with a Find another way button that routes around the spots you reported',
+    'Traffic you\u2019ve reported has its own section in Settings, and appears in the developer report',
+    'A motion pass over the whole app: lists arrive in sequence, buttons and cards answer the finger, and everything settles on one curve'] },
+  { v: '2.1.2', items: [
+    'Arrow controls on the traffic-light bar \u2014 nudge it a few metres at a time instead of fighting a thumb-sized drag, hold one down and it moves faster',
+    'The camera now holds still while you place a light, so the map stops sliding out from under you',
+    'A Back to the start button if you overshoot, and the 20 seconds still stretch while you\u2019re adjusting it',
+    'Your trip keeps counting when you switch to another app, and is saved to this device every few seconds',
+    'If your phone drops One Maps mid-journey, the trip is offered back when you reopen it \u2014 pick it up, keep the scorecard, or discard it',
+    'Any stretch where the browser stopped giving out locations is measured and shown on the scorecard instead of being quietly dropped'] },
   { v: '2.1.1', items: [
     'The turn banner rides as a slim bar and only opens up when the turn is close: the last 500 m under 71 km/h, the last 2 km at 71 and above',
     'A properly finished navigation screen: the instruction card floats clear of the edges, stays dark against the map and carries a round manoeuvre glyph',
@@ -6020,7 +6306,28 @@ function updateLearnedInfo() {
   if (el) el.textContent = learnedNote();
 }
 
-const routeBase = r => (r && (r.duration || 0)) + ((r && r._delay) || 0);
+/* Routers, and our own stitched-together routes, occasionally hand back a duration that simply cannot
+   be true for the distance — 3 km in a minute is 180 km/h. Every duration is therefore squeezed into
+   what the mode can actually average door to door before anything else is built on top of it. */
+const SPEED_BAND = { car: [6, 105], bike: [4.5, 35], foot: [1.8, 8], transit: [4, 90] };   // km/h, slowest and fastest believable average
+const navMode = () => (NAV.on && NAV.mode) || S.mode || 'car';
+function saneDur(dist, dur, mode) {
+  const band = SPEED_BAND[mode] || SPEED_BAND.car;
+  const d = Math.max(0, dur || 0);
+  if (!(dist > 0)) return d;
+  const floor = dist / (band[1] / 3.6);                     // at best you average the top of the band
+  const ceil = dist / (band[0] / 3.6);                      // at worst, the bottom of it
+  return Math.min(ceil, Math.max(floor, d || floor));
+}
+const routeLen = r => (r && (r.distance || (r.geometry && r.geometry.coordinates ? cumOf(r.geometry.coordinates).pop() : 0))) || 0;
+function routeBase(r) {
+  if (!r) return 0;
+  const mode = r._mode || navMode();
+  const raw = (r.duration || 0) + (r._delay || 0);
+  const ok = saneDur(routeLen(r), raw, mode);
+  if (raw > 0 && Math.abs(ok - raw) > 1) r._durFixed = Math.round(raw) + '\u2192' + Math.round(ok);   // visible in the developer report
+  return ok;
+}
 const routeDur = r => { const b = routeBase(r); return b * wxFactor(b) * schoolFactor(r) * learnedFactor(r); };
 async function refreshTraffic(force) {
   const src = map.getSource('traffic'); if (!src) return;
@@ -6527,12 +6834,14 @@ function devData() {
       'TomTom key': ttKey() ? 'set (not shown)' : 'not set',
       'Extra weather place': (wxSavedPlace() && wxSavedPlace().name) || 'none',
       'Connection': navigator.onLine ? 'online' : 'offline',
+      'Traffic reports kept': jamsLive().length,
       'Offline map in use': offlineReady() ? 'yes' : 'no',
       'Time mode': S.timeMode || 'now'
     },
     places: { home: PLACES.home, work: PLACES.work, favs: PLACES.favs },
     signals: USER_SIGNALS.map(u => ({ lat: u.lat, lon: u.lon, confirmed: clock(u.created) })),
     avoid: activeAvoid().map(a => ({ road: a.name, reason: a.kind, until: clock(a.until) })),
+    jams: jamClusters(jamsLive()).map(c => ({ road: c.road || 'Unnamed road', reports: c.n, worst: fmtSecs(c.secs) })),
     offline: OFF.regions.map(r => ({ area: r.name, size: offSpan(r.bounds), tiles: r.tiles,
       megabytes: (r.bytes / 1048576).toFixed(1), zoom: `0\u2013${r.maxz}`, saved: clock(r.at) })),
     etafit: Object.entries(ETAFIT).map(([k, f]) => ({ place: f.name || k, key: k, trips: f.n, late: f.late,
@@ -6594,6 +6903,7 @@ async function buildDevReport() {
 ${d.places.favs && d.places.favs.length ? devTable(d.places.favs.map(f => ({ favourite: f.title, detail: f.sub || '', lat: f.coord[1].toFixed(5), lon: f.coord[0].toFixed(5) }))) : '<p class="none">No favourites saved.</p>'}
 <h2>Traffic lights you confirmed</h2>${devTable(d.signals)}
 <h2>Roads you reported</h2>${devTable(d.avoid)}
+<h2>Traffic you've reported</h2>${devTable(d.jams)}
 <h2>Maps saved for offline use</h2>${devTable(d.offline)}
 <h2>Learnt ETAs</h2>${devTable(d.etafit)}
 <h2>Trip history</h2>${devTable(d.trips)}
@@ -6637,6 +6947,55 @@ $('#devPdf').onclick = downloadDevReport;
 /* ================= Trip scorecards & history ================= */
 const TRIPS_KEY = 'aumaps.trips', TRIP_KEEP_MS = 30 * 24 * 3600 * 1000;
 const TRIP = { rec: null };
+/* ---- carrying on in the background ----
+   A web app can't be given the GPS while it's closed — only a native app gets that. What it can do is
+   keep running while it's merely in the background, and lose nothing if the phone decides to discard it.
+   So: every few seconds the trip in progress is written to this device, fixes that arrive while you're
+   in another app still count, and any stretch the browser wouldn't give us is measured and declared
+   rather than quietly dropped. */
+const LIVE_KEY = 'onemaps.livetrip', LIVE_MAX_AGE = 6 * 3600 * 1000, LIVE_RESUME_MS = 15 * 60 * 1000;
+const BG = { hiddenAt: 0, fixesWhileHidden: 0, lastSeenFix: null, gapT: 0, gapD: 0, worker: null, resumed: null };
+function liveSnapshot() {
+  const R = TRIP.rec;
+  if (!R || !R.startedAt || R.done) return null;
+  const keep = ['id', 'sim', 'mode', 'from', 'to', 'fromAddr', 'plannedDur', 'plannedDist', 'destKey', 'destName',
+    'schools', 'schoolHours', 'startedAt', 'etaAtStart', 'estDur', 'startAlong', 'dist', 'hist', 'max', 'stopT',
+    'passed', 'red', 'userKeys', 'reroutes', 'lastAlong', 'lastKmh', 'redTime', 'traffic', 'confirmed', 'topAt', 'gapT', 'gapD'];
+  const out = { at: Date.now(), elapsed: SW.elapsed(), swRunning: SW.running, track: TRACK.trip };
+  for (const k of keep) out[k] = R[k];
+  out.stops = (R.stops || []).slice(-60);
+  out.path = (R.path || []).slice(-400).map(c => [+c[0].toFixed(6), +c[1].toFixed(6)]);
+  out.spd = (R.spd || []).slice(-300);
+  out.to_coord = S.to && S.to.coord ? S.to.coord : null;
+  out.from_title = S.from ? S.from.title : '';
+  return out;
+}
+/* Only ever writes. Clearing a checkpoint is a decision — the trip finished, or you chose to drop it —
+   never a side effect of a page unload, or closing the app would erase the very thing this is for. */
+function checkpointTrip() {
+  const snap = liveSnapshot();
+  if (!snap) return;
+  try { localStorage.setItem(LIVE_KEY, JSON.stringify(snap)); } catch (e) {}
+}
+const clearCheckpoint = () => { try { localStorage.removeItem(LIVE_KEY); } catch (e) {} };
+function readCheckpoint() {
+  try {
+    const v = JSON.parse(localStorage.getItem(LIVE_KEY) || 'null');
+    if (v && v.at && Date.now() - v.at < LIVE_MAX_AGE && v.startedAt) return v;
+  } catch (e) {}
+  return null;
+}
+/* a worker's timer keeps its rhythm when the page's own timers are throttled to a crawl */
+function startBgHeartbeat() {
+  if (BG.worker) return;
+  try {
+    const src = 'let id=0;onmessage=e=>{clearInterval(id);if(e.data&&e.data.ms)id=setInterval(()=>postMessage(1),e.data.ms);};';
+    BG.worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'application/javascript' })));
+    BG.worker.onmessage = () => { checkpointTrip(); if (document.hidden && SW.running) SW.render(); };
+    BG.worker.postMessage({ ms: 5000 });
+  } catch (e) { BG.worker = null; setInterval(checkpointTrip, 5000); }
+}
+function stopBgHeartbeat() { if (BG.worker) { try { BG.worker.postMessage({ ms: 0 }); } catch (e) {} } }
 const fmtSecs = sec => {
   sec = Math.max(0, Math.round(sec));
   if (sec < 60) return `${sec} s`;
@@ -6676,7 +7035,8 @@ function tripBegin(r) {
     destKey: destKeyOf(S.to && S.to.coord, NAV.mode), destName: S.to ? S.to.title : '',
     schools: r._schools || 0, schoolHours: inSchoolHours(new Date()), startedAt: null, etaAtStart: null, estDur: null, startAlong: 0,
     dist: 0, hist: {}, max: 0, stopT: 0, stopRun: 0, passed: {}, red: {}, userKeys: {}, reroutes: 0, lastT: null, lastP: null, lastAlong: 0, lastKmh: 0, done: false, redTime: 0, traffic: 0,
-    path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0, spd: [], spdLast: null, recent: [], fromAddr: '' };
+    path: [], topAt: null, stops: [], curStop: null, declined: [], confirmed: 0, spd: [], spdLast: null, recent: [], fromAddr: '',
+    gapT: 0, gapD: 0, trafficT: 0, jams: [] };
   TRACK.trip = SET.trackTimer ? newTripTrack() : null;      // only the trips you had it switched on for
   TRACK.last = null; TRACK.arm = {};
   const start = (S.from && S.from.coord) || (NAV.coords && NAV.coords[0]);
@@ -6700,8 +7060,11 @@ function tripSample(p, speedMs, along) {
   const now = performance.now();
   const kmh = Math.max(0, Math.min(MAX_KMH[NAV.mode] || 220, ((speedMs || 0) * 3.6) / (NAV.simFactor || 1)));
   if (R.lastT != null) {
-    const dt = Math.min(5, (now - R.lastT) / 1000);
+    const raw = (now - R.lastT) / 1000;
+    const dt = Math.min(5, raw);                            // a long gap must not poison the speed histogram
+    if (raw > 8 && !NAV.sim) { R.gapT = (R.gapT || 0) + (raw - dt); }   // time the app wasn't being given fixes
     let dd = NAV.sim ? Math.max(0, along - R.lastAlong) : geoDist(R.lastP, p);
+    if (raw > 8 && !NAV.sim && dd > 300) { R.gapD = (R.gapD || 0) + dd; R.dist += dd; dd = 0; }  // straight line across the gap
     if (!NAV.sim && (dd > 300 || (kmh < 2 && dd < 5))) dd = 0;        // ignore GPS jumps and standing-still jitter
     R.dist += dd;
     const v = (R.lastKmh + kmh) / 2, bin = Math.round(v);
@@ -6999,7 +7362,11 @@ $('#stopTraffic').onclick = () => {                            // held up by tra
   cs.kind = 'traffic';
   R.declined.push(cs.ix || cs.c);
   R.traffic = (R.traffic || 0) + 1;
-  toast('Noted — counted as a traffic hold-up, not a red light');
+  const held = cs.t0 ? (performance.now() - cs.t0) / 1000 : 0;
+  R.trafficT = (R.trafficT || 0) + held;                      // time lost to jams, kept apart from red lights
+  const j = logJam(cs.c, { road: roadNameAt(cs.c), secs: held, destKey: R.destKey, destName: R.destName });
+  (R.jams = R.jams || []).push(j.id);
+  toast(`Noted \u2014 ${new Date().toLocaleDateString([], { weekday: 'short' })} ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} on ${j.road || 'this road'} is remembered for next time`, 4500);
 };
 
 function tripFinish(status) {
@@ -7029,6 +7396,8 @@ function tripFinish(status) {
     confirmed: R.confirmed, redTime: R.redTime || 0, traffic: R.traffic || 0,
     topAt: R.topAt, stopsList: R.stops.slice(0, 80), spd: R.spd.slice(0, 450),
     destKey: R.destKey, destName: R.destName, schools: R.schools, schoolHours: R.schoolHours,
+    gapT: Math.round(R.gapT || 0), gapD: Math.round(R.gapD || 0),
+    trafficT: Math.round(R.trafficT || 0), jams: (R.jams || []).slice(),
     track: trackCard(),
     lightsMap: [...new Set([...Object.keys(R.passed), ...Object.keys(R.red)])].map(k => {
       const [la, lo] = k.split(',').map(Number);
@@ -7040,6 +7409,7 @@ function tripFinish(status) {
   const list = tripsAll().filter(t => t.id !== card.id);
   list.unshift(card);
   saveTrips(list.slice(0, 200));
+  clearCheckpoint();
   updateTripCount();
   return card;
 }
@@ -7106,6 +7476,7 @@ function showScore(t) {
     </div>
     ${trackScoreHtml(t)}
     ${t.fit && t.fit.late >= 2 ? `<div class="score-note" style="border-top:0">🧠 You've arrived later than the estimate ${t.fit.late} times going here — future ETAs to ${esc(t.destName || t.to)} now include ${Math.round((Math.min(1.6, t.fit.factor) - 1) * 100)}% extra.</div>` : ''}
+    ${t.gapT > 20 ? `<div class="score-note" style="border-top:0">📱 One Maps was in the background for ${fmtSecs(t.gapT)} of this trip and the browser stopped sending locations. ${t.gapD > 50 ? `The ${fmtDist(t.gapD)} across that stretch is measured in a straight line, so the distance here is a little short of the road.` : 'Nothing was lost.'}</div>` : ''}
     ${t.schools ? `<div class="score-note" style="border-top:0">🏫 ${t.schools} school zone${t.schools === 1 ? '' : 's'} on this route${t.schoolHours ? ' — you drove it in school hours, so 20% was already in your ETA.' : '.'}</div>` : ''}
     <div class="score-note">Red lights are estimated: any stop of 3 seconds or more at a set of traffic lights counts as a red light. Traffic light locations come from OpenStreetMap, so some may be missing.${t.sim ? ' This was a sped-up preview, so times and speeds are illustrative only.' : ''} Scorecards are kept on this device for 30 days.</div>
     <div class="score-foot"><button class="btn primary" id="scoreClose" style="flex:1;justify-content:center">Done</button><button class="btn ghost" id="scoreMap">🗺 Map highlights</button><button class="btn ghost" id="scoreHistory">History</button><button class="btn ghost" id="scoreDelete">Delete</button></div>`;
@@ -7295,17 +7666,94 @@ function releaseWake() {
   setWakeState('idle');
 }
 ['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, gestureWake, { capture: true, passive: true }));
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState !== 'visible' || !SET.keepAwake) return;
-  if (hasNativeWake()) requestWake();
-  else if (WAKE.state === 'fallback') setWakeState('tap');   // video pauses in the background; next tap resumes it
-});
+
+/* ================= leaving the app and coming back ================= */
+function onHidden() {
+  BG.hiddenAt = Date.now();
+  BG.fixesWhileHidden = 0;
+  BG.lastSeenFix = myLoc ? myLoc.slice() : null;
+  checkpointTrip();
+}
+function onVisible() {
+  if (SET.keepAwake) { if (hasNativeWake()) requestWake(); else if (WAKE.state === 'fallback') setWakeState('tap'); }
+  const away = BG.hiddenAt ? Date.now() - BG.hiddenAt : 0;
+  BG.hiddenAt = 0;
+  if (away > 1500) {
+    wakeMotion();                                           // the animation loop stops when you're away
+    if (NAV.on) { updateNavCard(NAV.lastAlong || 0); if (NAV.follow === true) followCamera(600); }
+    SW.render();
+    const R = TRIP.rec;
+    if (R && R.startedAt && !R.done && !NAV.sim) {
+      if (BG.fixesWhileHidden > 0) {
+        toast(`Kept tracking while you were away \u2014 ${BG.fixesWhileHidden} location${BG.fixesWhileHidden === 1 ? '' : 's'} over ${fmtSecs(away / 1000)}`, 4500);
+      } else {
+        R.gapT = (R.gapT || 0) + away / 1000;               // the browser gave us nothing: say so rather than pretend
+        toast(`Your phone paused One Maps for ${fmtSecs(away / 1000)} \u2014 that stretch is estimated`, 5000);
+      }
+    }
+    if (navigator.onLine && offlineReady()) setTimeout(freshenSavedAreas, 3000);
+  }
+  checkpointTrip();
+}
+document.addEventListener('visibilitychange', () => { document.hidden ? onHidden() : onVisible(); });
+window.addEventListener('pagehide', checkpointTrip);
+window.addEventListener('freeze', checkpointTrip);
+window.addEventListener('beforeunload', checkpointTrip);
+startBgHeartbeat();
+
+/* ---- a trip the phone discarded mid-way is offered back when you return ---- */
+function restoreTripRecord(v) {
+  TRIP.rec = Object.assign({}, v, {
+    lastT: null, lastP: null, curStop: null, declined: [], recent: [], spdLast: null, done: false,
+    hist: v.hist || {}, passed: v.passed || {}, red: v.red || {}, userKeys: v.userKeys || {},
+    path: v.path || [], stops: v.stops || [], spd: v.spd || []
+  });
+  TRACK.trip = v.track || null;
+  SW.acc = v.elapsed || 0; SW.started = true; SW.running = false;
+  SW.render();
+}
+function resumeLiveTrip() {
+  const v = readCheckpoint();
+  if (!v) return;
+  BG.resumed = v;
+  const mins = Math.round((Date.now() - v.at) / 60000);
+  const fresh = Date.now() - v.at < LIVE_RESUME_MS;
+  showResumePrompt(v, mins, fresh);
+}
+function showResumePrompt(v, mins, fresh) {
+  const box = $('#resumeTrip');
+  $('#resumeTxt').innerHTML = `Your trip to <b>${esc(v.to || 'your destination')}</b> was still running when One Maps closed` +
+    `${mins > 0 ? `, ${mins} minute${mins === 1 ? '' : 's'} ago` : ''}. ` +
+    `${(v.dist / 1000).toFixed(1)} km and ${SW.fmt(v.elapsed || 0)} were recorded.`;
+  $('#resumeGo').hidden = !fresh;
+  box.classList.add('show');
+}
+function hideResume() { $('#resumeTrip').classList.remove('show'); }
+$('#resumeGo').onclick = () => {
+  const v = BG.resumed; hideResume(); if (!v) return;
+  restoreTripRecord(v);
+  if (v.to_coord) {
+    setWaypoint('to', { title: v.to, coord: v.to_coord });
+    toast('Trip restored \u2014 tap Start when you\'re ready to carry on', 5000);
+    showTab('dir');
+  }
+  clearCheckpoint();
+};
+$('#resumeSave').onclick = () => {
+  const v = BG.resumed; hideResume(); if (!v) return;
+  restoreTripRecord(v);
+  const card = tripFinish('ended');
+  clearCheckpoint();
+  if (card) setTimeout(() => showScore(card), 400);
+};
+$('#resumeDrop').onclick = () => { hideResume(); clearCheckpoint(); TRIP.rec = null; toast('Discarded'); };
 renderToggles();
 applyDisplay();
 requestWake();
 if (SET.autoLocate) autoLocate();
 renderUserSignalSetting();
 renderAvoidSetting();
+renderJamSetting();
 map.on('load', () => applySatellite());
 /* if the imagery can't load (offline, or the provider is down), fall back to the map rather than a blank screen */
 let satFails = 0;
@@ -7317,6 +7765,7 @@ map.on('sourcedata', e => { if (e.sourceId === 'sat' && e.isSourceLoaded) satFai
 addUserSignalsToMap();
 setOnlineState();
 updateOffBadge();
+setTimeout(resumeLiveTrip, 2600);                            // after the splash, so it isn't hidden behind it
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); qIn.focus(); }
@@ -7326,9 +7775,11 @@ window.__maps = { PLACES: () => PLACES, EXPLORE, APP_VERSION, updateGoBtn, visib
   get AVOID() { return AVOID; }, addAvoid, activeAvoid, pickRoute, roadNameAt, maybeAskDetour, answerDetour, showDetourPrompt, skippedAhead, DETOUR, nextIntersection, knownSignalNear,
   MSENSE, SPD, fuseSpeed, resetSpeedFilter, onGpsFix, GPS, applySatellite, ttKey, setTtKey, MAX_KMH, modeMaxMs,
   OFF, offlineReady, offlineReroute, downloadRegion, deleteRegion, renderOfflineView, tilesForBounds, inAnyRegion, roadGraph, aStar, nearestNode, setOnlineState, tileTemplate, viewBounds, idbGet, idbPut, idbCount,
+  JAMS: () => JAMS, logJam, jamsOnRoute, jamClusters, jamDelay, jamWarning, saveJams, JAM_MIN_DELAY, JAM_WINDOW_MIN, minsApart, minuteOfDay,
+  saneDur, routeLen, SPEED_BAND, navMode, checkpointTrip, readCheckpoint, clearCheckpoint, liveSnapshot, resumeLiveTrip, restoreTripRecord, onHidden, onVisible, BG, LIVE_KEY,
   setNavCardSize, navNearRange, navKmh, NAVUI, NAV_NEAR_SLOW, NAV_NEAR_FAST, NAV_FAST_KMH,
-  startNav, exitNav, drawRoutes, prepNavRoute, setEtaBar, updateNavCard, rejoinPoint, spliceOntoPlan, adoptRoute, reroute, showRerouteChip, hideRerouteChip, toggleOverview, reportRoad, REROUTE_BUDGET, REROUTE_TIE, get rerouteLast() { return REROUTE_LAST; },
-  beginPlacingLight, commitPlacedLight, PLACING, PLACE_SECS, PLACE_RANGE, confirmUserSignal, freshenSavedAreas, regionAge, tileAge, tileBuf, OFF_FRESH_MS, set3d, get is3d() { return is3d; },
+  startNav, exitNav, drawRoutes, prepNavRoute, setEtaBar, updateNavCard, REROUTE_GIVE_UP, rejoinPoint, spliceOntoPlan, adoptRoute, reroute, showRerouteChip, hideRerouteChip, toggleOverview, reportRoad, REROUTE_BUDGET, REROUTE_TIE, get rerouteLast() { return REROUTE_LAST; },
+  beginPlacingLight, commitPlacedLight, nudgeLight, PLACING, PLACE_SECS, PLACE_RANGE, confirmUserSignal, freshenSavedAreas, regionAge, tileAge, tileBuf, OFF_FRESH_MS, set3d, get is3d() { return is3d; },
   parseCoords, looksLikeCoords, coordPlace, setPick, savePick, renamePlace, setSaved, renderQuick, renderPlacesView, PLACE_EDIT, MAX_FAVS, trackCard, trackScoreHtml, trackHeadline, followZoom,
   tripSample, tripBegin, trackStop, TRACK, trackSample, trackReset, toggleTrack, renderTrack, TK_BANDS, buildDevReport, downloadDevReport, devData, appSource, parseHours, hoursStatus, fetchPlaceInfo, renderPlaceInfo, streetLabel, wxPenaltyFor, treeStyle,
   WX, loadWeather, wxRisk, wxFactor, schoolFactor, inSchoolHours, schoolNote, loadRouteSchools, departureTime,
